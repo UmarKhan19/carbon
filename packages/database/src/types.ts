@@ -25361,7 +25361,9 @@ export type Database = {
           customFields: Json | null
           id: string
           locationId: string
+          mergeOutput: boolean
           notes: string | null
+          outputLotNumber: string | null
           processId: string
           readableId: string
           status: Database["public"]["Enums"]["jobOperationBatchStatus"]
@@ -25376,7 +25378,9 @@ export type Database = {
           customFields?: Json | null
           id?: string
           locationId: string
+          mergeOutput?: boolean
           notes?: string | null
+          outputLotNumber?: string | null
           processId: string
           readableId: string
           status?: Database["public"]["Enums"]["jobOperationBatchStatus"]
@@ -25391,7 +25395,9 @@ export type Database = {
           customFields?: Json | null
           id?: string
           locationId?: string
+          mergeOutput?: boolean
           notes?: string | null
+          outputLotNumber?: string | null
           processId?: string
           readableId?: string
           status?: Database["public"]["Enums"]["jobOperationBatchStatus"]
@@ -82460,15 +82466,19 @@ export type Database = {
           description: string
           id: string
           itemDescription: string
+          itemId: string
           itemReadableId: string
           jobDueDate: string
           jobId: string
           jobOperationBatchId: string
           jobReadableId: string
           jobStatus: Database["public"]["Enums"]["jobStatus"]
+          lotNumber: string
           materials: Json
           operationQuantity: number
+          requiresBatchTracking: boolean
           status: Database["public"]["Enums"]["jobOperationStatus"]
+          trackedEntityId: string
           workCenterId: string
         }[]
       }
@@ -85041,6 +85051,7 @@ export type Database = {
         | "Inventory Count"
         | "Scrap"
         | "Sales Return Shipment"
+        | "Batch Merge"
       itemLedgerType:
         | "Purchase"
         | "Sale"
@@ -85142,6 +85153,7 @@ export type Database = {
         | "Non-Conformance"
         | "Inbound Inspection"
         | "Scrap"
+        | "Batch Merge"
         | "Card Transaction"
       kanbanOutput: "label" | "qrcode" | "url"
       kanbanReplenishmentSystem: "Buy" | "Make" | "Transfer"
@@ -86467,6 +86479,7 @@ export const Constants = {
         "Inventory Count",
         "Scrap",
         "Sales Return Shipment",
+        "Batch Merge",
       ],
       itemLedgerType: [
         "Purchase",
@@ -86576,6 +86589,7 @@ export const Constants = {
         "Non-Conformance",
         "Inbound Inspection",
         "Scrap",
+        "Batch Merge",
         "Card Transaction",
       ],
       kanbanOutput: ["label", "qrcode", "url"],

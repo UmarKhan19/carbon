@@ -17638,6 +17638,12 @@ export default {
             $ref: "#/parameters/rowFilter.jobOperationBatch.updatedAt"
           },
           {
+            $ref: "#/parameters/rowFilter.jobOperationBatch.mergeOutput"
+          },
+          {
+            $ref: "#/parameters/rowFilter.jobOperationBatch.outputLotNumber"
+          },
+          {
             $ref: "#/parameters/select"
           },
           {
@@ -17736,6 +17742,12 @@ export default {
             $ref: "#/parameters/rowFilter.jobOperationBatch.updatedAt"
           },
           {
+            $ref: "#/parameters/rowFilter.jobOperationBatch.mergeOutput"
+          },
+          {
+            $ref: "#/parameters/rowFilter.jobOperationBatch.outputLotNumber"
+          },
+          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -17786,6 +17798,12 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.jobOperationBatch.updatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.jobOperationBatch.mergeOutput"
+          },
+          {
+            $ref: "#/parameters/rowFilter.jobOperationBatch.outputLotNumber"
           },
           {
             $ref: "#/parameters/body.jobOperationBatch"
@@ -113716,7 +113734,8 @@ export default {
         "locationId",
         "status",
         "createdBy",
-        "createdAt"
+        "createdAt",
+        "mergeOutput"
       ],
       properties: {
         id: {
@@ -113779,6 +113798,15 @@ export default {
         },
         updatedAt: {
           format: "timestamp with time zone",
+          type: "string"
+        },
+        mergeOutput: {
+          default: false,
+          format: "boolean",
+          type: "boolean"
+        },
+        outputLotNumber: {
+          format: "text",
           type: "string"
         }
       },
@@ -115809,7 +115837,8 @@ export default {
             "Inbound Inspection",
             "Inventory Count",
             "Scrap",
-            "Sales Return Shipment"
+            "Sales Return Shipment",
+            "Batch Merge"
           ],
           format: 'public."itemLedgerDocumentType"',
           type: "string"
@@ -120959,7 +120988,8 @@ export default {
             "Inbound Inspection",
             "Inventory Count",
             "Scrap",
-            "Sales Return Shipment"
+            "Sales Return Shipment",
+            "Batch Merge"
           ],
           format: 'public."itemLedgerDocumentType"',
           type: "string"
@@ -121537,6 +121567,7 @@ export default {
             "Non-Conformance",
             "Inbound Inspection",
             "Scrap",
+            "Batch Merge",
             "Card Transaction"
           ],
           format: 'public."journalLineDocumentType"',
@@ -134878,7 +134909,8 @@ export default {
             "Inbound Inspection",
             "Inventory Count",
             "Scrap",
-            "Sales Return Shipment"
+            "Sales Return Shipment",
+            "Batch Merge"
           ],
           format: 'public."itemLedgerDocumentType"',
           type: "string"
@@ -135088,6 +135120,7 @@ export default {
             "Non-Conformance",
             "Inbound Inspection",
             "Scrap",
+            "Batch Merge",
             "Card Transaction"
           ],
           format: 'public."journalLineDocumentType"',
@@ -135274,6 +135307,7 @@ export default {
             "Non-Conformance",
             "Inbound Inspection",
             "Scrap",
+            "Batch Merge",
             "Card Transaction"
           ],
           format: 'public."journalLineDocumentType"',
@@ -159197,6 +159231,18 @@ export default {
     },
     "rowFilter.jobOperationBatch.updatedAt": {
       name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.jobOperationBatch.mergeOutput": {
+      name: "mergeOutput",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.jobOperationBatch.outputLotNumber": {
+      name: "outputLotNumber",
       required: false,
       in: "query",
       type: "string"
