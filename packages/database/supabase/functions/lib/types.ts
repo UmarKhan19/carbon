@@ -82039,6 +82039,14 @@ export type Database = {
         Returns: boolean
       }
       company_today: { Args: { p_company_id: string }; Returns: string }
+      complete_job_remaining_quantities: {
+        Args: {
+          p_job_id: string
+          p_quantity_complete: number
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       complete_job_to_inventory: {
         Args: {
           p_company_id?: string
@@ -84676,6 +84684,14 @@ export type Database = {
       sync_webhook_subscription: {
         Args: { p_new: Json; p_old: Json; p_operation: string; p_table: string }
         Returns: undefined
+      }
+      terminal_job_operations: {
+        Args: { p_job_id: string }
+        Returns: {
+          id: string
+          quantityComplete: number
+          quantityReworked: number
+        }[]
       }
       translateTrialBalance: {
         Args: {
