@@ -3,7 +3,9 @@ import {
   Badge,
   Button,
   Card,
+  CardAction,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
   Drawer,
@@ -1715,16 +1717,6 @@ export default function ChangeNoticeImpactWorkspace({
   const unavailableCandidates = filteredCandidates.filter(isUnavailable);
   const taskCoverageHasWarning = data.taskCoverage.status !== "complete";
   const status = changeNotice?.status ?? data.changeNoticeStatus;
-  const visibleSelectableCandidates = currentCandidates.filter((candidate) =>
-    canSelectChangeNoticeImpactCandidate({
-      candidate,
-      coverageStatus: data.coverage[candidate.targetType].status,
-      taskCoverageStatus: data.taskCoverage.status,
-      changeNoticeStatus: status,
-      canUpdate
-    })
-  );
-  const visibleSelectableCandidateCount = visibleSelectableCandidates.length;
   const selectedCandidates = useMemo(() => {
     const byKey = new Map(
       data.candidates.map((candidate) => [
@@ -1840,56 +1832,59 @@ export default function ChangeNoticeImpactWorkspace({
 
   return (
     <VStack spacing={4} className="mx-auto w-full max-w-[1400px] p-4">
-      <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-start">
-        <div className="min-w-0 flex-1">
-          <Link
-            to={path.to.changeNoticeDetails(id)}
-            className="mb-2 inline-flex items-center gap-1 text-xs text-primary hover:underline"
-          >
-            <LuChevronRight className="size-3 rotate-180" />
-            <Trans>Back to Change Notice</Trans>
-          </Link>
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-xl font-semibold">
-              <Trans>Operational Impact</Trans>
-            </h1>
-            {status && <ChangeNoticeStatus status={status} />}
-          </div>
-          <div className="mt-1 flex flex-wrap gap-x-2 text-sm text-muted-foreground">
-            <span>
-              {changeNotice?.changeOrderId ?? <Trans>Change Notice</Trans>}
-            </span>
-            {changeNotice?.name && <span>· {changeNotice.name}</span>}
-          </div>
-          {status === "Done" && (
-            <div className="mt-2 text-xs text-emerald-700 dark:text-emerald-300">
-              <Trans>
-                Done · Engineering released. Operational assessment remains
-                available.
-              </Trans>
+      <Card className="w-full">
+        <HStack className="w-full items-start justify-between">
+          <CardHeader className="min-w-0 flex-1">
+            <Link
+              to={path.to.changeNoticeDetails(id)}
+              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+            >
+              <LuChevronRight className="size-3 rotate-180" />
+              <Trans>Back to Change Notice</Trans>
+            </Link>
+            <div className="flex flex-wrap items-center gap-2">
+              <CardTitle>
+                <Trans>Operational Impact</Trans>
+              </CardTitle>
+              {status && <ChangeNoticeStatus status={status} />}
             </div>
-          )}
-          {status === "Cancelled" && (
-            <div className="mt-2 text-xs text-amber-700 dark:text-amber-300">
-              <Trans>
-                Cancelled · New Impact assessment is locked. Existing
-                operational follow-up remains available.
-              </Trans>
-            </div>
-          )}
-        </div>
-        <Button
-          type="button"
-          variant="secondary"
-          className="shrink-0 sm:ml-auto"
-          onClick={handleRefresh}
-          isDisabled={isRefreshing}
-          isLoading={isRefreshing}
-        >
-          <LuRefreshCw className="size-3.5" />
-          <Trans>Refresh</Trans>
-        </Button>
-      </div>
+            <CardDescription className="flex flex-wrap gap-x-2">
+              <span>
+                {changeNotice?.changeOrderId ?? <Trans>Change Notice</Trans>}
+              </span>
+              {changeNotice?.name && <span>· {changeNotice.name}</span>}
+            </CardDescription>
+            {status === "Done" && (
+              <CardDescription className="text-emerald-700 dark:text-emerald-300">
+                <Trans>
+                  Done · Engineering released. Operational assessment remains
+                  available.
+                </Trans>
+              </CardDescription>
+            )}
+            {status === "Cancelled" && (
+              <CardDescription className="text-amber-700 dark:text-amber-300">
+                <Trans>
+                  Cancelled · New Impact assessment is locked. Existing
+                  operational follow-up remains available.
+                </Trans>
+              </CardDescription>
+            )}
+          </CardHeader>
+          <CardAction className="shrink-0">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleRefresh}
+              isDisabled={isRefreshing}
+              isLoading={isRefreshing}
+            >
+              <LuRefreshCw className="size-3.5" />
+              <Trans>Refresh</Trans>
+            </Button>
+          </CardAction>
+        </HStack>
+      </Card>
 
       {bulkSuccess && (
         <div
@@ -1982,8 +1977,7 @@ export default function ChangeNoticeImpactWorkspace({
         taskCoverageStatus={data.taskCoverage.status}
       />
 
-      {((canUpdate && visibleSelectableCandidateCount > 0) ||
-        selectedKeys.size > 0) && (
+      {selectedKeys.size > 0 && (
         <section
           aria-label="Bulk Impact selection"
           className="w-full rounded-md border border-border/70 bg-muted/20 px-3 py-2"
@@ -1991,11 +1985,7 @@ export default function ChangeNoticeImpactWorkspace({
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="text-sm">
               <span className="font-medium">
-                {selectedKeys.size === 0 ? (
-                  <Trans>Select eligible rows for a shared decision.</Trans>
-                ) : (
-                  <Trans>{selectedKeys.size} Impact rows selected</Trans>
-                )}
+                <Trans>{selectedKeys.size} Impact rows selected</Trans>
               </span>
               {hasMissingSelectedCandidates && (
                 <div className="text-xs text-amber-700 dark:text-amber-300">

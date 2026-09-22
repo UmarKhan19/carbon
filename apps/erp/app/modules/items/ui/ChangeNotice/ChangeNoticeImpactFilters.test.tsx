@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("@carbon/react", () => ({
+  HStack: () => null
+}));
 vi.mock("@lingui/react/macro", () => ({
   Trans: () => null,
   useLingui: () => ({ t: (strings: TemplateStringsArray) => strings[0] })
