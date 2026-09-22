@@ -19,7 +19,9 @@ import {
 } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import {
+  isPlatformSignupDisabled,
   isSelfSignupBlockedForEmail,
+  PLATFORM_SIGNUP_DISABLED_MESSAGE,
   SELF_SIGNUP_BLOCKED_MESSAGE
 } from "@carbon/auth/self-signup.server";
 import {
@@ -246,6 +248,18 @@ export async function action({ request }: ActionFunctionArgs) {
     return data(
       { success: false, message: "User record not found" },
       await flash(request, error(null, "Failed to sign in"))
+    );
+  } else if (await isPlatformSignupDisabled()) {
+    // Self-hosted with sign-ups switched off: same refusal as Enterprise,
+    // but named — the person can act on "ask for an invitation".
+    logAuthEvent("login_failed", {
+      actor: email,
+      ip,
+      reason: "sign-ups disabled on this instance"
+    });
+    return data(
+      { success: false, message: PLATFORM_SIGNUP_DISABLED_MESSAGE },
+      await flash(request, error(null, PLATFORM_SIGNUP_DISABLED_MESSAGE))
     );
   } else if (isSelfSignupBlockedForEmail(email)) {
     // Cloud self-signup rejects consumer email domains (self-signup-blocked-domains.txt).
