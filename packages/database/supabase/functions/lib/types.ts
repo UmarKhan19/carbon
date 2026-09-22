@@ -6809,6 +6809,13 @@ export type Database = {
             foreignKeyName: "changeOrderImpactDecision_assessedBy_fkey"
             columns: ["assessedBy"]
             isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderImpactDecision_assessedBy_fkey"
+            columns: ["assessedBy"]
+            isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
@@ -6817,13 +6824,6 @@ export type Database = {
             columns: ["assessedBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "changeOrderImpactDecision_assessedBy_fkey"
-            columns: ["assessedBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
@@ -6886,6 +6886,13 @@ export type Database = {
             foreignKeyName: "changeOrderImpactDecision_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderImpactDecision_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
@@ -6894,13 +6901,6 @@ export type Database = {
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "changeOrderImpactDecision_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
@@ -6921,6 +6921,13 @@ export type Database = {
             foreignKeyName: "changeOrderImpactDecision_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderImpactDecision_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
@@ -6929,13 +6936,6 @@ export type Database = {
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "changeOrderImpactDecision_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
@@ -6951,7 +6951,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
-          },
+          }
         ]
       }
       changeOrderImpactDecisionActionTask: {
@@ -7022,6 +7022,13 @@ export type Database = {
             foreignKeyName: "changeOrderImpactDecisionActionTask_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderImpactDecisionActionTask_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
@@ -7030,13 +7037,6 @@ export type Database = {
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "changeOrderImpactDecisionActionTask_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
@@ -7064,6 +7064,13 @@ export type Database = {
             foreignKeyName: "changeOrderImpactDecisionActionTask_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderImpactDecisionActionTask_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
@@ -7072,13 +7079,6 @@ export type Database = {
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "changeOrderImpactDecisionActionTask_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
@@ -7094,7 +7094,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
-          },
+          }
         ]
       }
       changeOrderImpactDecisionAffectedItem: {
@@ -7182,6 +7182,13 @@ export type Database = {
             foreignKeyName: "changeOrderImpactDecisionAffectedItem_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderImpactDecisionAffectedItem_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
@@ -7190,13 +7197,6 @@ export type Database = {
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "changeOrderImpactDecisionAffectedItem_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
@@ -7224,6 +7224,13 @@ export type Database = {
             foreignKeyName: "changeOrderImpactDecisionAffectedItem_endedBy_fkey"
             columns: ["endedBy"]
             isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderImpactDecisionAffectedItem_endedBy_fkey"
+            columns: ["endedBy"]
+            isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
@@ -7232,13 +7239,6 @@ export type Database = {
             columns: ["endedBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "changeOrderImpactDecisionAffectedItem_endedBy_fkey"
-            columns: ["endedBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
@@ -7259,6 +7259,13 @@ export type Database = {
             foreignKeyName: "changeOrderImpactDecisionAffectedItem_startedBy_fkey"
             columns: ["startedBy"]
             isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderImpactDecisionAffectedItem_startedBy_fkey"
+            columns: ["startedBy"]
+            isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
@@ -7267,13 +7274,6 @@ export type Database = {
             columns: ["startedBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "changeOrderImpactDecisionAffectedItem_startedBy_fkey"
-            columns: ["startedBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
@@ -7294,6 +7294,13 @@ export type Database = {
             foreignKeyName: "changeOrderImpactDecisionAffectedItem_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderImpactDecisionAffectedItem_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
@@ -7302,13 +7309,6 @@ export type Database = {
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "changeOrderImpactDecisionAffectedItem_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
@@ -7324,7 +7324,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
-          },
+          }
         ]
       }
       changeOrderImpactDecisionHistory: {
@@ -7430,6 +7430,13 @@ export type Database = {
             foreignKeyName: "changeOrderImpactDecisionHistory_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderImpactDecisionHistory_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
@@ -7438,13 +7445,6 @@ export type Database = {
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "changeOrderImpactDecisionHistory_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
@@ -7472,6 +7472,13 @@ export type Database = {
             foreignKeyName: "changeOrderImpactDecisionHistory_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderImpactDecisionHistory_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
@@ -7480,13 +7487,6 @@ export type Database = {
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "changeOrderImpactDecisionHistory_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
@@ -7502,7 +7502,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
-          },
+          }
         ]
       }
       changeOrderRequiredAction: {
@@ -8679,6 +8679,7 @@ export type Database = {
           gaugeCalibrationExpiredNotificationGroup: string[]
           id: string
           includeMaterialsOnTraveler: boolean
+          includeOperationsOnTraveler: boolean
           incompletePickingListPolicy: string
           inventoryJobCompletedNotificationGroup: string[]
           inventoryShelfLife: Json
@@ -8730,6 +8731,7 @@ export type Database = {
           gaugeCalibrationExpiredNotificationGroup?: string[]
           id: string
           includeMaterialsOnTraveler?: boolean
+          includeOperationsOnTraveler?: boolean
           incompletePickingListPolicy?: string
           inventoryJobCompletedNotificationGroup?: string[]
           inventoryShelfLife?: Json
@@ -8781,6 +8783,7 @@ export type Database = {
           gaugeCalibrationExpiredNotificationGroup?: string[]
           id?: string
           includeMaterialsOnTraveler?: boolean
+          includeOperationsOnTraveler?: boolean
           incompletePickingListPolicy?: string
           inventoryJobCompletedNotificationGroup?: string[]
           inventoryShelfLife?: Json
@@ -54629,6 +54632,24 @@ export type Database = {
           }
         ]
       }
+      scriptRun: {
+        Row: {
+          name: string
+          ranAt: string
+          result: Json | null
+        }
+        Insert: {
+          name: string
+          ranAt?: string
+          result?: Json | null
+        }
+        Update: {
+          name?: string
+          ranAt?: string
+          result?: Json | null
+        }
+        Relationships: []
+      }
       searchIndexRegistry: {
         Row: {
           companyId: string
@@ -70285,7 +70306,6 @@ export type Database = {
           quantityComplete: number | null
           quantityReworked: number | null
           quantityScrapped: number | null
-          readyAt: string | null
           reworkId: string | null
           setupTime: number | null
           setupUnit: Database["public"]["Enums"]["factor"] | null
@@ -70338,7 +70358,6 @@ export type Database = {
           quantityComplete?: number | null
           quantityReworked?: number | null
           quantityScrapped?: number | null
-          readyAt?: string | null
           reworkId?: string | null
           setupTime?: number | null
           setupUnit?: Database["public"]["Enums"]["factor"] | null
@@ -70391,7 +70410,6 @@ export type Database = {
           quantityComplete?: number | null
           quantityReworked?: number | null
           quantityScrapped?: number | null
-          readyAt?: string | null
           reworkId?: string | null
           setupTime?: number | null
           setupUnit?: Database["public"]["Enums"]["factor"] | null
@@ -70714,7 +70732,6 @@ export type Database = {
           quantityComplete: number | null
           quantityReworked: number | null
           quantityScrapped: number | null
-          readyAt: string | null
           reworkId: string | null
           setupTime: number | null
           setupUnit: Database["public"]["Enums"]["factor"] | null
@@ -85918,8 +85935,8 @@ export type Database = {
         | "Non-Conformance"
         | "Inbound Inspection"
         | "Scrap"
-        | "Batch Merge"
         | "Card Transaction"
+        | "Batch Merge"
       kanbanOutput: "label" | "qrcode" | "url"
       kanbanReplenishmentSystem: "Buy" | "Make" | "Transfer"
       macrsConvention: "Half-Year" | "Mid-Quarter"
@@ -87354,8 +87371,8 @@ export const Constants = {
         "Non-Conformance",
         "Inbound Inspection",
         "Scrap",
-        "Batch Merge",
         "Card Transaction",
+        "Batch Merge",
       ],
       kanbanOutput: ["label", "qrcode", "url"],
       kanbanReplenishmentSystem: ["Buy", "Make", "Transfer"],

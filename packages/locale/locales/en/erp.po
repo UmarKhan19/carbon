@@ -1135,6 +1135,9 @@ msgstr "Account Manager"
 msgid "Account Mapping"
 msgstr "Account Mapping"
 
+msgid "Account Name"
+msgstr "Account Name"
+
 msgid "Account Number"
 msgstr "Account Number"
 
@@ -1360,6 +1363,9 @@ msgstr "Add Affected Item"
 
 msgid "Add an extra layer of security by requiring a code from an authenticator app when signing in."
 msgstr "Add an extra layer of security by requiring a code from an authenticator app when signing in."
+
+msgid "Add an operations section that lists each routing operation with its expected times and scan barcodes."
+msgstr "Add an operations section that lists each routing operation with its expected times and scan barcodes."
 
 msgid "Add any notes about your decision..."
 msgstr "Add any notes about your decision..."
@@ -5450,6 +5456,9 @@ msgstr "Deep in the small hours, {name}."
 
 msgid "Default"
 msgstr "Default"
+
+msgid "Default Account"
+msgstr "Default Account"
 
 msgid "Default account for posting sales revenue from invoices"
 msgstr "Default account for posting sales revenue from invoices"
@@ -12397,6 +12406,12 @@ msgstr "Operations"
 msgid "Operations / steps"
 msgstr "Operations / steps"
 
+msgid "Operations are included"
+msgstr "Operations are included"
+
+msgid "Operations are not included"
+msgstr "Operations are not included"
+
 msgid "Operations Type"
 msgstr "Operations Type"
 
@@ -15778,9 +15793,6 @@ msgstr "Select dimension"
 msgid "Select disposition"
 msgstr "Select disposition"
 
-msgid "Select eligible rows for a shared decision."
-msgstr "Select eligible rows for a shared decision."
-
 msgid "Select Employee"
 msgstr "Select Employee"
 
@@ -18252,6 +18264,9 @@ msgstr "The traceable reference (e.g. NIST standard, master gauge serial) the ca
 
 msgid "The traveler lists each item on the bill of materials with its quantity."
 msgstr "The traveler lists each item on the bill of materials with its quantity."
+
+msgid "The traveler lists each routing operation with its expected times and scan barcodes."
+msgstr "The traveler lists each routing operation with its expected times and scan barcodes."
 
 msgid "The type controls which default permissions the new employee receives; selecting it here pre-fills the permission matrix from the type's template."
 msgstr "The type controls which default permissions the new employee receives; selecting it here pre-fills the permission matrix from the type's template."
