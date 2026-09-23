@@ -556,7 +556,7 @@ msgid "A \"must match\" rule on this process blocks these from sharing a batch"
 msgstr "Bu operasyon üzerinde \"eşleşmeli\" kuralı bunların bir partide paylaşılmasını engeller"
 
 msgid "A batch needs at least one operation. To break up the whole batch, use Dissolve instead."
-msgstr "Bir parti en az bir operasyon içermelidir. Partinin tamamını dağıtmak için bunun yerine Dağıt'ı kullanın."
+msgstr ""
 
 msgid "A Carbon-run data migration — you load your own data"
 msgstr "Bir Carbon tarafından yönetilen veri taşıması — kendi verilerinizi yüklersiniz"
@@ -14499,7 +14499,7 @@ msgstr "Kaldır {0}"
 
 #. placeholder {0}: selectedIds.size
 msgid "Remove {0} from batch"
-msgstr "{0} öğeyi partiden kaldır"
+msgstr ""
 
 #. placeholder {0}: removing.jobReadableId ?? "this operation"
 msgid "Remove {0} from this batch? Its operation goes back to the schedule to run on its own."
@@ -14508,7 +14508,7 @@ msgstr "{0} bu partiyi kaldırmak istiyor musunuz? Operasyonu çizelgeye geri d�
 #. placeholder {0}: selectedIds.size
 #. placeholder {1}: batch.readableId
 msgid "Remove {0} of {memberCount} operations from {1}?"
-msgstr "{1} partisindeki {memberCount} operasyondan {0} tanesi kaldırılsın mı?"
+msgstr ""
 
 msgid "Remove {label}"
 msgstr "{label}'i Kaldır"
