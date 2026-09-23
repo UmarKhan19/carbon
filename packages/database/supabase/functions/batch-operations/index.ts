@@ -1099,6 +1099,19 @@ serve(async (req: Request) => {
 
       case "remove": {
         result = await db.transaction().execute(async (trx) => {
+          const batch = await trx
+            .selectFrom("jobOperationBatch")
+            .select("status")
+            .where("id", "=", payload.batchId)
+            .where("companyId", "=", companyId)
+            .forUpdate()
+            .executeTakeFirst();
+          if (!batch) throw new Error("Batch not found");
+          if (batch.status !== "Planned" && batch.status !== "Active") {
+            throw new Error(
+              `Cannot remove operations from a batch with status ${batch.status}`
+            );
+          }
           const batchEvents = await trx
             .selectFrom("productionEvent")
             .select("id")
