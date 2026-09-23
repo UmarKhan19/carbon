@@ -127,10 +127,6 @@ msgstr "{0} lançamentos de diário em rascunho"
 msgid "{0} has no supplier"
 msgstr "{0} não tem fornecedor"
 
-#. placeholder {0}: selectedKeys.size
-msgid "{0} Impact rows selected"
-msgstr "{0} linhas de impacto selecionadas"
-
 #. placeholder {0}: formatter.format(onHand)
 #. placeholder {1}: formatter.format(assembliesInStock)
 #. placeholder {2}: formatter.format( shortfall * consumeFirst.conversionFactor )
@@ -213,6 +209,7 @@ msgid "{0} scrapped"
 msgstr "{0} descartado"
 
 #. placeholder {0}: selected.length
+#. placeholder {0}: selectedKeys.size
 msgid "{0} selected"
 msgstr "{0} selecionados"
 

@@ -127,10 +127,6 @@ msgstr "{0}개의 초안 전표"
 msgid "{0} has no supplier"
 msgstr "{0}에는 공급업체가 없습니다"
 
-#. placeholder {0}: selectedKeys.size
-msgid "{0} Impact rows selected"
-msgstr "영향 행 {0}개가 선택되었습니다"
-
 #. placeholder {0}: formatter.format(onHand)
 #. placeholder {1}: formatter.format(assembliesInStock)
 #. placeholder {2}: formatter.format( shortfall * consumeFirst.conversionFactor )
@@ -213,6 +209,7 @@ msgid "{0} scrapped"
 msgstr "{0} 폐기됨"
 
 #. placeholder {0}: selected.length
+#. placeholder {0}: selectedKeys.size
 msgid "{0} selected"
 msgstr "{0}개 선택됨"
 

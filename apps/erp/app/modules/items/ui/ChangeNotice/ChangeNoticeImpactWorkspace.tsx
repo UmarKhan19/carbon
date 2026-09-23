@@ -15,6 +15,10 @@ import {
   DrawerHeader,
   DrawerTitle,
   HStack,
+  IconButton,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
   VStack
 } from "@carbon/react";
 import { Plural, Trans, useLingui } from "@lingui/react/macro";
@@ -1652,6 +1656,7 @@ export default function ChangeNoticeImpactWorkspace({
   data,
   actions
 }: WorkspaceProps) {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const revalidator = useRevalidator();
   const [params] = useUrlParams();
@@ -1829,6 +1834,66 @@ export default function ChangeNoticeImpactWorkspace({
   const handleTaskMutation = useCallback(() => {
     revalidator.revalidate();
   }, [revalidator]);
+  const selectionContent = (
+    <div
+      role="group"
+      aria-label="Bulk Impact selection"
+      className="ml-auto flex flex-wrap items-center justify-end gap-2"
+    >
+      <span className="text-xs text-muted-foreground tabular-nums">
+        <Trans>{selectedKeys.size} selected</Trans>
+      </span>
+      {selectedKeys.size > 0 && (
+        <>
+          <Button
+            type="button"
+            size="sm"
+            variant="primary"
+            onClick={openBulkDrawer}
+            isDisabled={bulkSelectionBlocked || selectedCandidates.length === 0}
+          >
+            <Trans>Review selected</Trans>
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={clearSelection}
+          >
+            <Trans>Clear selection</Trans>
+          </Button>
+        </>
+      )}
+    </div>
+  );
+  const selectionNotices = selectedKeys.size > 0 && (
+    <div className="space-y-1">
+      {hasMissingSelectedCandidates && (
+        <div className="text-xs text-amber-700 dark:text-amber-300">
+          <Trans>
+            A selected row is no longer readable in the current workspace.
+            Refresh and review the selection.
+          </Trans>
+        </div>
+      )}
+      {hasIneligibleSelectedCandidates && (
+        <div className="text-xs text-amber-700 dark:text-amber-300">
+          <Trans>
+            One or more selected rows are no longer eligible for a bulk
+            assessment. Refresh and review the selection.
+          </Trans>
+        </div>
+      )}
+      {hasNoCommonBulkDecision && (
+        <div className="text-xs text-amber-700 dark:text-amber-300">
+          <Trans>
+            The selected rows do not share an available conclusion. Adjust the
+            selection before reviewing it.
+          </Trans>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <VStack spacing={4} className="mx-auto w-full max-w-[1400px] p-4">
@@ -1842,48 +1907,56 @@ export default function ChangeNoticeImpactWorkspace({
               <LuChevronRight className="size-3 rotate-180" />
               <Trans>Back to Change Notice</Trans>
             </Link>
-            <div className="flex flex-wrap items-center gap-2">
-              <CardTitle>
-                <Trans>Operational Impact</Trans>
-              </CardTitle>
-              {status && <ChangeNoticeStatus status={status} />}
-            </div>
-            <CardDescription className="flex flex-wrap gap-x-2">
-              <span>
-                {changeNotice?.changeOrderId ?? <Trans>Change Notice</Trans>}
-              </span>
-              {changeNotice?.name && <span>· {changeNotice.name}</span>}
-            </CardDescription>
-            {status === "Done" && (
-              <CardDescription className="text-emerald-700 dark:text-emerald-300">
-                <Trans>
-                  Done · Engineering released. Operational assessment remains
-                  available.
-                </Trans>
-              </CardDescription>
-            )}
-            {status === "Cancelled" && (
-              <CardDescription className="text-amber-700 dark:text-amber-300">
-                <Trans>
-                  Cancelled · New Impact assessment is locked. Existing
-                  operational follow-up remains available.
-                </Trans>
-              </CardDescription>
-            )}
           </CardHeader>
           <CardAction className="shrink-0">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleRefresh}
-              isDisabled={isRefreshing}
-              isLoading={isRefreshing}
-            >
-              <LuRefreshCw className="size-3.5" />
-              <Trans>Refresh</Trans>
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <IconButton
+                  type="button"
+                  aria-label={t`Refresh`}
+                  icon={<LuRefreshCw />}
+                  variant="secondary"
+                  onClick={handleRefresh}
+                  isDisabled={isRefreshing}
+                  isLoading={isRefreshing}
+                />
+              </TooltipTrigger>
+              <TooltipContent>
+                <Trans>Refresh</Trans>
+              </TooltipContent>
+            </Tooltip>
           </CardAction>
         </HStack>
+        <CardContent className="gap-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <CardTitle>
+              <Trans>Operational Impact</Trans>
+            </CardTitle>
+            {status && <ChangeNoticeStatus status={status} />}
+          </div>
+          <CardDescription className="flex flex-wrap gap-x-2">
+            <span>
+              {changeNotice?.changeOrderId ?? <Trans>Change Notice</Trans>}
+            </span>
+            {changeNotice?.name && <span>· {changeNotice.name}</span>}
+          </CardDescription>
+          {status === "Done" && (
+            <CardDescription className="text-emerald-700 dark:text-emerald-300">
+              <Trans>
+                Done · Engineering released. Operational assessment remains
+                available.
+              </Trans>
+            </CardDescription>
+          )}
+          {status === "Cancelled" && (
+            <CardDescription className="text-amber-700 dark:text-amber-300">
+              <Trans>
+                Cancelled · New Impact assessment is locked. Existing
+                operational follow-up remains available.
+              </Trans>
+            </CardDescription>
+          )}
+        </CardContent>
       </Card>
 
       {bulkSuccess && (
@@ -1973,155 +2046,97 @@ export default function ChangeNoticeImpactWorkspace({
 
       <CoverageSummary data={data} />
 
-      <ChangeNoticeImpactFilterBar
-        taskCoverageStatus={data.taskCoverage.status}
-      />
-
-      {selectedKeys.size > 0 && (
-        <section
-          aria-label="Bulk Impact selection"
-          className="w-full rounded-md border border-border/70 bg-muted/20 px-3 py-2"
-        >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="text-sm">
-              <span className="font-medium">
-                <Trans>{selectedKeys.size} Impact rows selected</Trans>
-              </span>
-              {hasMissingSelectedCandidates && (
-                <div className="text-xs text-amber-700 dark:text-amber-300">
-                  <Trans>
-                    A selected row is no longer readable in the current
-                    workspace. Refresh and review the selection.
-                  </Trans>
-                </div>
-              )}
-              {hasIneligibleSelectedCandidates && (
-                <div className="text-xs text-amber-700 dark:text-amber-300">
-                  <Trans>
-                    One or more selected rows are no longer eligible for a bulk
-                    assessment. Refresh and review the selection.
-                  </Trans>
-                </div>
-              )}
-              {hasNoCommonBulkDecision && (
-                <div className="text-xs text-amber-700 dark:text-amber-300">
-                  <Trans>
-                    The selected rows do not share an available conclusion.
-                    Adjust the selection before reviewing it.
-                  </Trans>
-                </div>
-              )}
-            </div>
-            {selectedKeys.size > 0 && (
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="primary"
-                  onClick={openBulkDrawer}
-                  isDisabled={
-                    bulkSelectionBlocked || selectedCandidates.length === 0
-                  }
-                >
-                  <Trans>Review selected</Trans>
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  onClick={clearSelection}
-                >
-                  <Trans>Clear selection</Trans>
-                </Button>
-              </div>
+      <section className="w-full space-y-3">
+        <div>
+          <h2 className="text-base font-semibold">
+            <Trans>Current operational exposure</Trans>
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            <Trans>
+              Supported purchasing and production targets that can receive an
+              independent Impact assessment.
+            </Trans>
+          </p>
+        </div>
+        <ChangeNoticeImpactFilterBar
+          taskCoverageStatus={data.taskCoverage.status}
+          selectionContent={selectionContent}
+          selectionNotices={selectionNotices}
+        />
+        {filteredEmptyState ? (
+          <div className="w-full rounded-md border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
+            {filteredEmptyState === "incomplete" ? (
+              <Trans>
+                No matching loaded Impact rows are visible. Coverage is
+                incomplete, so this is not a complete result.
+              </Trans>
+            ) : (
+              <Trans>
+                No Impact rows match the current search and filters.
+              </Trans>
             )}
           </div>
-        </section>
-      )}
-
-      {filteredEmptyState ? (
-        <div className="w-full rounded-md border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
-          {filteredEmptyState === "incomplete" ? (
-            <Trans>
-              No matching loaded Impact rows are visible. Coverage is
-              incomplete, so this is not a complete result.
-            </Trans>
-          ) : (
-            <Trans>No Impact rows match the current search and filters.</Trans>
-          )}
-        </div>
-      ) : (
-        <>
-          {(currentCandidates.length > 0 || !hasDisplayFilters) && (
-            <section className="w-full space-y-3">
-              <div>
-                <h2 className="text-base font-semibold">
-                  <Trans>Current operational exposure</Trans>
-                </h2>
-                <p className="text-xs text-muted-foreground">
-                  <Trans>
-                    Supported purchasing and production targets that can receive
-                    an independent Impact assessment.
-                  </Trans>
-                </p>
-              </div>
-              {currentCandidates.length === 0 ? (
-                <div className="rounded-md border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
-                  {coverageHasWarning ? (
-                    <Trans>No complete current result is available.</Trans>
-                  ) : (
-                    <Trans>No current operational exposure is available.</Trans>
-                  )}
-                </div>
+        ) : (
+          (currentCandidates.length > 0 || !hasDisplayFilters) &&
+          (currentCandidates.length === 0 ? (
+            <div className="rounded-md border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
+              {coverageHasWarning ? (
+                <Trans>No complete current result is available.</Trans>
               ) : (
-                <>
-                  {(currentPurchaseOrderCandidates.length > 0 ||
-                    !hasDisplayFilters) && (
-                    <DocumentGroups
-                      changeNoticeId={id}
-                      candidates={currentPurchaseOrderCandidates}
-                      actions={actions}
-                      coverage={data.coverage}
-                      taskCoverageStatus={data.taskCoverage.status}
-                      changeNoticeStatus={status}
-                      canUpdate={canUpdate}
-                      onRefresh={handleTaskMutation}
-                      onOpenDecision={openDecision}
-                      onOpenHistory={openHistory}
-                      selectionEnabled
-                      selectedKeys={selectedKeys}
-                      onToggleSelection={toggleSelection}
-                      emptyMessage={
-                        <Trans>No Purchase Order lines are available.</Trans>
-                      }
-                    />
-                  )}
-                  {(currentProductionCandidates.length > 0 ||
-                    !hasDisplayFilters) && (
-                    <DocumentGroups
-                      changeNoticeId={id}
-                      candidates={currentProductionCandidates}
-                      actions={actions}
-                      coverage={data.coverage}
-                      taskCoverageStatus={data.taskCoverage.status}
-                      changeNoticeStatus={status}
-                      canUpdate={canUpdate}
-                      onRefresh={handleTaskMutation}
-                      onOpenDecision={openDecision}
-                      onOpenHistory={openHistory}
-                      selectionEnabled
-                      selectedKeys={selectedKeys}
-                      onToggleSelection={toggleSelection}
-                      emptyMessage={
-                        <Trans>No Jobs or Job Materials are available.</Trans>
-                      }
-                    />
-                  )}
-                </>
+                <Trans>No current operational exposure is available.</Trans>
               )}
-            </section>
-          )}
+            </div>
+          ) : (
+            <>
+              {(currentPurchaseOrderCandidates.length > 0 ||
+                !hasDisplayFilters) && (
+                <DocumentGroups
+                  changeNoticeId={id}
+                  candidates={currentPurchaseOrderCandidates}
+                  actions={actions}
+                  coverage={data.coverage}
+                  taskCoverageStatus={data.taskCoverage.status}
+                  changeNoticeStatus={status}
+                  canUpdate={canUpdate}
+                  onRefresh={handleTaskMutation}
+                  onOpenDecision={openDecision}
+                  onOpenHistory={openHistory}
+                  selectionEnabled
+                  selectedKeys={selectedKeys}
+                  onToggleSelection={toggleSelection}
+                  emptyMessage={
+                    <Trans>No Purchase Order lines are available.</Trans>
+                  }
+                />
+              )}
+              {(currentProductionCandidates.length > 0 ||
+                !hasDisplayFilters) && (
+                <DocumentGroups
+                  changeNoticeId={id}
+                  candidates={currentProductionCandidates}
+                  actions={actions}
+                  coverage={data.coverage}
+                  taskCoverageStatus={data.taskCoverage.status}
+                  changeNoticeStatus={status}
+                  canUpdate={canUpdate}
+                  onRefresh={handleTaskMutation}
+                  onOpenDecision={openDecision}
+                  onOpenHistory={openHistory}
+                  selectionEnabled
+                  selectedKeys={selectedKeys}
+                  onToggleSelection={toggleSelection}
+                  emptyMessage={
+                    <Trans>No Jobs or Job Materials are available.</Trans>
+                  }
+                />
+              )}
+            </>
+          ))
+        )}
+      </section>
 
+      {!filteredEmptyState && (
+        <>
           {(historicalCandidates.length > 0 || !hasDisplayFilters) && (
             <section className="w-full space-y-3">
               <div>

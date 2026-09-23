@@ -1,6 +1,6 @@
-import { HStack } from "@carbon/react";
+import { Card, CardContent, HStack } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useMemo } from "react";
+import { type ReactNode, useMemo } from "react";
 import { SearchFilter } from "~/components";
 import { ActiveFilters, Filter } from "~/components/Table/components/Filter";
 import type { ColumnFilter } from "~/components/Table/components/Filter/types";
@@ -281,9 +281,13 @@ export function hasIncompleteImpactTaskFilter(
 }
 
 export function ChangeNoticeImpactFilterBar({
-  taskCoverageStatus
+  taskCoverageStatus,
+  selectionContent,
+  selectionNotices
 }: {
   taskCoverageStatus: TaskCoverageStatus;
+  selectionContent?: ReactNode;
+  selectionNotices?: ReactNode;
 }) {
   const { t } = useLingui();
   const [people] = usePeople();
@@ -411,24 +415,30 @@ export function ChangeNoticeImpactFilterBar({
   );
 
   return (
-    <div className="w-full space-y-2">
-      <HStack className="w-fit">
-        <SearchFilter param="search" size="sm" placeholder={t`Search`} />
-        <Filter filters={filters} />
-      </HStack>
-      {hasFilters && (
-        <div className="min-w-0 max-w-full [&>div]:flex-wrap [&>div]:gap-2 [&>div]:space-x-0">
-          <ActiveFilters filters={filters} />
+    <Card className="w-full">
+      <CardContent className="gap-2 px-4 py-4">
+        <div className="flex w-full flex-wrap items-center justify-between gap-2">
+          <HStack className="shrink-0">
+            <SearchFilter param="search" size="sm" placeholder={t`Search`} />
+            <Filter filters={filters} />
+          </HStack>
+          {selectionContent}
         </div>
-      )}
-      {hasTaskCoverageWarning && (
-        <div className="rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-muted-foreground">
-          <Trans>
-            Task filters use incomplete linked-task metadata. Missing tasks or
-            assignees are not treated as absent.
-          </Trans>
-        </div>
-      )}
-    </div>
+        {hasFilters && (
+          <div className="mt-2 min-w-0 max-w-full [&>div]:flex-wrap [&>div]:gap-2 [&>div]:space-x-0">
+            <ActiveFilters filters={filters} />
+          </div>
+        )}
+        {hasTaskCoverageWarning && (
+          <div className="rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-muted-foreground">
+            <Trans>
+              Task filters use incomplete linked-task metadata. Missing tasks or
+              assignees are not treated as absent.
+            </Trans>
+          </div>
+        )}
+        {selectionNotices}
+      </CardContent>
+    </Card>
   );
 }

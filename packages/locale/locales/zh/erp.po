@@ -127,10 +127,6 @@ msgstr "{0}个草稿凭证"
 msgid "{0} has no supplier"
 msgstr "{0}没有供应商"
 
-#. placeholder {0}: selectedKeys.size
-msgid "{0} Impact rows selected"
-msgstr "已选择 {0} 行影响记录"
-
 #. placeholder {0}: formatter.format(onHand)
 #. placeholder {1}: formatter.format(assembliesInStock)
 #. placeholder {2}: formatter.format( shortfall * consumeFirst.conversionFactor )
@@ -213,6 +209,7 @@ msgid "{0} scrapped"
 msgstr "{0} 报废"
 
 #. placeholder {0}: selected.length
+#. placeholder {0}: selectedKeys.size
 msgid "{0} selected"
 msgstr "{0} 已选择"
 
