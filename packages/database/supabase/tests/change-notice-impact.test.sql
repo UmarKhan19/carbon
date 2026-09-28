@@ -191,7 +191,8 @@ BEGIN
     AND column_ref.attname IN ('relatedActionTaskId', 'relatedAffectedItemId');
   ASSERT v_count = 0, 'history related identifiers must not have live FKs';
 
-  -- Final Carbon four-policy shape: source-aware SELECT plus explicit deny writes.
+  -- Manifest-owned SELECT only: enabled RLS denies all ordinary PostgREST writes
+  -- when no write policy exists. The behavioral checks below also exercise denial.
   SELECT COUNT(*) INTO v_count
   FROM pg_policies
   WHERE schemaname = 'public'
@@ -200,25 +201,8 @@ BEGIN
       'changeOrderImpactDecisionAffectedItem',
       'changeOrderImpactDecisionActionTask',
       'changeOrderImpactDecisionHistory'
-    )
-    AND policyname IN ('SELECT', 'INSERT', 'UPDATE', 'DELETE');
-  ASSERT v_count = 16, 'all four named policies must exist on every Impact table';
-
-  SELECT COUNT(*) INTO v_count
-  FROM pg_policies
-  WHERE schemaname = 'public'
-    AND tablename IN (
-      'changeOrderImpactDecision',
-      'changeOrderImpactDecisionAffectedItem',
-      'changeOrderImpactDecisionActionTask',
-      'changeOrderImpactDecisionHistory'
-    )
-    AND (
-      (policyname = 'INSERT' AND cmd = 'INSERT' AND with_check = 'false')
-      OR (policyname = 'UPDATE' AND cmd = 'UPDATE' AND qual = 'false')
-      OR (policyname = 'DELETE' AND cmd = 'DELETE' AND qual = 'false')
     );
-  ASSERT v_count = 12, 'all Impact writes must be explicit deny policies';
+  ASSERT v_count = 4, 'Impact tables must have only their source-aware SELECT policies';
 
   SELECT COUNT(*) INTO v_count
   FROM pg_policies

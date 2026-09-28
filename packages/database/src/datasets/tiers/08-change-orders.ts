@@ -1,33 +1,17 @@
 import { resolveDate } from "../dates.ts";
+import { bootstrapIdByName } from "../helpers/bootstrap-lookup.ts";
 import { addBomLine, createItem } from "../helpers/items.ts";
-import type { Row } from "../sql.ts";
+import { copyMethodToMethod } from "../helpers/method-copy.ts";
 import {
   insertId,
   insertRow,
   need,
   nextSequence,
   one,
-  quote,
-  rows,
-  sharedColumns
+  RICH,
+  rows
 } from "../sql.ts";
-import type { Ctx, ItemRef } from "../types.ts";
-
-// Columns never copied verbatim when a change notice clones a method's BoM/BoP:
-// the row's own identity, its parent method (the clone's whole point), tenancy +
-// audit (re-stamped by insertRow) and methodMaterial's generated
-// productionQuantity. Everything else comes from sharedColumns, so a migration
-// that adds a column can't silently drop it from the clone.
-const CLONE_EXCLUDE = [
-  "id",
-  "makeMethodId",
-  "companyId",
-  "createdAt",
-  "createdBy",
-  "updatedAt",
-  "updatedBy",
-  "productionQuantity"
-];
+import type { ChangeOrderSpec, Ctx, ItemRef } from "../types.ts";
 
 // The item's current (highest-version) make method — what a change notice clones
 // its draft from, and what the release diff reads as the base.
@@ -45,67 +29,115 @@ async function baseMakeMethod(
   );
 }
 
-/**
- * Copy one method's BoM/BoP onto another (what `copyMakeMethod` does in the app).
- * Operations are cloned first so each material's methodOperationId can be remapped
- * onto the cloned operation. Operation children (steps / parameters / tools) are
- * not copied — no tier writes any.
- */
-async function cloneMethodRows(
+// Assess an actual producing Job, not a hand-written approximation of its
+// snapshot. The same source fields and root method are read by the ERP writer.
+async function seedImpactJob(
   ctx: Ctx,
-  sourceMakeMethodId: string,
-  targetMakeMethodId: string
+  changeNoticeId: string,
+  affectedIds: Map<string, string>,
+  impact: NonNullable<ChangeOrderSpec["impactJobs"]>[number],
+  sortOrder: number
 ): Promise<void> {
-  const operationColumns = await sharedColumns(
+  const jobId = need(ctx.refs.documents, `job:${impact.job}`, "job");
+  const matches = await rows<{
+    sourceItemId: string;
+    affectedItemLabel: string;
+    snapshot: Record<string, unknown>;
+  }>(
     ctx.client,
-    "methodOperation",
-    "methodOperation",
-    CLONE_EXCLUDE
+    `SELECT j."itemId" AS "sourceItemId",
+            COALESCE(i."readableIdWithRevision", i."readableId", i.name)
+              AS "affectedItemLabel",
+            jsonb_build_object(
+              'schema', 'JOB_SNAPSHOT_V1',
+              'jobId', j.id,
+              'itemId', j."itemId",
+              'itemRevision', i.revision,
+              'status', j.status,
+              'plannedQuantity', j.quantity,
+              'completedQuantity', j."quantityComplete",
+              'remainingQuantity', GREATEST(j.quantity - j."quantityComplete", 0),
+              'quantityShipped', j."quantityShipped",
+              'quantityReceivedToInventory', j."quantityReceivedToInventory",
+              'dueDate', j."dueDate"::text,
+              'effectiveMethodId', root.id,
+              'effectiveMethodVersion', root.version,
+              'unitOfMeasureCode', j."unitOfMeasureCode",
+              'eligibilityBasis', 'activeProducingJob'
+            ) AS snapshot
+     FROM job j
+     JOIN item i ON i.id = j."itemId" AND i."companyId" = j."companyId"
+     JOIN "jobMakeMethod" root ON root."jobId" = j.id
+       AND root."companyId" = j."companyId"
+       AND root."itemId" = j."itemId" AND root."parentMaterialId" IS NULL
+     WHERE j.id = $1 AND j."companyId" = $2 AND j.status = 'Ready'`,
+    [jobId, ctx.companyId]
   );
-  const sourceOperations = await rows<Row>(
-    ctx.client,
-    `SELECT "id", ${operationColumns.map(quote).join(", ")}
-     FROM "methodOperation"
-     WHERE "makeMethodId" = $1 AND "companyId" = $2
-     ORDER BY "order"`,
-    [sourceMakeMethodId, ctx.companyId]
-  );
-
-  const operationIds = new Map<string, string>();
-  for (const { id, ...operation } of sourceOperations) {
-    const cloned = await insertId(ctx, "methodOperation", {
-      ...operation,
-      makeMethodId: targetMakeMethodId
-    });
-    operationIds.set(id as string, cloned);
+  const source = matches[0];
+  if (matches.length !== 1 || !source) {
+    throw new Error(`Seed: expected one eligible root for job:${impact.job}`);
   }
-
-  const materialColumns = await sharedColumns(
-    ctx.client,
-    "methodMaterial",
-    "methodMaterial",
-    CLONE_EXCLUDE
-  );
-  const sourceMaterials = await rows<Row>(
-    ctx.client,
-    `SELECT ${materialColumns.map(quote).join(", ")}
-     FROM "methodMaterial"
-     WHERE "makeMethodId" = $1 AND "companyId" = $2
-     ORDER BY "order"`,
-    [sourceMakeMethodId, ctx.companyId]
-  );
-
-  for (const material of sourceMaterials) {
-    const operationId = material.methodOperationId;
-    await insertRow(ctx, "methodMaterial", {
-      ...material,
-      makeMethodId: targetMakeMethodId,
-      methodOperationId:
-        typeof operationId === "string"
-          ? (operationIds.get(operationId) ?? null)
-          : null
-    });
+  const affectedItemId = affectedIds.get(source.sourceItemId);
+  if (!affectedItemId) {
+    throw new Error(
+      `Seed: job:${impact.job} item is not affected by this notice`
+    );
   }
+  const snapshot = JSON.stringify(source.snapshot);
+  const decisionId = await insertId(ctx, "changeOrderImpactDecision", {
+    changeNoticeId,
+    targetType: "job",
+    targetId: jobId,
+    decisionStatus: "Action required",
+    rationale: impact.rationale,
+    assessmentSnapshot: snapshot,
+    assessedBy: ctx.userId
+  });
+  await insertRow(ctx, "changeOrderImpactDecisionAffectedItem", {
+    decisionId,
+    affectedItemId,
+    affectedItemSourceId: source.sourceItemId,
+    affectedItemLabel: source.affectedItemLabel,
+    startedBy: ctx.userId
+  });
+  await insertRow(ctx, "changeOrderImpactDecisionHistory", {
+    decisionId,
+    targetType: "job",
+    targetId: jobId,
+    eventType: "Decision created",
+    newStatus: "Action required",
+    newSnapshot: snapshot,
+    rationale: impact.rationale
+  });
+  await insertRow(ctx, "changeOrderImpactDecisionHistory", {
+    decisionId,
+    targetType: "job",
+    targetId: jobId,
+    eventType: "Provenance started",
+    newStatus: "Action required",
+    newSnapshot: snapshot,
+    rationale: impact.rationale,
+    relatedAffectedItemId: affectedItemId
+  });
+  const taskId = await insertId(ctx, "changeOrderActionTask", {
+    changeOrderId: changeNoticeId,
+    name: impact.taskName,
+    status: "Pending",
+    actionTypeId: null,
+    taskOrigin: "Impact follow-up",
+    sortOrder
+  });
+  await insertRow(ctx, "changeOrderImpactDecisionActionTask", {
+    decisionId,
+    actionTaskId: taskId
+  });
+  await insertRow(ctx, "changeOrderImpactDecisionHistory", {
+    decisionId,
+    targetType: "job",
+    targetId: jobId,
+    eventType: "Task linked",
+    relatedActionTaskId: taskId
+  });
 }
 
 export async function runTier8(ctx: Ctx): Promise<void> {
@@ -119,9 +151,56 @@ export async function runTier8(ctx: Ctx): Promise<void> {
       name: spec.name,
       type: spec.type,
       status: spec.status,
-      openDate: resolveDate(ctx.anchor, spec.openDateOffset)
+      openDate: resolveDate(ctx.anchor, spec.openDateOffset),
+      changeOrderTypeId:
+        spec.changeOrderType === undefined
+          ? undefined
+          : await bootstrapIdByName(
+              ctx,
+              "changeOrderType",
+              spec.changeOrderType
+            ),
+      priority: spec.priority,
+      dueDate:
+        spec.dueDateOffset === undefined
+          ? undefined
+          : resolveDate(ctx.anchor, spec.dueDateOffset),
+      reasonForChange:
+        spec.reasonForChange === undefined
+          ? undefined
+          : RICH(spec.reasonForChange),
+      nonConformanceId:
+        spec.nonConformance === undefined
+          ? undefined
+          : need(ctx.refs.documents, spec.nonConformance, "NCR")
     });
 
+    // Action tasks as setChangeNoticeActionTasks instantiates them from the
+    // required-action templates: template id + name, 1-based sortOrder.
+    for (const [taskIndex, task] of (spec.actionTasks ?? []).entries()) {
+      await insertRow(ctx, "changeOrderActionTask", {
+        changeOrderId: changeOrder,
+        actionTypeId: await bootstrapIdByName(
+          ctx,
+          "changeOrderRequiredAction",
+          task.action
+        ),
+        name: task.action,
+        status: task.status,
+        sortOrder: taskIndex + 1,
+        assignee: task.status === "In Progress" ? ctx.userId : undefined,
+        dueDate:
+          task.dueDateOffset === undefined
+            ? undefined
+            : resolveDate(ctx.anchor, task.dueDateOffset),
+        completedDate:
+          task.completedOffset === undefined
+            ? undefined
+            : resolveDate(ctx.anchor, task.completedOffset)
+      });
+    }
+
+    const affectedIds = new Map<string, string>();
     for (const affected of spec.affectedItems) {
       const item = need(ctx.refs.items, affected.item);
       const base = await baseMakeMethod(ctx, item);
@@ -142,7 +221,7 @@ export async function runTier8(ctx: Ctx): Promise<void> {
             status: "Draft",
             changeOrderId: changeOrder
           });
-          await cloneMethodRows(ctx, base.id, draft);
+          await copyMethodToMethod(ctx, base.id, draft);
           ctx.log(`  ${item.readableId} draft method v${draftVersion}`);
           draftMakeMethodId = draft;
           baseMakeMethodId = base.id;
@@ -164,7 +243,8 @@ export async function runTier8(ctx: Ctx): Promise<void> {
             name: item.name,
             type: "Part",
             replenishment: "Make",
-            standardCost: 0,
+            // A new revision starts at its predecessor's cost.
+            standardCost: item.unitCost,
             unitSalePrice: revisionSpec.unitSalePrice,
             description: revisionSpec.description
           });
@@ -184,7 +264,7 @@ export async function runTier8(ctx: Ctx): Promise<void> {
      WHERE id = $1`,
             [draft, changeOrder, ctx.userId]
           );
-          await cloneMethodRows(ctx, base.id, draft);
+          await copyMethodToMethod(ctx, base.id, draft);
           ctx.log(
             `  ${revisionItem.readableId}.${revisionItem.revision} draft method`
           );
@@ -272,7 +352,7 @@ export async function runTier8(ctx: Ctx): Promise<void> {
         }
       }
 
-      await insertId(ctx, "changeOrderAffectedItem", {
+      const affectedId = await insertId(ctx, "changeOrderAffectedItem", {
         changeOrderId: changeOrder,
         itemId: item.id,
         changeType: affected.changeType,
@@ -290,6 +370,17 @@ export async function runTier8(ctx: Ctx): Promise<void> {
             : resolveDate(ctx.anchor, affected.successorEffectivityOffset),
         sortOrder: affected.sortOrder
       });
+      affectedIds.set(item.id, affectedId);
+    }
+
+    for (const [impactIndex, impact] of (spec.impactJobs ?? []).entries()) {
+      await seedImpactJob(
+        ctx,
+        changeOrder,
+        affectedIds,
+        impact,
+        (spec.actionTasks?.length ?? 0) + impactIndex + 1
+      );
     }
 
     ctx.refs.documents[spec.ref] = changeOrder;
