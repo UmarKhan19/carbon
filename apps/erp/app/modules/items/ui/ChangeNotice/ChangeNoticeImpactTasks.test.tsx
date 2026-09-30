@@ -1,27 +1,84 @@
-import { describe, expect, it, vi } from "vitest";
+import { createElement, type ReactNode } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const harness = vi.hoisted(() => ({
+  states: [] as unknown[],
+  stateIndex: 0,
+  linkDefaults: undefined as Record<string, unknown> | undefined,
+  selectPlaceholder: undefined as string | undefined,
+  selectChange: undefined as
+    | ((option: { value: string } | null) => void)
+    | undefined,
+  submitDisabled: undefined as boolean | undefined
+}));
+
+// Match the server-rendered composer tests while retaining each state slot
+// between renders, so the link modal's initial selection can be exercised.
+vi.mock("react", async (importOriginal) => {
+  const react = await importOriginal<typeof import("react")>();
+  return {
+    ...react,
+    useState: (seed: unknown) => {
+      const index = harness.stateIndex++;
+      if (!(index in harness.states)) {
+        harness.states[index] =
+          typeof seed === "function" ? (seed as () => unknown)() : seed;
+      }
+      return [
+        harness.states[index],
+        (value: unknown) => {
+          harness.states[index] =
+            typeof value === "function"
+              ? (value as (previous: unknown) => unknown)(harness.states[index])
+              : value;
+        }
+      ];
+    }
+  };
+});
 
 vi.mock("@carbon/auth", () => ({
   useCarbon: () => ({ carbon: null })
 }));
-vi.mock("@carbon/form", () => ({ ValidatedForm: () => null }));
-vi.mock("@carbon/react", () => ({
-  Badge: () => null,
-  Button: () => null,
-  Drawer: () => null,
-  DrawerBody: () => null,
-  DrawerContent: () => null,
-  DrawerFooter: () => null,
-  DrawerHeader: () => null,
-  DrawerTitle: () => null,
-  HStack: () => null,
-  Label: () => null,
-  VStack: () => null
+vi.mock("@carbon/form", () => ({
+  ValidatedForm: (props: {
+    children?: ReactNode;
+    defaultValues?: Record<string, unknown>;
+  }) => {
+    harness.linkDefaults = props.defaultValues;
+    return createElement("form", null, props.children);
+  }
 }));
+vi.mock("@carbon/react", () => {
+  const Box = (props: { children?: ReactNode }) =>
+    createElement("div", null, props.children);
+  return {
+    Badge: Box,
+    Button: Box,
+    HStack: Box,
+    Label: Box,
+    Modal: Box,
+    ModalBody: Box,
+    ModalContent: Box,
+    ModalFooter: Box,
+    ModalHeader: Box,
+    ModalTitle: Box,
+    VStack: Box,
+    toast: { error: vi.fn() }
+  };
+});
 vi.mock("@carbon/react/Editor", () => ({ Editor: () => null }));
 vi.mock("@carbon/utils", () => ({ formatDate: vi.fn() }));
 vi.mock("@lingui/react/macro", () => ({
-  Trans: () => null,
-  useLingui: () => ({ t: (value: string) => value })
+  Trans: (props: { children?: ReactNode }) => props.children,
+  useLingui: () => ({
+    t: (parts: TemplateStringsArray, ...values: unknown[]) =>
+      parts.reduce(
+        (text, part, index) => text + part + (values[index] ?? ""),
+        ""
+      )
+  })
 }));
 vi.mock("@react-aria/i18n", () => ({ useLocale: () => ({ locale: "en-US" }) }));
 vi.mock("react-icons/lu", () => ({
@@ -38,8 +95,21 @@ vi.mock("~/components/Form", () => ({
   Employee: () => null,
   Hidden: () => null,
   Input: () => null,
-  Select: () => null,
-  Submit: () => null
+  Select: (props: {
+    placeholder?: string;
+    onChange?: (option: { value: string } | null) => void;
+  }) => {
+    harness.selectPlaceholder = props.placeholder;
+    harness.selectChange = props.onChange;
+    return null;
+  },
+  Submit: (props: { isDisabled?: boolean }) => {
+    harness.submitDisabled = props.isDisabled;
+    return createElement("button", {
+      disabled: !!props.isDisabled,
+      type: "submit"
+    });
+  }
 }));
 vi.mock("~/hooks", () => ({
   usePermissions: () => ({ can: () => true }),
@@ -47,15 +117,21 @@ vi.mock("~/hooks", () => ({
 }));
 vi.mock("~/utils/path", () => ({
   getPrivateUrl: vi.fn(),
-  path: { to: {} }
+  path: {
+    to: {
+      changeNoticeImpactTaskCreate: (id: string) =>
+        `/x/change-notice/${id}/impact/task`,
+      changeNoticeImpactTaskLink: (id: string) =>
+        `/x/change-notice/${id}/impact/task/link`
+    }
+  }
 }));
 vi.mock("./ChangeNoticeActionTaskItem", () => ({
   ChangeNoticeActionTaskItem: () => null
 }));
 
-const { getChangeNoticeImpactTaskControls } = await import(
-  "./ChangeNoticeImpactTasks"
-);
+const { ChangeNoticeImpactTasks, getChangeNoticeImpactTaskControls } =
+  await import("./ChangeNoticeImpactTasks");
 
 function makeCandidate(overrides: Record<string, unknown> = {}) {
   return {
@@ -263,5 +339,51 @@ describe("Change Notice Impact task controls", () => {
     expect(restricted.canDesignate(linkFor(ordinaryTask))).toBe(false);
     expect(readOnly.canCreate).toBe(false);
     expect(readOnly.canLink).toBe(false);
+  });
+});
+
+function renderTasks() {
+  harness.stateIndex = 0;
+  return renderToStaticMarkup(
+    createElement(ChangeNoticeImpactTasks, {
+      changeNoticeId: "cn-1",
+      changeNoticeStatus: "Implementation",
+      candidate: actionRequiredCandidate(),
+      actions: [ordinaryTask],
+      canUpdate: true,
+      taskCoverageStatus: "complete",
+      onRefresh: () => undefined
+    })
+  );
+}
+
+describe("Change Notice Impact link task picker", () => {
+  beforeEach(() => {
+    harness.states = [];
+    harness.stateIndex = 0;
+    harness.linkDefaults = undefined;
+    harness.selectPlaceholder = undefined;
+    harness.selectChange = undefined;
+    harness.submitDisabled = undefined;
+  });
+
+  it("opens without an implicit task selection", () => {
+    // Seed the workspace's createOpen/linkOpen state so the link modal mounts.
+    harness.states = [false, true];
+    renderTasks();
+
+    expect(harness.linkDefaults?.actionTaskId).toBeUndefined();
+    expect(harness.selectPlaceholder).toBe("Select Task");
+    expect(harness.submitDisabled).toBe(true);
+  });
+
+  it("enables Link Task only after a task is chosen", () => {
+    harness.states = [false, true];
+    renderTasks();
+
+    harness.selectChange?.({ value: "task-ordinary" });
+    renderTasks();
+
+    expect(harness.submitDisabled).toBe(false);
   });
 });

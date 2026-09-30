@@ -1711,6 +1711,9 @@ msgstr "고급"
 msgid "Affected item"
 msgstr "영향을 받는 품목"
 
+msgid "Affected Item"
+msgstr "영향을 받는 품목"
+
 msgid "Affected item details unavailable."
 msgstr "영향을 받는 품목 세부 정보를 사용할 수 없습니다."
 
@@ -1771,9 +1774,6 @@ msgstr "감사 대상 개체에 대한 모든 변경 사항이 기록되고 있�
 
 msgid "All Companies"
 msgstr "모든 회사"
-
-msgid "All complete"
-msgstr "모두 완료"
 
 msgid "All Customers"
 msgstr "모든 고객"
@@ -2758,14 +2758,8 @@ msgstr "조립:"
 msgid "Assess"
 msgstr "평가"
 
-msgid "Assess operational impact"
+msgid "Assess Operational Impact"
 msgstr "운영 영향 평가"
-
-msgid "Assessment coverage"
-msgstr "평가 범위"
-
-msgid "Assessment coverage needs attention"
-msgstr "평가 범위에 주의가 필요합니다"
 
 msgid "Assessment created"
 msgstr "평가가 생성되었습니다"
@@ -2782,10 +2776,10 @@ msgstr "평가가 다시 열렸습니다"
 msgid "Assessment resolved"
 msgstr "평가가 해결되었습니다"
 
-msgid "Assessment snapshot"
+msgid "Assessment Snapshot"
 msgstr "평가 스냅샷"
 
-msgid "Assessment snapshot · changed"
+msgid "Assessment Snapshot · Changed"
 msgstr "평가 스냅샷 · 변경됨"
 
 msgid "Asset"
@@ -3611,8 +3605,8 @@ msgstr "용량 예약"
 msgid "Caption"
 msgstr "캡션"
 
-msgid "Captured snapshot"
-msgstr "캡처된 스냅샷"
+msgid "Captured Snapshot"
+msgstr "저장된 스냅샷"
 
 msgid "Carbon"
 msgstr "Carbon"
@@ -3919,6 +3913,9 @@ msgstr "검색 쿼리 지우기"
 msgid "Clear selection"
 msgstr "선택 해제"
 
+msgid "Clear Selection"
+msgstr "선택 해제"
+
 msgid "Clear value"
 msgstr "값 지우기"
 
@@ -3991,11 +3988,11 @@ msgstr "마감"
 msgid "Closure blocked"
 msgstr "마감 차단됨"
 
-msgid "Closure evidence"
-msgstr "종결 근거"
+msgid "Closure Evidence"
+msgstr "종결 증빙"
 
-msgid "Closure evidence for every selected target"
-msgstr "선택한 모든 대상의 종결 근거"
+msgid "Closure Evidence for Every Selected Target"
+msgstr "선택한 모든 대상에 대한 종결 증빙"
 
 msgid "Cloud, or your self-hosted environment."
 msgstr "클라우드 또는 자체 호스팅 환경."
@@ -4187,8 +4184,8 @@ msgstr "결론"
 msgid "Conclusion corrected"
 msgstr "결론 수정됨"
 
-msgid "Conclusion for every selected target"
-msgstr "선택한 모든 대상의 결론"
+msgid "Conclusion for Every Selected Target"
+msgstr "선택한 모든 대상에 대한 결론"
 
 msgid "Condensed P&L with margins and key subtotals"
 msgstr "마진 및 주요 소계를 포함한 축약 손익계산"
@@ -4328,11 +4325,11 @@ msgstr "재고 실사 확인"
 msgid "Confirm Mapping"
 msgstr "매핑 확인"
 
-msgid "Confirm no purchasing intervention remains"
-msgstr "구매 개입 사항이 더 이상 남아 있지 않은지 확인"
+msgid "Confirm No Purchasing Intervention Remains"
+msgstr "구매 개입이 더 이상 남아 있지 않음을 확인"
 
-msgid "Confirm no purchasing intervention remains for every selected target"
-msgstr "선택한 모든 대상에 대해 구매 개입 사항이 더 이상 남아 있지 않은지 확인"
+msgid "Confirm No Purchasing Intervention Remains for Every Selected Target"
+msgstr "선택한 모든 대상에 대해 구매 개입이 더 이상 남아 있지 않음을 확인"
 
 msgid "Confirm Password"
 msgstr "비밀번호 확인"
@@ -4730,8 +4727,8 @@ msgstr "수정"
 msgid "Correction {correctionNumber}"
 msgstr "수정 {correctionNumber}"
 
-msgid "Correction rationale"
-msgstr "수정 사유"
+msgid "Correction Rationale"
+msgstr "수정 판단 근거"
 
 msgid "Corrections"
 msgstr "수정"
@@ -4955,13 +4952,13 @@ msgstr "배치 생성"
 msgid "Create Change Notice"
 msgstr "변경 통지 생성"
 
-msgid "Create follow-up"
+msgid "Create Follow-Up"
 msgstr "후속 조치 생성"
 
 msgid "Create Forecast"
 msgstr "예측 생성"
 
-msgid "Create Impact follow-up"
+msgid "Create Impact Follow-Up"
 msgstr "영향 후속 조치 생성"
 
 msgid "Create Issue"
@@ -5006,7 +5003,7 @@ msgstr "규칙 생성"
 msgid "Create Supplier Return"
 msgstr "공급업체 반품 생성"
 
-msgid "Create task"
+msgid "Create Task"
 msgstr "작업 생성"
 
 msgid "Create Transfer"
@@ -5258,16 +5255,19 @@ msgstr "현재"
 msgid "Current"
 msgstr "현재"
 
-msgid "Current cause"
+msgid "Current Cause"
 msgstr "현재 원인"
 
-msgid "Current conclusion"
+msgid "Current Conclusion"
 msgstr "현재 결론"
 
 msgid "Current Net Book Value:"
 msgstr "현재 순장부가액:"
 
 msgid "Current operational exposure"
+msgstr "현재 운영상 노출"
+
+msgid "Current Operational Exposure"
 msgstr "현재 운영상 노출"
 
 msgid "Current Password"
@@ -5291,7 +5291,7 @@ msgstr "저장된 평가 이후 현재 원본 정보가 변경되었습니다. �
 msgid "Current source facts had changed since the prior assessment."
 msgstr "이전 평가 이후 원본 정보가 변경되었습니다."
 
-msgid "Current state"
+msgid "Current State"
 msgstr "현재 상태"
 
 msgid "Custom"
@@ -8399,11 +8399,11 @@ msgstr "플래그"
 msgid "Follow-up for"
 msgstr "후속 조치 대상"
 
-msgid "Follow-up rationale"
-msgstr "후속 조치 사유"
+msgid "Follow-Up Rationale"
+msgstr "후속 조치 판단 근거"
 
-msgid "Follow-up rationale for every selected target"
-msgstr "선택한 각 대상에 대한 후속 조치 사유"
+msgid "Follow-Up Rationale for Every Selected Target"
+msgstr "선택한 모든 대상에 대한 후속 조치 판단 근거"
 
 msgid "for anything. They'll pull in the right person."
 msgstr "무엇이든지요. 적임자를 연결해 드립니다."
@@ -8898,7 +8898,7 @@ msgstr "높음"
 msgid "Hints in the first row"
 msgstr "첫 번째 행의 힌트"
 
-msgid "Historical causes"
+msgid "Historical Causes"
 msgstr "과거 원인"
 
 msgid "Historical data older than what's on the Data Migration Map"
@@ -8913,7 +8913,7 @@ msgstr "역사적 환율(자본)"
 msgid "Historical reference"
 msgstr "과거 참조"
 
-msgid "Historical references"
+msgid "Historical References"
 msgstr "과거 참조"
 
 msgid "History"
@@ -9210,7 +9210,7 @@ msgstr "영향 이벤트"
 msgid "Impact follow-up"
 msgstr "영향 후속 조치"
 
-msgid "Impact history"
+msgid "Impact History"
 msgstr "영향 이력"
 
 msgid "Impact task could not be created."
@@ -9375,9 +9375,6 @@ msgstr "간접 자재 및 서비스"
 
 msgid "Indirect Materials & Services (default)"
 msgstr "간접 자재 및 서비스(기본값)"
-
-msgid "Informational context only"
-msgstr "정보 제공용 문맥입니다."
 
 msgid "Infrastructure"
 msgstr "인프라"
@@ -9931,7 +9928,7 @@ msgstr "작업 우선순위"
 msgid "Job readable"
 msgstr "작업 가독성"
 
-msgid "Job status"
+msgid "Job Status"
 msgstr "작업 지시 상태"
 
 msgid "Job Traveler"
@@ -10337,7 +10334,7 @@ msgstr "발주서 연결"
 msgid "Link a sales order"
 msgstr "판매 주문 연결"
 
-msgid "Link existing task"
+msgid "Link Existing Task"
 msgstr "기존 작업 연결"
 
 msgid "Link Jira Issue"
@@ -10349,7 +10346,7 @@ msgstr "Linear 이슈 연결"
 msgid "link outside company"
 msgstr "회사 외부 링크"
 
-msgid "Link task"
+msgid "Link Task"
 msgstr "작업 연결"
 
 msgid "Link this Carbon customer to one of them, or create a separate Stripe customer."
@@ -10372,7 +10369,7 @@ msgstr "연결된 구매주문"
 msgid "Linked task coverage is incomplete. Decision state is independent of task status."
 msgstr "연결된 작업 범위가 불완전합니다. 결정 상태는 작업 상태와 무관합니다."
 
-msgid "Linked tasks"
+msgid "Linked Tasks"
 msgstr "연결된 작업"
 
 msgid "Linked tasks must be Completed or Skipped."
@@ -11437,8 +11434,8 @@ msgstr "신규 필드"
 msgid "New Fixed Asset"
 msgstr "신규 고정자산"
 
-msgid "New follow-up rationale"
-msgstr "새 후속 조치 사유"
+msgid "New Follow-Up Rationale"
+msgstr "새 후속 조치 판단 근거"
 
 msgid "New Gauge"
 msgstr "신규 계측기"
@@ -11984,6 +11981,9 @@ msgstr "매핑할 라인이 없습니다"
 msgid "No lines yet"
 msgstr "아직 줄이 없습니다"
 
+msgid "No linked task."
+msgstr "연결된 작업이 없습니다."
+
 msgid "No list variables available upstream."
 msgstr "업스트림에서 사용 가능한 목록 변수가 없습니다."
 
@@ -12234,9 +12234,6 @@ msgstr "아직 공급업체가 없습니다"
 msgid "No sync operations yet"
 msgstr "아직 동기화된 공정이 없습니다"
 
-msgid "No task linked. Keep a written rationale describing the follow-up path."
-msgstr "연결된 작업이 없습니다. 후속 조치 경로를 설명하는 사유를 문서로 남기세요."
-
 msgid "No time entries for this week"
 msgstr "이번 주 시간 기록이 없습니다"
 
@@ -12288,10 +12285,10 @@ msgstr "이 사업장에 작업장이 없습니다"
 msgid "No work centers exist"
 msgstr "존재하는 작업장이 없습니다"
 
-msgid "No-action reason"
+msgid "No-Action Reason"
 msgstr "미조치 사유"
 
-msgid "No-action reason for every selected target"
+msgid "No-Action Reason for Every Selected Target"
 msgstr "선택한 모든 대상에 대한 미조치 사유"
 
 msgid "No, build in place"
@@ -12709,7 +12706,7 @@ msgstr "개설일"
 msgid "Open Dispatches"
 msgstr "미결 유지보수 지시"
 
-msgid "Open Impact workspace"
+msgid "Open Impact Workspace"
 msgstr "영향 작업 공간 열기"
 
 msgid "Open in Carbon"
@@ -12775,8 +12772,8 @@ msgstr "미결 수주"
 msgid "Open Scheduled"
 msgstr "미결 예약 정비"
 
-msgid "Open source"
-msgstr "소스 열기"
+msgid "Open Source"
+msgstr "원본 열기"
 
 msgid "Open task details"
 msgstr "작업 세부정보 열기"
@@ -13645,8 +13642,8 @@ msgstr "PO 번호"
 msgid "PO PDF"
 msgstr "PO PDF"
 
-msgid "PO status"
-msgstr "발주서 상태"
+msgid "PO Status"
+msgstr "PO 상태"
 
 msgid "Policy"
 msgstr "정책"
@@ -14184,9 +14181,6 @@ msgstr "발주서 승인 규칙"
 msgid "Purchase Order ID"
 msgstr "발주서 ID"
 
-msgid "Purchase Order line"
-msgstr "발주서 라인"
-
 msgid "Purchase Order Line"
 msgstr "발주서 라인"
 
@@ -14642,7 +14636,7 @@ msgstr "사유"
 msgid "Reassess"
 msgstr "재평가"
 
-msgid "Reassess operational impact"
+msgid "Reassess Operational Impact"
 msgstr "운영 영향 재평가"
 
 msgid "Reassign specific tracked entities from this row to another disposition row."
@@ -14660,8 +14654,8 @@ msgstr "재계산 중…"
 msgid "Receipt"
 msgstr "입고"
 
-msgid "Receipt complete"
-msgstr "입고 완료 처리"
+msgid "Receipt Complete"
+msgstr "입고 완료"
 
 msgid "Receipt ID"
 msgstr "입고 ID"
@@ -14680,9 +14674,6 @@ msgstr "입고 요청일"
 
 msgid "Receipts"
 msgstr "입고"
-
-msgid "Receipts, inspections, sales, shipments, and other related records are outside the current Impact assessment scope. They do not count toward assessment totals or offer decision controls here."
-msgstr "입고, 검사, 영업, 출하 및 기타 관련 기록은 현재 영향 평가 범위에 포함되지 않습니다. 이러한 기록은 평가 합계에 반영되지 않으며 여기에서는 의사 결정 제어 기능도 제공하지 않습니다."
 
 msgid "Receipts, shipments, sales invoices, purchase invoices, payments, and credit/debit memos that are still Draft or Pending must be posted or voided — both documents dated in this period and undated documents that would receive a date in it when posted. Until they post, their amounts aren't in the general ledger, so the period would be understated."
 msgstr "초안 또는 대기 중 상태인 입고, 출하, 매출 송장, 매입 송장, 지불, 신용증/회신증을 전기하거나 무효 처리해야 합니다 — 이 기간에 날짜가 지정된 문서와 전기될 때 이 기간의 날짜를 받을 미정 문서 모두 포함됩니다. 전기될 때까지 그 금액은 총계정원장에 포함되지 않으므로 해당 기간은 과소계산됩니다."
@@ -14742,8 +14733,8 @@ msgstr "입고 수량"
 msgid "Received quantity not yet credited. The credit memo is created as a draft."
 msgstr "수령된 수량이 아직 신용권으로 처리되지 않았습니다. 신용장은 초안으로 생성됩니다."
 
-msgid "Received to inventory"
-msgstr "재고로 입고됨"
+msgid "Received to Inventory"
+msgstr "재고로 입고"
 
 msgid "Receiving Location"
 msgstr "입고 사업장"
@@ -15300,13 +15291,13 @@ msgstr "잔존가액 %"
 msgid "Resolution is unavailable until linked task coverage is complete."
 msgstr "연결된 작업 범위가 완료될 때까지 해결 기능을 사용할 수 없습니다."
 
-msgid "Resolution note"
+msgid "Resolution Note"
 msgstr "해결 메모"
 
 msgid "Resolve"
 msgstr "해결"
 
-msgid "Resolve operational impact"
+msgid "Resolve Operational Impact"
 msgstr "운영 영향 해결"
 
 msgid "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
@@ -15517,7 +15508,7 @@ msgstr "검토"
 msgid "Review & create"
 msgstr "검토 및 생성"
 
-msgid "Review bulk Impact assessment"
+msgid "Review Bulk Impact Assessment"
 msgstr "일괄 영향 평가 검토"
 
 msgid "Review current purchasing and production exposure with source coverage, provenance, and freshness details."
@@ -15526,14 +15517,14 @@ msgstr "소스 범위, 출처 및 최신성 세부 정보와 함께 현재 구�
 msgid "Review each item's changes, then confirm — releasing can't be undone."
 msgstr "각 항목의 변경 사항을 검토한 후 확인하세요 — 릴리스는 실행 취소할 수 없습니다."
 
-msgid "Review rationale"
-msgstr "판단 근거 검토"
+msgid "Review Rationale"
+msgstr "검토 판단 근거"
 
-msgid "Review rationale for every selected target"
-msgstr "선택한 모든 대상의 판단 근거를 확인하세요."
+msgid "Review Rationale for Every Selected Target"
+msgstr "선택한 모든 대상에 대한 검토 판단 근거"
 
-msgid "Review selected"
-msgstr "선택 항목 확인"
+msgid "Review Selected"
+msgstr "선택 항목 검토"
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
 msgstr "기간의 재무상태표 및 손익계산서를 검토하고 수치가 올바른지 확인합니다. 이는 수동 승인입니다 — 검토한 후 완료로 표시합니다."
@@ -15944,7 +15935,7 @@ msgstr "저장 및 전기"
 msgid "Save applications"
 msgstr "애플리케이션 저장"
 
-msgid "Save assessment"
+msgid "Save Assessment"
 msgstr "평가 저장"
 
 msgid "Save changes"
@@ -15962,7 +15953,7 @@ msgstr "저장 방법"
 msgid "Save Rate"
 msgstr "환율 저장"
 
-msgid "Save reassessment"
+msgid "Save Reassessment"
 msgstr "재평가 저장"
 
 msgid "Save the form you're editing"
@@ -16442,6 +16433,9 @@ msgstr "공급업체 유형 선택"
 
 msgid "Select surfaces"
 msgstr "표면 선택"
+
+msgid "Select Task"
+msgstr "작업 선택"
 
 msgid "Select the groups that should complete this training"
 msgstr "이 교육을 완료해야 하는 그룹을 선택하세요"
@@ -17156,6 +17150,12 @@ msgstr "소스 분석"
 
 msgid "Source Company"
 msgstr "소스 회사"
+
+msgid "Source Coverage"
+msgstr "소스 범위"
+
+msgid "Source coverage needs attention"
+msgstr "소스 범위를 확인해야 합니다"
 
 msgid "Source deleted"
 msgstr "원본 삭제됨"
@@ -17962,16 +17962,13 @@ msgstr "작업 필터는 불완전한 연결된 작업 메타데이터를 사용
 msgid "Task linked"
 msgstr "작업 연결됨"
 
-msgid "Task name"
+msgid "Task Name"
 msgstr "작업 이름"
 
-msgid "Task origin: Impact follow-up"
-msgstr "작업 출처: 영향 후속 조치"
-
-msgid "Task status"
+msgid "Task Status"
 msgstr "작업 상태"
 
-msgid "Task statuses"
+msgid "Task Statuses"
 msgstr "작업 상태"
 
 msgid "Task unlinked"
@@ -19398,7 +19395,7 @@ msgstr "제목"
 msgid "To"
 msgstr "까지"
 
-msgid "To assess"
+msgid "To Assess"
 msgstr "평가 대상"
 
 msgid "To Date"
@@ -19821,7 +19818,7 @@ msgstr "미배정"
 msgid "Unavailable"
 msgstr "사용 불가"
 
-msgid "Unavailable source rows"
+msgid "Unavailable Source Rows"
 msgstr "사용할 수 없는 원본 행"
 
 msgid "Unbalanced"

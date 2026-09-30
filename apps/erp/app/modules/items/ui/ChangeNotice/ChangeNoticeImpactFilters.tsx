@@ -303,7 +303,7 @@ export function ChangeNoticeImpactFilterBar({
           options: [
             {
               value: "purchaseOrderLine",
-              label: t`Purchase Order line`
+              label: t`Purchase Order Line`
             },
             { value: "job", label: t`Producing Job` },
             { value: "jobMaterial", label: t`Job Material` }
@@ -380,8 +380,8 @@ export function ChangeNoticeImpactFilterBar({
       },
       {
         accessorKey: "taskStatus",
-        header: t`Task status`,
-        pluralHeader: t`Task statuses`,
+        header: t`Task Status`,
+        pluralHeader: t`Task Statuses`,
         filter: {
           type: "static",
           options: [
@@ -436,7 +436,7 @@ export function ChangeNoticeImpactFilterBar({
         </div>
       )}
       {hasTaskCoverageWarning && (
-        <div className="rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-muted-foreground">
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-muted-foreground">
           <Trans>
             Task filters use incomplete linked-task metadata. Missing tasks or
             assignees are not treated as absent.

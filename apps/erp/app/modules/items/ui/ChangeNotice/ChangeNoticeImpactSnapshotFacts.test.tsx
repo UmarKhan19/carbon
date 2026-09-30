@@ -60,7 +60,7 @@ describe("ChangeNoticeImpactSnapshotFacts presentation", () => {
       )
     );
 
-    expect(rendered).toContain("Job status:Released");
+    expect(rendered).toContain("Job Status:Released");
     expect(snapshot.status).toBe("Ready");
     expect(displayJobStatus("Planned")).toBe("Planned");
   });
@@ -78,9 +78,9 @@ describe("ChangeNoticeImpactSnapshotFacts presentation", () => {
       "Completed:",
       "Remaining:",
       "Due:",
-      "Job status:",
+      "Job Status:",
       "Shipped:",
-      "Received to inventory:",
+      "Received to Inventory:",
       "Method:"
     ])
       expect(rendered).toContain(fact);

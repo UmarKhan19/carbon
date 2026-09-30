@@ -32,6 +32,12 @@ vi.mock("@carbon/react", () => {
       "DrawerHeader",
       "DrawerTitle",
       "HStack",
+      "Modal",
+      "ModalBody",
+      "ModalContent",
+      "ModalFooter",
+      "ModalHeader",
+      "ModalTitle",
       "VStack",
       "Status",
       "TruncatedTooltipText",
@@ -72,14 +78,17 @@ vi.mock("@react-aria/i18n", () => ({
 }));
 vi.mock("react-icons/lu", () => ({
   LuArrowRight: () => null,
+  LuBookMarked: () => null,
   LuCircleCheck: () => null,
   LuInfo: () => null,
+  LuLink: () => null,
   LuListTodo: () => null,
   LuPackage: () => null,
   LuChevronRight: () => null,
   LuExternalLink: () => null,
   LuHistory: () => null,
   LuRefreshCw: () => null,
+  LuStar: () => null,
   LuTriangleAlert: () => null
 }));
 vi.mock("react-router", () => ({
@@ -835,8 +844,10 @@ describe("Change Notice Impact scan presentation", () => {
     expect(text).not.toContain("Reassess");
     expect(text).not.toContain("opaque-target");
     expect(text).not.toContain("LONG_PRIVATE_RATIONALE");
-    expect(text).not.toContain("Historical references");
-    expect(text).not.toContain("Unavailable source rows");
+    expect(text).not.toContain("Historical References");
+    expect(text).not.toContain("Unavailable Source Rows");
+    expect(text).not.toContain("Informational context only");
+    expect(text).not.toContain("Receipts, inspections, sales, shipments");
   });
 
   it("keeps source-deleted references historical without new assessment controls", () => {
@@ -851,9 +862,9 @@ describe("Change Notice Impact scan presentation", () => {
         ])
       )
     );
-    expect(text).toContain("Historical references");
+    expect(text).toContain("Historical References");
     expect(text).toContain("Source deleted");
-    expect(text).not.toContain("Unavailable source rows");
+    expect(text).not.toContain("Unavailable Source Rows");
     expect(text).not.toContain("Resolve");
     expect(text).not.toContain("Reassess");
   });
@@ -876,15 +887,15 @@ describe("Change Notice Impact scan presentation", () => {
     const text = workspaceText(renderWorkspace(data));
     expect(text).not.toContain("SECRET");
     expect(text).toContain("Restricted");
-    expect(text).toContain("To assessUnavailable");
-    expect(text.match(/Assessment coverage needs attention/g)).toHaveLength(1);
+    expect(text).toContain("To AssessUnavailable");
+    expect(text.match(/Source coverage needs attention/g)).toHaveLength(1);
     expect(text).toContain("No complete current result is available.");
   });
 
   it("retains authoritative counts when display filters match no loaded row", () => {
     presentation.params = new URLSearchParams({ search: "does-not-match" });
     const text = workspaceText(renderWorkspace(workspaceData([candidate()])));
-    expect(text).toContain("To assess3");
+    expect(text).toContain("To Assess3");
     expect(text).toContain(
       "No Impact rows match the current search and filters."
     );

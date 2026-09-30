@@ -17,6 +17,7 @@ vi.mock("@carbon/react", () => {
     Drawer: passthrough,
     DrawerBody: passthrough,
     DrawerContent: passthrough,
+    DrawerDescription: passthrough,
     DrawerHeader: passthrough,
     DrawerTitle: passthrough,
     Skeleton: () => null,
@@ -204,7 +205,7 @@ describe("ChangeNoticeImpactHistory presentation", () => {
     );
 
     expect(rendered).toContain(
-      "No-action reason: Outside effectivity → Not affected after review"
+      "No-Action Reason: Outside effectivity → Not affected after review"
     );
   });
 
@@ -234,7 +235,7 @@ describe("ChangeNoticeImpactHistory presentation", () => {
     expect(resolution).toContain("Assessment resolved");
     expect(resolution).toContain("Action required → Resolved");
     expect(resolution).toContain(
-      "Resolution note: Supplier confirmed the cut-in."
+      "Resolution Note: Supplier confirmed the cut-in."
     );
   });
 
@@ -250,7 +251,7 @@ describe("ChangeNoticeImpactHistory presentation", () => {
       )
     );
 
-    expect(rendered).toContain("Captured snapshot");
+    expect(rendered).toContain("Captured Snapshot");
     expect(rendered).not.toContain("After");
   });
 
@@ -267,7 +268,7 @@ describe("ChangeNoticeImpactHistory presentation", () => {
     );
 
     expect(rendered).toContain(
-      "No-action reason: No purchasing intervention remains"
+      "No-Action Reason: No purchasing intervention remains"
     );
     expect(rendered).toContain("Changed since assessment");
   });
@@ -290,7 +291,7 @@ describe("ChangeNoticeImpactHistory presentation", () => {
     );
 
     expect(rendered).toContain("Provenance ended");
-    expect(rendered).toContain("Affected item: PART-1 Rev A");
+    expect(rendered).toContain("Affected Item: PART-1 Rev A");
     expect(rendered).not.toContain("→");
   });
 });

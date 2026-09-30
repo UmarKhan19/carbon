@@ -4,14 +4,14 @@ import type { JSONContent } from "@carbon/react";
 import {
   Badge,
   Button,
-  Drawer,
-  DrawerBody,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
   HStack,
   Label,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalTitle,
   toast,
   VStack
 } from "@carbon/react";
@@ -183,7 +183,7 @@ function RelationshipButton({
   );
 }
 
-function ImpactTaskCreateDrawer({
+function ImpactTaskCreateModal({
   changeNoticeId,
   candidate,
   open,
@@ -228,27 +228,26 @@ function ImpactTaskCreateDrawer({
     fetcher.data && fetcher.data.success === false ? fetcher.data : null;
 
   return (
-    <Drawer open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DrawerContent size="sm">
+    <Modal open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <ModalContent>
         <ValidatedForm
           key={`${candidate.targetType}-${candidate.targetId}-${candidate.decision?.id ?? "bootstrap"}`}
           validator={changeNoticeImpactTaskCreateFormValidator}
           method="post"
           action={path.to.changeNoticeImpactTaskCreate(changeNoticeId)}
           fetcher={fetcher}
-          className="flex h-full flex-col"
         >
-          <DrawerHeader>
-            <DrawerTitle>
-              <Trans>Create Impact follow-up</Trans>
-            </DrawerTitle>
-          </DrawerHeader>
-          <DrawerBody>
+          <ModalHeader>
+            <ModalTitle>
+              <Trans>Create Impact Follow-Up</Trans>
+            </ModalTitle>
+          </ModalHeader>
+          <ModalBody>
             <VStack spacing={4}>
               <Hidden name="targetType" value={candidate.targetType} />
               <Hidden name="targetId" value={candidate.targetId} />
               <Hidden name="decisionId" value={candidate.decision?.id ?? ""} />
-              <div className="w-full rounded-md bg-muted/40 p-3 text-xs">
+              <div className="w-full rounded-lg bg-muted/40 p-3 text-xs">
                 <div className="font-medium">
                   {candidate.item?.readableIdWithRevision ??
                     candidate.item?.readableId ?? (
@@ -261,13 +260,10 @@ function ImpactTaskCreateDrawer({
                     <Trans>Source record unavailable</Trans>
                   )}
                 </div>
-                <div className="text-muted-foreground">
-                  <Trans>Task origin: Impact follow-up</Trans>
-                </div>
               </div>
-              <Input name="name" label={t`Task name`} />
+              <Input name="name" label={t`Task Name`} />
               <Employee name="assignee" type="assignee" label={t`Assignee`} />
-              <DatePicker name="dueDate" label={t`Due date`} />
+              <DatePicker name="dueDate" label={t`Due Date`} />
               <div className="flex w-full flex-col gap-2">
                 <Label>
                   <Trans>Notes</Trans>
@@ -283,7 +279,7 @@ function ImpactTaskCreateDrawer({
               {failedResponse && (
                 <div
                   role="alert"
-                  className="w-full rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-xs text-destructive"
+                  className="w-full rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-xs text-destructive"
                 >
                   <Trans>Impact task could not be created.</Trans>
                 </div>
@@ -291,37 +287,37 @@ function ImpactTaskCreateDrawer({
               {!permissions.can("update", "parts") && (
                 <div
                   role="alert"
-                  className="w-full rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-300"
+                  className="w-full rounded-lg border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-300"
                 >
                   <Trans>You do not have permission to update this task.</Trans>
                 </div>
               )}
             </VStack>
-          </DrawerBody>
-          <DrawerFooter>
+          </ModalBody>
+          <ModalFooter>
             <HStack>
-              <Submit
-                isDisabled={isSubmitting || !permissions.can("update", "parts")}
-              >
-                <Trans>Create task</Trans>
-              </Submit>
               <Button
                 type="button"
-                variant="ghost"
+                variant="secondary"
                 onClick={onClose}
                 isDisabled={isSubmitting}
               >
                 <Trans>Cancel</Trans>
               </Button>
+              <Submit
+                isDisabled={isSubmitting || !permissions.can("update", "parts")}
+              >
+                <Trans>Create Task</Trans>
+              </Submit>
             </HStack>
-          </DrawerFooter>
+          </ModalFooter>
         </ValidatedForm>
-      </DrawerContent>
-    </Drawer>
+      </ModalContent>
+    </Modal>
   );
 }
 
-function ImpactTaskLinkDrawer({
+function ImpactTaskLinkModal({
   changeNoticeId,
   candidate,
   tasks,
@@ -338,6 +334,7 @@ function ImpactTaskLinkDrawer({
 }) {
   const { t } = useLingui();
   const fetcher = useFetcher<ImpactTaskMutationResponse>();
+  const [selectedTaskId, setSelectedTaskId] = useState<string | undefined>();
   const isSubmitting = fetcher.state !== "idle";
 
   useEffect(() => {
@@ -361,26 +358,23 @@ function ImpactTaskLinkDrawer({
       </div>
     )
   }));
-  const defaultTaskId = tasks[0]?.id;
 
   return (
-    <Drawer open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DrawerContent size="sm">
+    <Modal open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <ModalContent>
         <ValidatedForm
-          key={`${candidate.targetType}-${candidate.targetId}-${defaultTaskId ?? "empty"}`}
+          key={`${candidate.targetType}-${candidate.targetId}`}
           validator={changeNoticeImpactTaskRelationshipFormValidator}
           method="post"
           action={path.to.changeNoticeImpactTaskLink(changeNoticeId)}
           fetcher={fetcher}
-          className="flex h-full flex-col"
-          defaultValues={{ actionTaskId: defaultTaskId }}
         >
-          <DrawerHeader>
-            <DrawerTitle>
-              <Trans>Link existing task</Trans>
-            </DrawerTitle>
-          </DrawerHeader>
-          <DrawerBody>
+          <ModalHeader>
+            <ModalTitle>
+              <Trans>Link Existing Task</Trans>
+            </ModalTitle>
+          </ModalHeader>
+          <ModalBody>
             <VStack spacing={4}>
               <Hidden name="decisionId" value={candidate.decision?.id ?? ""} />
               <Hidden name="targetType" value={candidate.targetType} />
@@ -391,6 +385,8 @@ function ImpactTaskLinkDrawer({
                   label={t`Task`}
                   options={options}
                   isRequired
+                  placeholder={t`Select Task`}
+                  onChange={(option) => setSelectedTaskId(option?.value)}
                 />
               ) : (
                 <div className="text-sm text-muted-foreground">
@@ -406,31 +402,35 @@ function ImpactTaskLinkDrawer({
               {fetcher.data?.success === false && (
                 <div
                   role="alert"
-                  className="w-full rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-xs text-destructive"
+                  className="w-full rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-xs text-destructive"
                 >
                   <Trans>Impact task could not be linked.</Trans>
                 </div>
               )}
             </VStack>
-          </DrawerBody>
-          <DrawerFooter>
+          </ModalBody>
+          <ModalFooter>
             <HStack>
-              <Submit isDisabled={isSubmitting || tasks.length === 0}>
-                <Trans>Link task</Trans>
-              </Submit>
               <Button
                 type="button"
-                variant="ghost"
+                variant="secondary"
                 onClick={onClose}
                 isDisabled={isSubmitting}
               >
                 <Trans>Cancel</Trans>
               </Button>
+              <Submit
+                isDisabled={
+                  isSubmitting || tasks.length === 0 || !selectedTaskId
+                }
+              >
+                <Trans>Link Task</Trans>
+              </Submit>
             </HStack>
-          </DrawerFooter>
+          </ModalFooter>
         </ValidatedForm>
-      </DrawerContent>
-    </Drawer>
+      </ModalContent>
+    </Modal>
   );
 }
 
@@ -453,7 +453,7 @@ function ImpactTaskMetadata({
 }) {
   const { locale } = useLocale();
   return (
-    <div className="rounded-md border border-border/70 px-3 py-2">
+    <div className="rounded-lg border border-border/70 px-3 py-2">
       <div className="flex flex-wrap items-center gap-2">
         <span className="min-w-0 truncate font-medium">
           {task.name ?? <Trans>Unnamed task</Trans>}
@@ -671,7 +671,7 @@ export function ChangeNoticeImpactTasks({
     <div className="space-y-2 text-xs">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="font-medium text-muted-foreground">
-          <Trans>Linked tasks</Trans>
+          <Trans>Linked Tasks</Trans>
         </div>
         {hasControls && (
           <HStack spacing={1} className="flex-wrap">
@@ -682,7 +682,7 @@ export function ChangeNoticeImpactTasks({
                 variant="secondary"
                 onClick={() => setCreateOpen(true)}
               >
-                <Trans>Create follow-up</Trans>
+                <Trans>Create Follow-Up</Trans>
               </Button>
             )}
             {controls.canLink && (
@@ -693,7 +693,7 @@ export function ChangeNoticeImpactTasks({
                 leftIcon={<LuLink />}
                 onClick={() => setLinkOpen(true)}
               >
-                <Trans>Link task</Trans>
+                <Trans>Link Task</Trans>
               </Button>
             )}
           </HStack>
@@ -702,11 +702,8 @@ export function ChangeNoticeImpactTasks({
 
       {linkedTasks.length === 0 ? (
         showNoTaskWarning && (
-          <div className="text-xs text-amber-700 dark:text-amber-300">
-            <Trans>
-              No task linked. Keep a written rationale describing the follow-up
-              path.
-            </Trans>
+          <div className="text-xs text-muted-foreground">
+            <Trans>No linked task.</Trans>
           </div>
         )
       ) : (
@@ -751,7 +748,7 @@ export function ChangeNoticeImpactTasks({
       )}
 
       {createOpen && candidate.decision && (
-        <ImpactTaskCreateDrawer
+        <ImpactTaskCreateModal
           changeNoticeId={changeNoticeId}
           candidate={candidate}
           open
@@ -763,7 +760,7 @@ export function ChangeNoticeImpactTasks({
         />
       )}
       {linkOpen && decision && (
-        <ImpactTaskLinkDrawer
+        <ImpactTaskLinkModal
           changeNoticeId={changeNoticeId}
           candidate={candidate}
           tasks={controls.linkableTasks}

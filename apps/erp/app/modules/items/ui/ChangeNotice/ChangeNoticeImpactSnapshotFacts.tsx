@@ -20,7 +20,7 @@ type SnapshotFactsProps = {
 };
 
 const factsLayout =
-  "grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-x-4 gap-y-2 text-xs";
+  "grid grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-x-4 gap-y-2 text-xs";
 
 function formatQuantity(
   value: number,
@@ -99,7 +99,7 @@ export function SnapshotFacts({
           value={formatImpactDate(snapshot.requiredDate, locale)}
         />
         <Fact
-          label={<Trans>PO status</Trans>}
+          label={<Trans>PO Status</Trans>}
           value={snapshot.purchaseOrderStatus}
         />
         <Fact
@@ -107,7 +107,7 @@ export function SnapshotFacts({
           value={`${formatQuantity(snapshot.conversionFactor, null, locale)} ${snapshot.purchaseUnitOfMeasureCode ?? ""} → ${snapshot.inventoryUnitOfMeasureCode ?? ""}`}
         />
         <Fact
-          label={<Trans>Receipt complete</Trans>}
+          label={<Trans>Receipt Complete</Trans>}
           value={
             snapshot.receivedComplete ? <Trans>Yes</Trans> : <Trans>No</Trans>
           }
@@ -148,7 +148,7 @@ export function SnapshotFacts({
           value={formatImpactDate(snapshot.dueDate, locale)}
         />
         <Fact
-          label={<Trans>Job status</Trans>}
+          label={<Trans>Job Status</Trans>}
           value={displayJobStatus(snapshot.status)}
         />
         <Fact
@@ -160,7 +160,7 @@ export function SnapshotFacts({
           )}
         />
         <Fact
-          label={<Trans>Received to inventory</Trans>}
+          label={<Trans>Received to Inventory</Trans>}
           value={formatQuantity(
             snapshot.quantityReceivedToInventory,
             snapshot.unitOfMeasureCode,
@@ -210,12 +210,12 @@ export function SnapshotFacts({
           )}
         />
         <Fact
-          label={<Trans>Job status</Trans>}
+          label={<Trans>Job Status</Trans>}
           value={displayJobStatus(snapshot.jobStatus)}
         />
-        <Fact label={<Trans>Method type</Trans>} value={snapshot.methodType} />
+        <Fact label={<Trans>Method Type</Trans>} value={snapshot.methodType} />
         <Fact
-          label={<Trans>Batch tracking</Trans>}
+          label={<Trans>Batch Tracking</Trans>}
           value={
             snapshot.requiresTracking.batch ? (
               <Trans>Yes</Trans>
@@ -225,7 +225,7 @@ export function SnapshotFacts({
           }
         />
         <Fact
-          label={<Trans>Serial tracking</Trans>}
+          label={<Trans>Serial Tracking</Trans>}
           value={
             snapshot.requiresTracking.serial ? (
               <Trans>Yes</Trans>

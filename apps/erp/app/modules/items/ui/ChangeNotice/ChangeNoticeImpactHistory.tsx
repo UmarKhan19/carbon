@@ -3,6 +3,7 @@ import {
   Drawer,
   DrawerBody,
   DrawerContent,
+  DrawerDescription,
   DrawerHeader,
   DrawerTitle,
   Skeleton,
@@ -48,7 +49,7 @@ function domainLabel(
 ) {
   switch (targetType) {
     case "purchaseOrderLine":
-      return <Trans>Purchase Order line</Trans>;
+      return <Trans>Purchase Order Line</Trans>;
     case "job":
       return <Trans>Producing Job</Trans>;
     case "jobMaterial":
@@ -125,7 +126,7 @@ function CurrentState({
   return (
     <div className="space-y-2 border-b border-border pb-4 text-xs">
       <div className="font-medium">
-        <Trans>Current state</Trans>
+        <Trans>Current State</Trans>
       </div>
       <div>
         <span className="text-muted-foreground">
@@ -136,7 +137,7 @@ function CurrentState({
       {decision?.noActionReasonCode && (
         <div>
           <span className="text-muted-foreground">
-            <Trans>No-action reason</Trans>:
+            <Trans>No-Action Reason</Trans>:
           </span>{" "}
           {reasonLabel(decision.noActionReasonCode)}
         </div>
@@ -164,7 +165,7 @@ function CurrentState({
       {decision?.resolutionNote && (
         <div>
           <span className="text-muted-foreground">
-            <Trans>Resolution note</Trans>:
+            <Trans>Resolution Note</Trans>:
           </span>{" "}
           {decision.resolutionNote}
         </div>
@@ -235,7 +236,7 @@ function AssessmentEvent({
       {(entry.previousReasonCode || entry.newReasonCode) && (
         <div>
           <span className="text-muted-foreground">
-            <Trans>No-action reason</Trans>:
+            <Trans>No-Action Reason</Trans>:
           </span>{" "}
           {entry.previousReasonCode
             ? reasonLabel(entry.previousReasonCode)
@@ -263,7 +264,7 @@ function AssessmentEvent({
       {entry.resolutionNote && (
         <div>
           <span className="text-muted-foreground">
-            <Trans>Resolution note</Trans>:
+            <Trans>Resolution Note</Trans>:
           </span>{" "}
           {entry.resolutionNote}
         </div>
@@ -276,15 +277,15 @@ function AssessmentEvent({
         </div>
       )}
       {hasSnapshot && (
-        <details className="rounded-md border border-border/70 px-3 py-2">
+        <details className="rounded-lg border border-border/70 px-3 py-2">
           <summary className="cursor-pointer font-medium">
-            <Trans>Assessment snapshot</Trans>
+            <Trans>Assessment Snapshot</Trans>
           </summary>
           <div className="mt-2 space-y-3">
             <SnapshotHistoryPanel
               label={
                 entry.previousSnapshotStatus === "absent" ? (
-                  <Trans>Captured snapshot</Trans>
+                  <Trans>Captured Snapshot</Trans>
                 ) : (
                   <Trans>Before</Trans>
                 )
@@ -296,7 +297,7 @@ function AssessmentEvent({
             <SnapshotHistoryPanel
               label={
                 entry.previousSnapshotStatus === "absent" ? (
-                  <Trans>Captured snapshot</Trans>
+                  <Trans>Captured Snapshot</Trans>
                 ) : (
                   <Trans>After</Trans>
                 )
@@ -346,7 +347,7 @@ function ProvenanceEvent({ entry }: { entry: ChangeNoticeImpactHistoryEntry }) {
     <div className="space-y-1 text-xs">
       <div>
         <span className="text-muted-foreground">
-          <Trans>Affected item</Trans>:
+          <Trans>Affected Item</Trans>:
         </span>{" "}
         {entry.provenance?.affectedItemLabel ?? (
           <span className="italic text-muted-foreground">
@@ -454,14 +455,12 @@ export function ChangeNoticeImpactHistory({
         <DrawerHeader>
           <DrawerTitle className="flex items-center gap-2">
             <LuHistory className="size-5" />
-            <span className="min-w-0">
-              <Trans>Impact history</Trans>
-              <span className="block break-words text-xs font-normal text-muted-foreground">
-                {domainLabel(candidate.targetType)}
-                {itemLabel ? ` · ${itemLabel}` : ""}
-              </span>
-            </span>
+            <Trans>Impact History</Trans>
           </DrawerTitle>
+          <DrawerDescription>
+            {domainLabel(candidate.targetType)}
+            {itemLabel ? ` · ${itemLabel}` : ""}
+          </DrawerDescription>
         </DrawerHeader>
         <DrawerBody>
           <div className="min-w-0 w-full space-y-3">
@@ -474,12 +473,12 @@ export function ChangeNoticeImpactHistory({
             ) : errorMessage ? (
               <div
                 role="alert"
-                className="rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+                className="rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive"
               >
                 {errorMessage}
               </div>
             ) : entries.length === 0 ? (
-              <div className="rounded-md border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
+              <div className="rounded-lg border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
                 <Trans>No history is recorded for this assessment.</Trans>
               </div>
             ) : (

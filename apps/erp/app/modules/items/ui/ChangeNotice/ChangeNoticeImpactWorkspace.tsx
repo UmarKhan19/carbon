@@ -14,16 +14,16 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Drawer,
-  DrawerBody,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
   HStack,
   IconButton,
   MenuIcon,
   MenuItem,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalTitle,
   Status,
   Table as TableBase,
   Tbody,
@@ -44,13 +44,14 @@ import type { ComponentProps, MouseEvent, ReactNode } from "react";
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import {
   LuArrowRight,
+  LuBookMarked,
   LuChevronRight,
   LuCircleCheck,
-  LuExternalLink,
   LuHistory,
   LuInfo,
-  LuPackage,
+  LuLink,
   LuRefreshCw,
+  LuStar,
   LuTriangleAlert
 } from "react-icons/lu";
 import { Link, useFetcher, useRevalidator } from "react-router";
@@ -363,7 +364,7 @@ export function getChangeNoticeImpactBulkNoActionReasonOptions(
 function domainLabel(targetType: Candidate["targetType"]): ReactNode {
   switch (targetType) {
     case "purchaseOrderLine":
-      return <Trans>Purchase Order line</Trans>;
+      return <Trans>Purchase Order Line</Trans>;
     case "job":
       return <Trans>Producing Job</Trans>;
     case "jobMaterial":
@@ -540,7 +541,7 @@ function provenanceLabel(label: string | null): ReactNode {
 function Provenance({ candidate }: { candidate: Candidate }) {
   if (candidate.provenance.length === 0) return null;
   return (
-    <details className="group rounded-md border border-border/70 px-3 py-2 text-xs">
+    <details className="group rounded-lg border border-border/70 px-3 py-2 text-xs">
       <summary className="flex cursor-pointer list-none items-center gap-1 font-medium [&::-webkit-details-marker]:hidden">
         <LuChevronRight className="size-3 transition-transform group-open:rotate-90" />
         <Trans>Provenance</Trans>
@@ -549,7 +550,7 @@ function Provenance({ candidate }: { candidate: Candidate }) {
         {candidate.currentProvenance.length > 0 && (
           <div>
             <div className="text-muted-foreground">
-              <Trans>Current cause</Trans>
+              <Trans>Current Cause</Trans>
             </div>
             {candidate.currentProvenance.map((cause) => (
               <div key={`${cause.affectedItemId}-current`}>
@@ -561,7 +562,7 @@ function Provenance({ candidate }: { candidate: Candidate }) {
         {candidate.historicalProvenance.length > 0 && (
           <div>
             <div className="text-muted-foreground">
-              <Trans>Historical causes</Trans>
+              <Trans>Historical Causes</Trans>
             </div>
             {candidate.historicalProvenance.map((cause, index) => (
               <div
@@ -591,7 +592,7 @@ function DecisionSummary({ candidate }: { candidate: Candidate }) {
       {decision.noActionReasonCode && (
         <div>
           <span className="text-muted-foreground">
-            <Trans>No-action reason</Trans>:
+            <Trans>No-Action Reason</Trans>:
           </span>{" "}
           {noActionReasonLabel(decision.noActionReasonCode)}
         </div>
@@ -607,7 +608,7 @@ function DecisionSummary({ candidate }: { candidate: Candidate }) {
       {decision.resolutionNote && (
         <div>
           <span className="text-muted-foreground">
-            <Trans>Resolution note</Trans>:
+            <Trans>Resolution Note</Trans>:
           </span>{" "}
           {decision.resolutionNote}
         </div>
@@ -621,13 +622,13 @@ function AssessmentSnapshot({ candidate }: { candidate: Candidate }) {
   if (!snapshot) return null;
 
   return (
-    <details className="group rounded-md border border-border/70 px-3 py-2 text-xs">
+    <details className="group rounded-lg border border-border/70 px-3 py-2 text-xs">
       <summary className="flex cursor-pointer list-none items-center gap-1 font-medium [&::-webkit-details-marker]:hidden">
         <LuChevronRight className="size-3 transition-transform group-open:rotate-90" />
         {candidate.freshness === "Changed since assessment" ? (
-          <Trans>Assessment snapshot · changed</Trans>
+          <Trans>Assessment Snapshot · Changed</Trans>
         ) : (
-          <Trans>Assessment snapshot</Trans>
+          <Trans>Assessment Snapshot</Trans>
         )}
       </summary>
       <div className="mt-2">
@@ -647,7 +648,7 @@ type ImpactDecisionFetcherData =
   | { success: true; data: unknown }
   | { success: false; error?: { message: string }; conflict?: boolean };
 
-type ImpactDecisionDrawerProps = {
+type ImpactDecisionModalProps = {
   changeNoticeId: string;
   candidate: Candidate;
   mode: ChangeNoticeImpactDecisionMode;
@@ -659,7 +660,7 @@ type ImpactDecisionDrawerProps = {
   onConflict: (message: string) => void;
 };
 
-function ImpactDecisionDrawer({
+function ImpactDecisionModal({
   changeNoticeId,
   candidate,
   mode,
@@ -669,7 +670,7 @@ function ImpactDecisionDrawer({
   onClose,
   onSuccess,
   onConflict
-}: ImpactDecisionDrawerProps) {
+}: ImpactDecisionModalProps) {
   const { t } = useLingui();
   const fetcher = useFetcher<ImpactDecisionFetcherData>();
   const decision = candidate.decision;
@@ -771,8 +772,13 @@ function ImpactDecisionDrawer({
     noActionReason === "No purchasing intervention remains";
 
   return (
-    <Drawer open onOpenChange={(open) => !open && onClose()}>
-      <DrawerContent size="sm">
+    <Modal
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <ModalContent>
         <ValidatedForm
           key={`${candidate.targetType}-${candidate.targetId}-${mode}-${decision?.revision ?? "new"}`}
           validator={changeNoticeImpactDecisionFormValidator}
@@ -780,20 +786,19 @@ function ImpactDecisionDrawer({
           action={path.to.changeNoticeImpactDecision(changeNoticeId)}
           defaultValues={formDefaults}
           fetcher={fetcher}
-          className="flex h-full flex-col"
         >
-          <DrawerHeader>
-            <DrawerTitle>
+          <ModalHeader>
+            <ModalTitle>
               {mode === "resolve" ? (
-                <Trans>Resolve operational impact</Trans>
+                <Trans>Resolve Operational Impact</Trans>
               ) : decision ? (
-                <Trans>Reassess operational impact</Trans>
+                <Trans>Reassess Operational Impact</Trans>
               ) : (
-                <Trans>Assess operational impact</Trans>
+                <Trans>Assess Operational Impact</Trans>
               )}
-            </DrawerTitle>
-          </DrawerHeader>
-          <DrawerBody>
+            </ModalTitle>
+          </ModalHeader>
+          <ModalBody>
             <VStack spacing={4}>
               <Hidden name="changeNoticeId" value={changeNoticeId} />
               <Hidden name="targetType" value={candidate.targetType} />
@@ -802,7 +807,7 @@ function ImpactDecisionDrawer({
                 <Hidden name="expectedRevision" value={decision.revision} />
               )}
 
-              <div className="w-full space-y-2 rounded-md bg-muted/40 p-3 text-xs">
+              <div className="w-full space-y-2 rounded-lg bg-muted/40 p-3 text-xs">
                 <TargetIdentity candidate={candidate} />
                 <div className="text-muted-foreground">
                   {candidate.parent?.readableId ?? (
@@ -852,7 +857,7 @@ function ImpactDecisionDrawer({
               {decisionStatus === "No action required" && (
                 <Select
                   name="noActionReasonCode"
-                  label={t`No-action reason`}
+                  label={t`No-Action Reason`}
                   options={reasonOptions}
                   isRequired
                   onChange={(option) => {
@@ -868,7 +873,7 @@ function ImpactDecisionDrawer({
               {isPurchasingConfirmation && (
                 <Boolean
                   name="confirmNoPurchasingInterventionRemains"
-                  label={t`Confirm no purchasing intervention remains`}
+                  label={t`Confirm No Purchasing Intervention Remains`}
                   description={t`Supplier return, replacement, credit, and communication interventions have been reviewed.`}
                 />
               )}
@@ -889,8 +894,8 @@ function ImpactDecisionDrawer({
                   name="rationale"
                   label={
                     isConclusionChange
-                      ? t`New follow-up rationale`
-                      : t`Follow-up rationale`
+                      ? t`New Follow-Up Rationale`
+                      : t`Follow-Up Rationale`
                   }
                   value={rationale}
                   onChange={setRationale}
@@ -902,8 +907,8 @@ function ImpactDecisionDrawer({
                   name="rationale"
                   label={
                     isConclusionChange
-                      ? t`Correction rationale`
-                      : t`Review rationale`
+                      ? t`Correction Rationale`
+                      : t`Review Rationale`
                   }
                   value={rationale}
                   onChange={setRationale}
@@ -913,7 +918,7 @@ function ImpactDecisionDrawer({
               {decisionStatus === "Resolved" && (
                 <TextArea
                   name="resolutionNote"
-                  label={t`Closure evidence`}
+                  label={t`Closure Evidence`}
                   isRequired
                 />
               )}
@@ -921,7 +926,7 @@ function ImpactDecisionDrawer({
               {resolveBlocked && (
                 <div
                   role="alert"
-                  className="w-full rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-300"
+                  className="w-full rounded-lg border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-300"
                 >
                   {resolutionControls.resolveBlock === "taskCoverage" ? (
                     <Trans>
@@ -936,41 +941,41 @@ function ImpactDecisionDrawer({
               {failedResponse?.error?.message && (
                 <div
                   role="alert"
-                  className="w-full rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-xs text-destructive"
+                  className="w-full rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-xs text-destructive"
                 >
                   {failedResponse.error.message}
                 </div>
               )}
             </VStack>
-          </DrawerBody>
-          <DrawerFooter>
+          </ModalBody>
+          <ModalFooter>
             <HStack>
-              <Submit isDisabled={resolveBlocked} isLoading={isSubmitting}>
-                {mode === "resolve" ? (
-                  <Trans>Resolve</Trans>
-                ) : mode === "assess" ? (
-                  <Trans>Save assessment</Trans>
-                ) : (
-                  <Trans>Save reassessment</Trans>
-                )}
-              </Submit>
               <Button
                 type="button"
-                variant="ghost"
+                variant="secondary"
                 onClick={onClose}
                 isDisabled={isSubmitting}
               >
                 <Trans>Cancel</Trans>
               </Button>
+              <Submit isDisabled={resolveBlocked} isLoading={isSubmitting}>
+                {mode === "resolve" ? (
+                  <Trans>Resolve</Trans>
+                ) : mode === "assess" ? (
+                  <Trans>Save Assessment</Trans>
+                ) : (
+                  <Trans>Save Reassessment</Trans>
+                )}
+              </Submit>
             </HStack>
-          </DrawerFooter>
+          </ModalFooter>
         </ValidatedForm>
-      </DrawerContent>
-    </Drawer>
+      </ModalContent>
+    </Modal>
   );
 }
 
-type ImpactBulkDecisionDrawerProps = {
+type ImpactBulkDecisionModalProps = {
   changeNoticeId: string;
   candidates: Candidate[];
   coverage: ChangeNoticeImpactWorkspaceReadModel["coverage"];
@@ -981,7 +986,7 @@ type ImpactBulkDecisionDrawerProps = {
   onConflict: (message: string) => void;
 };
 
-function ImpactBulkDecisionDrawer({
+function ImpactBulkDecisionModal({
   changeNoticeId,
   candidates,
   coverage,
@@ -990,7 +995,7 @@ function ImpactBulkDecisionDrawer({
   onClose,
   onSuccess,
   onConflict
-}: ImpactBulkDecisionDrawerProps) {
+}: ImpactBulkDecisionModalProps) {
   const { t } = useLingui();
   const fetcher = useFetcher<ImpactBulkFetcherData>();
   const statusOptions = getChangeNoticeImpactBulkDecisionStatusOptions({
@@ -1052,8 +1057,13 @@ function ImpactBulkDecisionDrawer({
     fetcher.data && !fetcher.data.success ? fetcher.data : null;
 
   return (
-    <Drawer open onOpenChange={(open) => !open && onClose()}>
-      <DrawerContent size="sm">
+    <Modal
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <ModalContent size="xlarge">
         <ValidatedForm
           key={candidates
             .map(
@@ -1066,19 +1076,18 @@ function ImpactBulkDecisionDrawer({
           action={path.to.changeNoticeImpactBulk(changeNoticeId)}
           defaultValues={formDefaults}
           fetcher={fetcher}
-          className="flex h-full flex-col"
         >
-          <DrawerHeader>
-            <DrawerTitle>
-              <Trans>Review bulk Impact assessment</Trans>
-            </DrawerTitle>
-          </DrawerHeader>
-          <DrawerBody>
+          <ModalHeader>
+            <ModalTitle>
+              <Trans>Review Bulk Impact Assessment</Trans>
+            </ModalTitle>
+          </ModalHeader>
+          <ModalBody>
             <VStack spacing={4}>
               <Hidden name="changeNoticeId" value={changeNoticeId} />
               <Hidden name="targets" value={JSON.stringify(formTargets)} />
 
-              <div className="w-full space-y-2 rounded-md bg-muted/40 p-3 text-xs">
+              <div className="w-full space-y-2 rounded-lg bg-muted/40 p-3 text-xs">
                 <div className="font-medium">
                   <Plural
                     value={candidates.length}
@@ -1102,7 +1111,7 @@ function ImpactBulkDecisionDrawer({
                         <Trans>Target</Trans>
                       </Th>
                       <Th scope="col" className="px-3">
-                        <Trans>Current conclusion</Trans>
+                        <Trans>Current Conclusion</Trans>
                       </Th>
                     </Tr>
                   </Thead>
@@ -1143,7 +1152,7 @@ function ImpactBulkDecisionDrawer({
 
               <Select
                 name="decisionStatus"
-                label={t`Conclusion for every selected target`}
+                label={t`Conclusion for Every Selected Target`}
                 options={statusOptions.map((status) => ({
                   value: status,
                   label: decisionLabel(status)
@@ -1160,7 +1169,7 @@ function ImpactBulkDecisionDrawer({
               {decisionStatus === "No action required" && (
                 <Select
                   name="noActionReasonCode"
-                  label={t`No-action reason for every selected target`}
+                  label={t`No-Action Reason for Every Selected Target`}
                   options={reasonOptions.map((reason) => ({
                     value: reason,
                     label: noActionReasonLabel(reason)
@@ -1179,7 +1188,7 @@ function ImpactBulkDecisionDrawer({
               {isPurchasingConfirmation && (
                 <Boolean
                   name="confirmNoPurchasingInterventionRemains"
-                  label={t`Confirm no purchasing intervention remains for every selected target`}
+                  label={t`Confirm No Purchasing Intervention Remains for Every Selected Target`}
                   description={t`Supplier return, replacement, credit, and communication interventions have been reviewed.`}
                 />
               )}
@@ -1187,7 +1196,7 @@ function ImpactBulkDecisionDrawer({
               {decisionStatus === "Resolved" ? (
                 <TextArea
                   name="resolutionNote"
-                  label={t`Closure evidence for every selected target`}
+                  label={t`Closure Evidence for Every Selected Target`}
                   isRequired
                 />
               ) : (
@@ -1195,8 +1204,8 @@ function ImpactBulkDecisionDrawer({
                   name="rationale"
                   label={
                     decisionStatus === "No action required"
-                      ? t`Review rationale for every selected target`
-                      : t`Follow-up rationale for every selected target`
+                      ? t`Review Rationale for Every Selected Target`
+                      : t`Follow-Up Rationale for Every Selected Target`
                   }
                   value={rationale}
                   onChange={setRationale}
@@ -1207,31 +1216,31 @@ function ImpactBulkDecisionDrawer({
               {failedResponse?.error?.message && (
                 <div
                   role="alert"
-                  className="w-full rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-xs text-destructive"
+                  className="w-full rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-xs text-destructive"
                 >
                   {failedResponse.error.message}
                 </div>
               )}
             </VStack>
-          </DrawerBody>
-          <DrawerFooter>
+          </ModalBody>
+          <ModalFooter>
             <HStack>
-              <Submit isLoading={isSubmitting}>
-                <Trans>Apply to {candidates.length}</Trans>
-              </Submit>
               <Button
                 type="button"
-                variant="ghost"
+                variant="secondary"
                 onClick={onClose}
                 isDisabled={isSubmitting}
               >
                 <Trans>Cancel</Trans>
               </Button>
+              <Submit isLoading={isSubmitting}>
+                <Trans>Apply to {candidates.length}</Trans>
+              </Submit>
             </HStack>
-          </DrawerFooter>
+          </ModalFooter>
         </ValidatedForm>
-      </DrawerContent>
-    </Drawer>
+      </ModalContent>
+    </Modal>
   );
 }
 
@@ -1258,14 +1267,23 @@ function DecisionControls({
     canUpdate
   });
   if (!controls.assess && !controls.reassess && !controls.resolve) return null;
-
+  // One primary per surface: the same next step the Next Action column shows,
+  // so an Unassessed row leads with Assess rather than the Resolve exception.
+  const primaryMode =
+    candidate.decision?.status === "Action required"
+      ? "resolve"
+      : controls.assess
+        ? "assess"
+        : controls.reassess
+          ? "reassess"
+          : null;
   return (
     <div className="flex flex-wrap items-center gap-2 border-t border-border/70 pt-3">
       {controls.assess && (
         <Button
           type="button"
           size="sm"
-          variant="secondary"
+          variant={primaryMode === "assess" ? "primary" : "secondary"}
           onClick={() => onOpen("assess")}
         >
           <Trans>Assess</Trans>
@@ -1275,7 +1293,7 @@ function DecisionControls({
         <Button
           type="button"
           size="sm"
-          variant="secondary"
+          variant={primaryMode === "reassess" ? "primary" : "secondary"}
           onClick={() => onOpen("reassess")}
         >
           <Trans>Reassess</Trans>
@@ -1285,7 +1303,7 @@ function DecisionControls({
         <Button
           type="button"
           size="sm"
-          variant="primary"
+          variant={primaryMode === "resolve" ? "primary" : "secondary"}
           isDisabled={controls.resolveBlock !== null}
           onClick={() => onOpen("resolve")}
         >
@@ -1599,7 +1617,7 @@ function ImpactTable({
                   candidate.parent?.readableId ?? t`Source record unavailable`;
                 const domain =
                   candidate.targetType === "purchaseOrderLine"
-                    ? t`Purchase Order line`
+                    ? t`Purchase Order Line`
                     : candidate.targetType === "job"
                       ? t`Producing Job`
                       : t`Job Material`;
@@ -1626,14 +1644,14 @@ function ImpactTable({
         header: t`Target`,
         size: 190,
         cell: ({ row }) => <TargetIdentity candidate={row.original} />,
-        meta: { icon: <LuPackage /> }
+        meta: { icon: <LuBookMarked /> }
       },
       {
         id: "Source",
         header: t`Source`,
         size: 150,
         cell: ({ row }) => <SourceIdentity candidate={row.original} />,
-        meta: { icon: <LuExternalLink /> }
+        meta: { icon: <LuLink /> }
       },
       ...(selectionEnabled
         ? [
@@ -1650,7 +1668,7 @@ function ImpactTable({
                   {freshnessBadges(row.original)}
                 </div>
               ),
-              meta: { icon: <LuCircleCheck /> }
+              meta: { icon: <LuStar /> }
             }
           ]
         : [
@@ -1743,8 +1761,8 @@ function ImpactTable({
           {href && (
             <MenuItem asChild>
               <Link to={href}>
-                <MenuIcon icon={<LuExternalLink />} />
-                <Trans>Open source</Trans>
+                <MenuIcon icon={<LuLink />} />
+                <Trans>Open Source</Trans>
               </Link>
             </MenuItem>
           )}
@@ -1867,7 +1885,7 @@ function CoverageNotice({
     <Alert variant="warning">
       <LuTriangleAlert />
       <AlertTitle>
-        <Trans>Assessment coverage needs attention</Trans>
+        <Trans>Source coverage needs attention</Trans>
       </AlertTitle>
       <AlertDescription className="space-y-1">
         <p>
@@ -1927,7 +1945,7 @@ function CoverageSummary({
       ))}
       <CardAttribute className="flex-col items-start gap-1 md:items-start">
         <CardAttributeLabel>
-          <Trans>To assess</Trans>
+          <Trans>To Assess</Trans>
         </CardAttributeLabel>
         <CardAttributeValue className="text-sm font-medium tabular-nums">
           <CoverageCount value={toAssess} />
@@ -1935,17 +1953,15 @@ function CoverageSummary({
       </CardAttribute>
       <CardAttribute className="flex-col items-start gap-1 md:items-start">
         <CardAttributeLabel>
-          <Trans>Assessment coverage</Trans>
+          <Trans>Source Coverage</Trans>
         </CardAttributeLabel>
-        <CardAttributeValue>
+        <CardAttributeValue className="text-sm font-medium">
           {domains.every(({ coverage }) => coverage.status === "complete") ? (
             // Incomplete coverage is explained by the alert above; only the
             // quiet healthy state needs a marker here.
-            <Badge variant="outline">
-              <Trans>All complete</Trans>
-            </Badge>
+            <Trans>Complete</Trans>
           ) : (
-            <span className="text-sm text-muted-foreground">
+            <span className="text-muted-foreground">
               <Trans>Unavailable</Trans>
             </span>
           )}
@@ -1999,7 +2015,7 @@ export default function ChangeNoticeImpactWorkspace({
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(
     () => new Set()
   );
-  const [bulkDrawerOpen, setBulkDrawerOpen] = useState(false);
+  const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const [bulkSuccess, setBulkSuccess] =
     useState<ChangeNoticeImpactDecisionBulkWriteData | null>(null);
   const refreshFetcher = useFetcher<ImpactRefreshFetcherData>();
@@ -2120,23 +2136,23 @@ export default function ChangeNoticeImpactWorkspace({
   );
   const clearSelection = useCallback(() => {
     setSelectedKeys(new Set());
-    setBulkDrawerOpen(false);
+    setBulkModalOpen(false);
   }, []);
-  const openBulkDrawer = useCallback(() => {
+  const openBulkModal = useCallback(() => {
     setDecisionConflictMessage(null);
     setBulkSuccess(null);
-    setBulkDrawerOpen(true);
+    setBulkModalOpen(true);
   }, []);
   const handleBulkSuccess = useCallback(
     (result: ChangeNoticeImpactDecisionBulkWriteData) => {
-      setBulkDrawerOpen(false);
+      setBulkModalOpen(false);
       setSelectedKeys(new Set());
       setBulkSuccess(result);
     },
     []
   );
   const handleBulkConflict = useCallback((message: string) => {
-    setBulkDrawerOpen(false);
+    setBulkModalOpen(false);
     setDecisionConflictMessage(message);
   }, []);
   const handleDecisionSuccess = useCallback(() => {
@@ -2170,10 +2186,10 @@ export default function ChangeNoticeImpactWorkspace({
             type="button"
             size="sm"
             variant="primary"
-            onClick={openBulkDrawer}
+            onClick={openBulkModal}
             isDisabled={bulkSelectionBlocked || selectedCandidates.length === 0}
           >
-            <Trans>Review selected</Trans>
+            <Trans>Review Selected</Trans>
           </Button>
           <Button
             type="button"
@@ -2181,7 +2197,7 @@ export default function ChangeNoticeImpactWorkspace({
             variant="ghost"
             onClick={clearSelection}
           >
-            <Trans>Clear selection</Trans>
+            <Trans>Clear Selection</Trans>
           </Button>
         </>
       )}
@@ -2261,7 +2277,7 @@ export default function ChangeNoticeImpactWorkspace({
       {bulkSuccess && (
         <div
           role="status"
-          className="w-full rounded-md border border-emerald-500/40 bg-emerald-500/5 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-300"
+          className="w-full rounded-lg border border-emerald-500/40 bg-emerald-500/5 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-300"
         >
           {bulkSuccess.noOpCount > 0 ? (
             <>
@@ -2289,7 +2305,7 @@ export default function ChangeNoticeImpactWorkspace({
       {decisionConflictMessage && (
         <div
           role="alert"
-          className="w-full rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-300"
+          className="w-full rounded-lg border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-300"
         >
           <div className="font-medium">
             <Trans>Impact assessment changed while you were editing.</Trans>
@@ -2306,7 +2322,7 @@ export default function ChangeNoticeImpactWorkspace({
 
       <CoverageNotice data={data} />
       {taskCoverageHasWarning && (
-        <div className="rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-muted-foreground">
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-muted-foreground">
           <Trans>
             Linked task coverage is incomplete. Decision state is independent of
             task status.
@@ -2319,7 +2335,7 @@ export default function ChangeNoticeImpactWorkspace({
         className="w-full space-y-3"
       >
         <h2 id="impact-current-heading" className="text-sm font-medium">
-          <Trans>Current operational exposure</Trans>
+          <Trans>Current Operational Exposure</Trans>
         </h2>
         <div className="w-full min-w-0 overflow-hidden rounded-lg border border-border bg-card">
           <ChangeNoticeImpactFilterBar
@@ -2369,7 +2385,7 @@ export default function ChangeNoticeImpactWorkspace({
           className="w-full space-y-2"
         >
           <h2 id="impact-historical-heading" className="text-sm font-medium">
-            <Trans>Historical references</Trans>
+            <Trans>Historical References</Trans>
           </h2>
           <p className="text-xs text-muted-foreground">
             <Trans>Traceable references; no new Unassessed obligation.</Trans>
@@ -2400,7 +2416,7 @@ export default function ChangeNoticeImpactWorkspace({
           className="w-full space-y-2"
         >
           <h2 id="impact-unavailable-heading" className="text-sm font-medium">
-            <Trans>Unavailable source rows</Trans>
+            <Trans>Unavailable Source Rows</Trans>
           </h2>
           <p className="text-xs text-muted-foreground">
             <Trans>
@@ -2427,36 +2443,23 @@ export default function ChangeNoticeImpactWorkspace({
         </section>
       )}
 
-      <details className="w-full text-xs text-muted-foreground">
-        <summary className="cursor-pointer">
-          <Trans>Informational context only</Trans>
-        </summary>
-        <p className="mt-2">
-          <Trans>
-            Receipts, inspections, sales, shipments, and other related records
-            are outside the current Impact assessment scope. They do not count
-            toward assessment totals or offer decision controls here.
-          </Trans>
-        </p>
-      </details>
-
-      {bulkDrawerOpen &&
+      {bulkModalOpen &&
         !bulkSelectionBlocked &&
         selectedCandidates.length > 0 && (
-          <ImpactBulkDecisionDrawer
+          <ImpactBulkDecisionModal
             changeNoticeId={id}
             candidates={selectedCandidates}
             coverage={data.coverage}
             taskCoverageStatus={data.taskCoverage.status}
             changeNoticeStatus={status}
-            onClose={() => setBulkDrawerOpen(false)}
+            onClose={() => setBulkModalOpen(false)}
             onSuccess={handleBulkSuccess}
             onConflict={handleBulkConflict}
           />
         )}
 
       {decisionTarget && (
-        <ImpactDecisionDrawer
+        <ImpactDecisionModal
           key={`${decisionTarget.candidate.targetType}-${decisionTarget.candidate.targetId}-${decisionTarget.mode}-${decisionTarget.candidate.decision?.revision ?? "new"}`}
           changeNoticeId={id}
           candidate={decisionTarget.candidate}

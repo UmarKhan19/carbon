@@ -1711,6 +1711,9 @@ msgstr "Avançado"
 msgid "Affected item"
 msgstr "Item afetado"
 
+msgid "Affected Item"
+msgstr "Item afetado"
+
 msgid "Affected item details unavailable."
 msgstr "Detalhes do item afetado indisponíveis."
 
@@ -1771,9 +1774,6 @@ msgstr "Todas as alterações em entidades auditáveis estão sendo registradas.
 
 msgid "All Companies"
 msgstr "Todas as Empresas"
-
-msgid "All complete"
-msgstr "Tudo concluído"
 
 msgid "All Customers"
 msgstr "Todos os Clientes"
@@ -2758,14 +2758,8 @@ msgstr "Montagem:"
 msgid "Assess"
 msgstr "Avaliar"
 
-msgid "Assess operational impact"
-msgstr "Avaliar o impacto operacional"
-
-msgid "Assessment coverage"
-msgstr "Cobertura da avaliação"
-
-msgid "Assessment coverage needs attention"
-msgstr "A cobertura da avaliação requer atenção"
+msgid "Assess Operational Impact"
+msgstr "Avaliar impacto operacional"
 
 msgid "Assessment created"
 msgstr "Avaliação criada"
@@ -2782,11 +2776,11 @@ msgstr "Avaliação reaberta"
 msgid "Assessment resolved"
 msgstr "Avaliação resolvida"
 
-msgid "Assessment snapshot"
+msgid "Assessment Snapshot"
 msgstr "Instantâneo da avaliação"
 
-msgid "Assessment snapshot · changed"
-msgstr "Instantâneo da avaliação · alterado"
+msgid "Assessment Snapshot · Changed"
+msgstr "Instantâneo da avaliação · Alterado"
 
 msgid "Asset"
 msgstr "Ativo"
@@ -3611,7 +3605,7 @@ msgstr "Reserva de capacidade"
 msgid "Caption"
 msgstr "Legenda"
 
-msgid "Captured snapshot"
+msgid "Captured Snapshot"
 msgstr "Instantâneo capturado"
 
 msgid "Carbon"
@@ -3919,6 +3913,9 @@ msgstr "Limpar consulta de pesquisa"
 msgid "Clear selection"
 msgstr "Limpar seleção"
 
+msgid "Clear Selection"
+msgstr "Limpar seleção"
+
 msgid "Clear value"
 msgstr "Limpar valor"
 
@@ -3991,11 +3988,11 @@ msgstr "Encerramento"
 msgid "Closure blocked"
 msgstr "Encerramento bloqueado"
 
-msgid "Closure evidence"
-msgstr "Evidências de encerramento"
+msgid "Closure Evidence"
+msgstr "Evidência de encerramento"
 
-msgid "Closure evidence for every selected target"
-msgstr "Evidências de encerramento para cada alvo selecionado"
+msgid "Closure Evidence for Every Selected Target"
+msgstr "Evidência de encerramento para cada alvo selecionado"
 
 msgid "Cloud, or your self-hosted environment."
 msgstr "Nuvem, ou seu ambiente auto-hospedado."
@@ -4187,7 +4184,7 @@ msgstr "Conclusão"
 msgid "Conclusion corrected"
 msgstr "Conclusão corrigida"
 
-msgid "Conclusion for every selected target"
+msgid "Conclusion for Every Selected Target"
 msgstr "Conclusão para cada alvo selecionado"
 
 msgid "Condensed P&L with margins and key subtotals"
@@ -4328,11 +4325,11 @@ msgstr "Confirmar Contagem de Inventário"
 msgid "Confirm Mapping"
 msgstr "Confirmar Mapeamento"
 
-msgid "Confirm no purchasing intervention remains"
-msgstr "Confirmar que nenhuma intervenção de compras permanece"
+msgid "Confirm No Purchasing Intervention Remains"
+msgstr "Confirmar que não resta nenhuma intervenção de Compras"
 
-msgid "Confirm no purchasing intervention remains for every selected target"
-msgstr "Confirmar que nenhuma intervenção de compras permanece para cada alvo selecionado"
+msgid "Confirm No Purchasing Intervention Remains for Every Selected Target"
+msgstr "Confirmar que não resta nenhuma intervenção de Compras para cada alvo selecionado"
 
 msgid "Confirm Password"
 msgstr "Confirmar Senha"
@@ -4730,7 +4727,7 @@ msgstr "Correção"
 msgid "Correction {correctionNumber}"
 msgstr "Correção {correctionNumber}"
 
-msgid "Correction rationale"
+msgid "Correction Rationale"
 msgstr "Justificativa da correção"
 
 msgid "Corrections"
@@ -4955,13 +4952,13 @@ msgstr "Criar lote de produção"
 msgid "Create Change Notice"
 msgstr "Criar Aviso de alteração"
 
-msgid "Create follow-up"
+msgid "Create Follow-Up"
 msgstr "Criar acompanhamento"
 
 msgid "Create Forecast"
 msgstr "Criar Previsão"
 
-msgid "Create Impact follow-up"
+msgid "Create Impact Follow-Up"
 msgstr "Criar acompanhamento de Impacto"
 
 msgid "Create Issue"
@@ -5006,7 +5003,7 @@ msgstr "Criar Regra"
 msgid "Create Supplier Return"
 msgstr "Criar Devolução de Fornecedor"
 
-msgid "Create task"
+msgid "Create Task"
 msgstr "Criar tarefa"
 
 msgid "Create Transfer"
@@ -5258,16 +5255,19 @@ msgstr "atual"
 msgid "Current"
 msgstr "Atual"
 
-msgid "Current cause"
+msgid "Current Cause"
 msgstr "Causa atual"
 
-msgid "Current conclusion"
+msgid "Current Conclusion"
 msgstr "Conclusão atual"
 
 msgid "Current Net Book Value:"
 msgstr "Valor Líquido Contábil Atual:"
 
 msgid "Current operational exposure"
+msgstr "Exposição operacional atual"
+
+msgid "Current Operational Exposure"
 msgstr "Exposição operacional atual"
 
 msgid "Current Password"
@@ -5291,7 +5291,7 @@ msgstr "Os dados atuais da fonte foram alterados desde a avaliação armazenada.
 msgid "Current source facts had changed since the prior assessment."
 msgstr "Os dados atuais da fonte haviam sido alterados desde a avaliação anterior."
 
-msgid "Current state"
+msgid "Current State"
 msgstr "Estado atual"
 
 msgid "Custom"
@@ -8399,11 +8399,11 @@ msgstr "Sinalizadores"
 msgid "Follow-up for"
 msgstr "Acompanhamento de"
 
-msgid "Follow-up rationale"
+msgid "Follow-Up Rationale"
 msgstr "Justificativa do acompanhamento"
 
-msgid "Follow-up rationale for every selected target"
-msgstr "Justificativa do acompanhamento para cada destino selecionado"
+msgid "Follow-Up Rationale for Every Selected Target"
+msgstr "Justificativa do acompanhamento para cada alvo selecionado"
 
 msgid "for anything. They'll pull in the right person."
 msgstr "para qualquer coisa. Eles vão trazer a pessoa certa."
@@ -8898,7 +8898,7 @@ msgstr "Alto"
 msgid "Hints in the first row"
 msgstr "Dicas na primeira linha"
 
-msgid "Historical causes"
+msgid "Historical Causes"
 msgstr "Causas históricas"
 
 msgid "Historical data older than what's on the Data Migration Map"
@@ -8913,7 +8913,7 @@ msgstr "Taxa histórica (Patrimônio líquido)"
 msgid "Historical reference"
 msgstr "Referência histórica"
 
-msgid "Historical references"
+msgid "Historical References"
 msgstr "Referências históricas"
 
 msgid "History"
@@ -9210,8 +9210,8 @@ msgstr "Evento de Impacto"
 msgid "Impact follow-up"
 msgstr "Acompanhamento de Impacto"
 
-msgid "Impact history"
-msgstr "Histórico do Impacto"
+msgid "Impact History"
+msgstr "Histórico de Impacto"
 
 msgid "Impact task could not be created."
 msgstr "Não foi possível criar a tarefa de Impacto."
@@ -9375,9 +9375,6 @@ msgstr "Materiais Indiretos e Serviços"
 
 msgid "Indirect Materials & Services (default)"
 msgstr "Materiais Indiretos e Serviços (padrão)"
-
-msgid "Informational context only"
-msgstr "Apenas contexto informativo"
 
 msgid "Infrastructure"
 msgstr "Infraestrutura"
@@ -9931,7 +9928,7 @@ msgstr "Prioridade da ordem"
 msgid "Job readable"
 msgstr "Ordem legível"
 
-msgid "Job status"
+msgid "Job Status"
 msgstr "Status da ordem de produção"
 
 msgid "Job Traveler"
@@ -10337,7 +10334,7 @@ msgstr "Vincular um pedido de compra"
 msgid "Link a sales order"
 msgstr "Vincular um pedido de venda"
 
-msgid "Link existing task"
+msgid "Link Existing Task"
 msgstr "Vincular tarefa existente"
 
 msgid "Link Jira Issue"
@@ -10349,7 +10346,7 @@ msgstr "Vincular Problema Linear"
 msgid "link outside company"
 msgstr "vínculo fora da empresa"
 
-msgid "Link task"
+msgid "Link Task"
 msgstr "Vincular tarefa"
 
 msgid "Link this Carbon customer to one of them, or create a separate Stripe customer."
@@ -10372,7 +10369,7 @@ msgstr "PO Vinculada"
 msgid "Linked task coverage is incomplete. Decision state is independent of task status."
 msgstr "A cobertura de tarefas vinculadas está incompleta. O estado da decisão é independente do status da tarefa."
 
-msgid "Linked tasks"
+msgid "Linked Tasks"
 msgstr "Tarefas vinculadas"
 
 msgid "Linked tasks must be Completed or Skipped."
@@ -11437,8 +11434,8 @@ msgstr "Novo Campo"
 msgid "New Fixed Asset"
 msgstr "Novo Ativo Fixo"
 
-msgid "New follow-up rationale"
-msgstr "Nova justificativa de acompanhamento"
+msgid "New Follow-Up Rationale"
+msgstr "Justificativa do novo acompanhamento"
 
 msgid "New Gauge"
 msgstr "Novo instrumento de medição"
@@ -11984,6 +11981,9 @@ msgstr "Nenhuma linha para mapear"
 msgid "No lines yet"
 msgstr "Nenhuma linha ainda"
 
+msgid "No linked task."
+msgstr "Nenhuma tarefa vinculada."
+
 msgid "No list variables available upstream."
 msgstr "Nenhuma variável de lista disponível anteriormente."
 
@@ -12234,9 +12234,6 @@ msgstr "Nenhum fornecedor ainda"
 msgid "No sync operations yet"
 msgstr "Nenhuma operação de sincronização ainda"
 
-msgid "No task linked. Keep a written rationale describing the follow-up path."
-msgstr "Nenhuma tarefa vinculada. Mantenha uma justificativa por escrito descrevendo o caminho de acompanhamento."
-
 msgid "No time entries for this week"
 msgstr "Sem registros de tempo para esta semana"
 
@@ -12288,11 +12285,11 @@ msgstr "Sem centros de trabalho neste local"
 msgid "No work centers exist"
 msgstr "Nenhum centro de trabalho existe"
 
-msgid "No-action reason"
-msgstr "Motivo da não ação"
+msgid "No-Action Reason"
+msgstr "Motivo de não ação"
 
-msgid "No-action reason for every selected target"
-msgstr "Motivo da não ação para cada destino selecionado"
+msgid "No-Action Reason for Every Selected Target"
+msgstr "Motivo de não ação para cada alvo selecionado"
 
 msgid "No, build in place"
 msgstr "Não, montar no local"
@@ -12709,7 +12706,7 @@ msgstr "Data de Abertura"
 msgid "Open Dispatches"
 msgstr "Ordens de manutenção abertas"
 
-msgid "Open Impact workspace"
+msgid "Open Impact Workspace"
 msgstr "Abrir espaço de trabalho de Impacto"
 
 msgid "Open in Carbon"
@@ -12775,8 +12772,8 @@ msgstr "Pedidos de Venda Abertos"
 msgid "Open Scheduled"
 msgstr "Agendado Aberto"
 
-msgid "Open source"
-msgstr "Abrir origem"
+msgid "Open Source"
+msgstr "Abrir fonte"
 
 msgid "Open task details"
 msgstr "Abrir detalhes da tarefa"
@@ -13645,8 +13642,8 @@ msgstr "Número da PO"
 msgid "PO PDF"
 msgstr "PDF da PO"
 
-msgid "PO status"
-msgstr "Status do pedido de compra"
+msgid "PO Status"
+msgstr "Status do PO"
 
 msgid "Policy"
 msgstr "Política"
@@ -14184,9 +14181,6 @@ msgstr "Regra de aprovação de pedido de compra"
 msgid "Purchase Order ID"
 msgstr "ID do pedido de compra"
 
-msgid "Purchase Order line"
-msgstr "Linha do pedido de compra"
-
 msgid "Purchase Order Line"
 msgstr "Linha de pedido de compra"
 
@@ -14642,8 +14636,8 @@ msgstr "Razões"
 msgid "Reassess"
 msgstr "Reavaliar"
 
-msgid "Reassess operational impact"
-msgstr "Reavaliar o impacto operacional"
+msgid "Reassess Operational Impact"
+msgstr "Reavaliar impacto operacional"
 
 msgid "Reassign specific tracked entities from this row to another disposition row."
 msgstr "Reatribua entidades rastreadas específicas desta linha para outra linha de disposição."
@@ -14660,7 +14654,7 @@ msgstr "Recalculando…"
 msgid "Receipt"
 msgstr "Recebimento"
 
-msgid "Receipt complete"
+msgid "Receipt Complete"
 msgstr "Recebimento concluído"
 
 msgid "Receipt ID"
@@ -14680,9 +14674,6 @@ msgstr "Data de Recebimento Solicitada"
 
 msgid "Receipts"
 msgstr "Recibos"
-
-msgid "Receipts, inspections, sales, shipments, and other related records are outside the current Impact assessment scope. They do not count toward assessment totals or offer decision controls here."
-msgstr "Recebimentos, inspeções, vendas, remessas e outros registros relacionados estão fora do escopo atual da avaliação de Impacto. Eles não contam para os totais da avaliação nem oferecem controles de decisão aqui."
 
 msgid "Receipts, shipments, sales invoices, purchase invoices, payments, and credit/debit memos that are still Draft or Pending must be posted or voided — both documents dated in this period and undated documents that would receive a date in it when posted. Until they post, their amounts aren't in the general ledger, so the period would be understated."
 msgstr "Recebimentos, remessas, faturas de vendas, faturas de compra, pagamentos e memorandos de crédito/débito que ainda estão em Rascunho ou Pendente devem ser lançados ou anulados — tanto documentos datados neste período quanto documentos sem data que receberiam uma data nele quando lançados. Até que sejam lançados, seus valores não estão no livro-razão geral, portanto o período estaria subestimado."
@@ -14742,7 +14733,7 @@ msgstr "Qtd. Recebida"
 msgid "Received quantity not yet credited. The credit memo is created as a draft."
 msgstr "Quantidade recebida ainda não creditada. O memorando de crédito é criado como rascunho."
 
-msgid "Received to inventory"
+msgid "Received to Inventory"
 msgstr "Recebido no estoque"
 
 msgid "Receiving Location"
@@ -15300,14 +15291,14 @@ msgstr "Valor residual %"
 msgid "Resolution is unavailable until linked task coverage is complete."
 msgstr "A resolução ficará indisponível até que a cobertura das tarefas vinculadas esteja completa."
 
-msgid "Resolution note"
-msgstr "Observação da resolução"
+msgid "Resolution Note"
+msgstr "Observação de resolução"
 
 msgid "Resolve"
 msgstr "Resolver"
 
-msgid "Resolve operational impact"
-msgstr "Resolver o impacto operacional"
+msgid "Resolve Operational Impact"
+msgstr "Resolver impacto operacional"
 
 msgid "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
 msgstr "Resolva estes antes de concluir a NCR: cada linha deve ter uma disposição não-Pendente e suas quantidades de entidades vinculadas devem corresponder à quantidade da linha."
@@ -15517,8 +15508,8 @@ msgstr "Revisar"
 msgid "Review & create"
 msgstr "Revisar e criar"
 
-msgid "Review bulk Impact assessment"
-msgstr "Revisar avaliação em massa de Impacto"
+msgid "Review Bulk Impact Assessment"
+msgstr "Revisar avaliação de Impacto em massa"
 
 msgid "Review current purchasing and production exposure with source coverage, provenance, and freshness details."
 msgstr "Revisar a exposição atual de Compras e Produção com detalhes de cobertura das fontes, proveniência e atualização."
@@ -15526,13 +15517,13 @@ msgstr "Revisar a exposição atual de Compras e Produção com detalhes de cobe
 msgid "Review each item's changes, then confirm — releasing can't be undone."
 msgstr "Revise as alterações de cada item e confirme — liberar não pode ser desfeito."
 
-msgid "Review rationale"
-msgstr "Revisar justificativa"
+msgid "Review Rationale"
+msgstr "Justificativa da revisão"
 
-msgid "Review rationale for every selected target"
-msgstr "Revisar a justificativa de cada destino selecionado"
+msgid "Review Rationale for Every Selected Target"
+msgstr "Justificativa da revisão para cada alvo selecionado"
 
-msgid "Review selected"
+msgid "Review Selected"
 msgstr "Revisar selecionados"
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
@@ -15944,7 +15935,7 @@ msgstr "Salvar e contabilizar"
 msgid "Save applications"
 msgstr "Salvar aplicações"
 
-msgid "Save assessment"
+msgid "Save Assessment"
 msgstr "Salvar avaliação"
 
 msgid "Save changes"
@@ -15962,7 +15953,7 @@ msgstr "Salvar Método"
 msgid "Save Rate"
 msgstr "Salvar taxa"
 
-msgid "Save reassessment"
+msgid "Save Reassessment"
 msgstr "Salvar reavaliação"
 
 msgid "Save the form you're editing"
@@ -16442,6 +16433,9 @@ msgstr "Selecionar Tipo de Fornecedor"
 
 msgid "Select surfaces"
 msgstr "Selecionar superfícies"
+
+msgid "Select Task"
+msgstr "Selecionar Tarefa"
 
 msgid "Select the groups that should complete this training"
 msgstr "Selecione os grupos que devem concluir este treinamento"
@@ -17156,6 +17150,12 @@ msgstr "Análise de Origem"
 
 msgid "Source Company"
 msgstr "Empresa de origem"
+
+msgid "Source Coverage"
+msgstr "Cobertura das fontes"
+
+msgid "Source coverage needs attention"
+msgstr "A cobertura das fontes requer atenção"
 
 msgid "Source deleted"
 msgstr "Fonte excluída"
@@ -17962,16 +17962,13 @@ msgstr "Os filtros de tarefas usam metadados incompletos das tarefas vinculadas.
 msgid "Task linked"
 msgstr "Tarefa vinculada"
 
-msgid "Task name"
+msgid "Task Name"
 msgstr "Nome da tarefa"
 
-msgid "Task origin: Impact follow-up"
-msgstr "Origem da tarefa: acompanhamento do impacto"
-
-msgid "Task status"
+msgid "Task Status"
 msgstr "Status da tarefa"
 
-msgid "Task statuses"
+msgid "Task Statuses"
 msgstr "Status das tarefas"
 
 msgid "Task unlinked"
@@ -19398,8 +19395,8 @@ msgstr "Título"
 msgid "To"
 msgstr "Para"
 
-msgid "To assess"
-msgstr "A avaliar"
+msgid "To Assess"
+msgstr "Para avaliar"
 
 msgid "To Date"
 msgstr "Até a Data"
@@ -19821,7 +19818,7 @@ msgstr "Não atribuído"
 msgid "Unavailable"
 msgstr "Indisponível"
 
-msgid "Unavailable source rows"
+msgid "Unavailable Source Rows"
 msgstr "Linhas de origem indisponíveis"
 
 msgid "Unbalanced"
