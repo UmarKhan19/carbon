@@ -68,6 +68,14 @@ msgstr "{0, plural, one {# 행은 이 회사 외부의 데이터에 연결되어
 msgid "{0, plural, one {# row links to data outside this company, so it can't be backed up. Skipping it backs up everything else.} other {# rows link to data outside this company, so they can't be backed up. Skipping them backs up everything else.}}"
 msgstr "{0, plural, one {# 행은 이 회사 외부의 데이터에 연결되어 있어서 백업할 수 없습니다. 이를 건너뛰면 다른 모든 것이 백업됩니다.} other {# 행은 이 회사 외부의 데이터에 연결되어 있어서 백업할 수 없습니다. 이를 건너뛰면 다른 모든 것이 백업됩니다.}}"
 
+#. placeholder {0}: candidates.length
+msgid "{0, plural, one {# selected target} other {# selected targets}}"
+msgstr "{0, plural, one {대상 #개 선택됨} other {대상 #개 선택됨}}"
+
+#. placeholder {0}: selectedKeys.size
+msgid "{0, plural, one {# selected} other {# selected}}"
+msgstr "{0, plural, one {#개 선택됨} other {#개 선택됨}}"
+
 #. placeholder {0}: bulkSuccess.noOpCount
 msgid "{0, plural, one {# target was already current.} other {# targets were already current.}}"
 msgstr "{0, plural, one {#개 대상이 이미 최신 상태입니다.} other {#개 대상이 이미 최신 상태입니다.}}"
@@ -225,13 +233,8 @@ msgid "{0} scrapped"
 msgstr "{0} 폐기됨"
 
 #. placeholder {0}: selected.length
-#. placeholder {0}: selectedKeys.size
 msgid "{0} selected"
 msgstr "{0}개 선택됨"
-
-#. placeholder {0}: candidates.length
-msgid "{0} selected targets"
-msgstr "선택된 대상 {0}개"
 
 #. placeholder {0}: suggestions.length
 msgid "{0} suggested batches"
@@ -1769,6 +1772,9 @@ msgstr "감사 대상 개체에 대한 모든 변경 사항이 기록되고 있�
 msgid "All Companies"
 msgstr "모든 회사"
 
+msgid "All complete"
+msgstr "모두 완료"
+
 msgid "All Customers"
 msgstr "모든 고객"
 
@@ -1802,6 +1808,9 @@ msgstr "모든 반품 가능 라인"
 
 msgid "All rows imported — {inserted} inserted, {updated} updated."
 msgstr "모든 행을 가져왔습니다 — {inserted}개 추가, {updated}개 업데이트."
+
+msgid "All selected targets are rechecked. Any conflict rejects the whole batch."
+msgstr "선택한 모든 대상이 다시 검사됩니다. 충돌이 있으면 전체 묶음이 거부됩니다."
 
 msgid "All shifts"
 msgstr "모든 교대조"
@@ -2761,6 +2770,9 @@ msgstr "평가 범위에 주의가 필요합니다"
 msgid "Assessment created"
 msgstr "평가가 생성되었습니다"
 
+msgid "Assessment locked"
+msgstr "평가 잠김"
+
 msgid "Assessment reassessed"
 msgstr "평가가 재평가되었습니다"
 
@@ -2926,6 +2938,9 @@ msgstr "인증 앱"
 msgid "Authenticator QR code"
 msgstr "인증자 QR 코드"
 
+msgid "Authorized identities only. Source facts remain unavailable."
+msgstr "권한이 있는 식별자만 표시됩니다. 원본 데이터는 계속 사용할 수 없습니다."
+
 msgid "Authorized overtime on top of the shift"
 msgstr "교대조 위의 허가된 초과근무"
 
@@ -3031,9 +3046,6 @@ msgstr "승인 대기 중"
 
 msgid "Back"
 msgstr "뒤로"
-
-msgid "Back to Change Notice"
-msgstr "변경 통지로 돌아가기"
 
 msgid "Back to traceability"
 msgstr "추적성으로 돌아가기"
@@ -3377,6 +3389,9 @@ msgstr "독립적인 방법으로 구성되고 원가가 산정됨"
 msgid "Built off to the side, then carried in at its join step"
 msgstr "옆에서 구축하고 조립 단계에서 반입됨"
 
+msgid "Bulk Impact selection"
+msgstr "영향 일괄 선택"
+
 msgid "Bulk Import"
 msgstr "일괄 가져오기"
 
@@ -3550,9 +3565,6 @@ msgstr "취소됨"
 
 msgid "Cancelled"
 msgstr "취소됨"
-
-msgid "Cancelled · New Impact assessment is locked. Existing operational follow-up remains available."
-msgstr "취소됨 · 새 영향 평가가 잠김. 기존 운영 후속 조치는 계속 가용 상태입니다."
 
 msgid "Cannot add parameters to unsaved operation"
 msgstr "저장되지 않은 공정작업에는 파라미터를 추가할 수 없습니다"
@@ -4864,12 +4876,6 @@ msgstr "국가 코드"
 
 msgid "Coverage"
 msgstr "배치"
-
-msgid "Coverage failed. This is not an empty or safe result; refresh after the source is available."
-msgstr "범위 확인에 실패했습니다. 이는 비어 있거나 안전한 결과가 아닙니다. 원본을 사용할 수 있게 된 후 새로 고치세요."
-
-msgid "Coverage is partial. Counts and source-deletion conclusions are withheld where the scan could not be completed."
-msgstr "범위 확인이 부분적으로 완료되었습니다. 스캔을 완료할 수 없었던 항목에서는 건수와 원본 삭제 여부에 대한 결론을 제공하지 않습니다."
 
 msgid "Create"
 msgstr "생성"
@@ -6489,9 +6495,6 @@ msgstr "완료"
 msgid "Done"
 msgstr "완료"
 
-msgid "Done · Engineering released. Operational assessment remains available."
-msgstr "완료 · 엔지니어링이 릴리스되었습니다. 운영 평가는 계속 이용할 수 있습니다."
-
 msgid "Done Adding"
 msgstr "추가 완료"
 
@@ -7527,9 +7530,6 @@ msgstr "모든 조건이 일치해야 함"
 msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "설정한 시스템에서 귀사의 데이터로 범위 내 모든 테스트를 통과합니다."
 
-msgid "Every linked task must be Completed or Skipped before this Impact can be resolved."
-msgstr "이 영향을 해결하려면 연결된 모든 작업이 완료됨 또는 건너뜀 상태여야 합니다."
-
 msgid "Every match"
 msgstr "모든 일치"
 
@@ -7595,6 +7595,9 @@ msgstr "면세 증명서"
 
 msgid "Exemption Reason"
 msgstr "면세 사유"
+
+msgid "Existing follow-up and resolution remain available."
+msgstr "기존 후속 조치와 해결은 계속 사용할 수 있습니다."
 
 msgid "Existing mappings. Pick a different provider option to re-map."
 msgstr "기존 매핑입니다. 다시 매핑하려면 다른 제공자 옵션을 선택하세요."
@@ -8895,14 +8898,8 @@ msgstr "높음"
 msgid "Hints in the first row"
 msgstr "첫 번째 행의 힌트"
 
-msgid "Historical"
-msgstr "과거"
-
 msgid "Historical causes"
 msgstr "과거 원인"
-
-msgid "Historical coverage is incomplete."
-msgstr "과거 데이터 범위가 불완전합니다."
 
 msgid "Historical data older than what's on the Data Migration Map"
 msgstr "데이터 마이그레이션 맵에 있는 것보다 오래된 이력 데이터"
@@ -9360,6 +9357,9 @@ msgstr "불완전"
 
 msgid "Incomplete backup — not restorable"
 msgstr "불완전한 백업 — 복원할 수 없음"
+
+msgid "Incomplete domains have unavailable counts, not zero exposure."
+msgstr "불완전한 영역의 건수는 사용할 수 없으며, 영향이 0이라는 의미가 아닙니다."
 
 msgid "Incoterm"
 msgstr "인코텀즈"
@@ -10369,8 +10369,14 @@ msgstr "연결된 이슈"
 msgid "Linked PO"
 msgstr "연결된 구매주문"
 
+msgid "Linked task coverage is incomplete. Decision state is independent of task status."
+msgstr "연결된 작업 범위가 불완전합니다. 결정 상태는 작업 상태와 무관합니다."
+
 msgid "Linked tasks"
 msgstr "연결된 작업"
+
+msgid "Linked tasks must be Completed or Skipped."
+msgstr "연결된 작업은 완료됨 또는 건너뜀 상태여야 합니다."
 
 msgid "Linking preserves the task's existing origin and status. It does not resolve this Impact decision."
 msgstr "작업을 연결해도 기존 작업의 출처와 상태는 유지됩니다. 이 영향 결정이 해결되는 것은 아닙니다."
@@ -11665,6 +11671,9 @@ msgstr "최신순"
 msgid "Next"
 msgstr "다음"
 
+msgid "Next Action"
+msgstr "다음 작업"
+
 msgid "Next Calibration"
 msgstr "다음 교정"
 
@@ -11834,6 +11843,9 @@ msgstr "원가 이력이 없습니다"
 msgid "No credits yet"
 msgstr "아직 신용권 없음"
 
+msgid "No current exposure matches these filters."
+msgstr "이 필터와 일치하는 현재 영향이 없습니다."
+
 msgid "No current operational exposure is available."
 msgstr "현재 운영 영향 정보를 사용할 수 없습니다."
 
@@ -11930,9 +11942,6 @@ msgstr "그룹화된 알림이 없습니다"
 msgid "No groups assigned"
 msgstr "배정된 그룹이 없습니다"
 
-msgid "No historical references are available."
-msgstr "과거 참조가 없습니다."
-
 msgid "No history is recorded for this assessment."
 msgstr "이 평가에 기록된 이력이 없습니다."
 
@@ -11959,9 +11968,6 @@ msgstr "아직 여기에 재고 활동이 있는 항목이 없습니다."
 
 msgid "No jobs are scheduled at this location yet — release a job to see work-center load."
 msgstr "아직 이 사업장에 스케줄된 작업 지시가 없습니다 — 작업 지시를 릴리스하여 작업장 부하를 확인하세요."
-
-msgid "No Jobs or Job Materials are available."
-msgstr "사용 가능한 작업 지시 또는 작업 지시 자재가 없습니다."
 
 msgid "No jobs were created"
 msgstr "생성된 작업 지시가 없음"
@@ -12120,9 +12126,6 @@ msgstr "이 공정작업에 대해 아직 기록된 생산 이벤트가 없습�
 msgid "No production recorded yet."
 msgstr "아직 기록된 생산이 없습니다."
 
-msgid "No Purchase Order lines are available."
-msgstr "사용 가능한 발주서 라인이 없습니다."
-
 msgid "No purchases in this period"
 msgstr "이 기간에 구매가 없습니다"
 
@@ -12248,9 +12251,6 @@ msgstr "할당된 교육 없음"
 
 msgid "No transactions in this period"
 msgstr "이 기간에 거래가 없습니다"
-
-msgid "No unavailable source rows are available."
-msgstr "사용할 수 없는 소스 행이 없습니다."
 
 msgid "No unmapped accounts match a provider code"
 msgstr "매핑되지 않은 계정이 공급자 코드와 일치하지 않음"
@@ -13636,6 +13636,9 @@ msgstr "데이터의 CSV 파일을 업로드하세요"
 msgid "PO"
 msgstr "PO"
 
+msgid "PO Lines"
+msgstr "구매 주문 라인"
+
 msgid "PO Number"
 msgstr "PO 번호"
 
@@ -13933,9 +13936,6 @@ msgstr "생산된 품목"
 msgid "Producing Job"
 msgstr "생산 중인 작업 지시"
 
-msgid "Producing Jobs"
-msgstr "생산 중인 작업 지시"
-
 msgid "Product issues during hypercare"
 msgstr "하이퍼케어 기간 중 발생한 제품 이슈"
 
@@ -14188,9 +14188,6 @@ msgid "Purchase Order line"
 msgstr "발주서 라인"
 
 msgid "Purchase Order Line"
-msgstr "발주서 라인"
-
-msgid "Purchase Order lines"
 msgstr "발주서 라인"
 
 msgid "Purchase Order Location"
@@ -15309,12 +15306,6 @@ msgstr "해결 메모"
 msgid "Resolve"
 msgstr "해결"
 
-msgid "Resolve after every linked task is Completed or Skipped."
-msgstr "모든 연결된 작업이 완료됨 또는 건너뜀 상태가 된 후 해결하세요."
-
-msgid "Resolve after linked task coverage is complete."
-msgstr "연결된 작업 범위가 완료된 후 해결하세요."
-
 msgid "Resolve operational impact"
 msgstr "운영 영향 해결"
 
@@ -16250,6 +16241,9 @@ msgstr "고객 가격 책정과 계약 조건을 좌우하는 구분 항목"
 msgid "Select"
 msgstr "선택"
 
+msgid "Select {domain} {item} from {source}"
+msgstr "{source}에서 {domain} {item} 선택"
+
 msgid "Select a assignee"
 msgstr "담당자 선택"
 
@@ -17124,9 +17118,6 @@ msgstr "솔루션 엔지니어"
 msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
 msgstr "PDF에서 추출된 일부 라인을 재고 품목에 자동으로 매핑할 수 없습니다. 아래에서 각 라인을 검토하고 매핑하세요."
 
-msgid "Some linked task metadata is unavailable. Decision state is shown independently and has not been inferred from task status. Task details are omitted where linked-task coverage could not be read."
-msgstr "일부 연결된 작업 메타데이터를 사용할 수 없습니다. 결정 상태는 독립적으로 표시되며 작업 상태에서 추론되지 않았습니다. 연결된 작업 범위를 읽을 수 없는 경우 작업 세부 정보는 생략됩니다."
-
 msgid "Some records won't come back. Type <0>{CONFIRM_WORD}</0> to continue."
 msgstr "일부 레코드는 돌아오지 않습니다. 계속하려면 <0>{CONFIRM_WORD}</0>를 입력하세요."
 
@@ -17180,9 +17171,6 @@ msgstr "원본 문서 ID"
 
 msgid "Source document readable"
 msgstr "원본 문서 읽기 가능"
-
-msgid "Source identities are retained only where they were authorized; decision-relevant facts are withheld until coverage is restored."
-msgstr "원본 식별 정보는 권한이 부여된 경우에만 유지되며, 범위가 복원될 때까지 의사결정에 필요한 사실은 제공되지 않습니다."
 
 msgid "Source Item"
 msgstr "소스 품목"
@@ -17828,9 +17816,6 @@ msgstr "공급 & 소요량"
 
 msgid "Support"
 msgstr "지원"
-
-msgid "Supported purchasing and production targets that can receive an independent Impact assessment."
-msgstr "독립적인 영향 평가를 받을 수 있는 지원 대상 구매 및 생산 항목."
 
 #. placeholder {0}: supportedModelTypes.join(", ")
 msgid "Supports {0} files"
@@ -18782,9 +18767,6 @@ msgstr "스케줄러는 아래의 첫 번째 해당하는 규칙을 사용한 �
 msgid "The selected rows do not share an available conclusion. Adjust the selection before reviewing it."
 msgstr "선택한 행에 공통으로 적용할 수 있는 결론이 없습니다. 선택 항목을 조정한 후 확인하세요."
 
-msgid "The server will recheck every target and reject the whole batch if any source fact, eligibility rule, or decision revision changed after this preview."
-msgstr "서버는 모든 대상을 다시 확인하며, 이 미리 보기 후 원본 정보, 자격 규칙 또는 결정 리비전 중 하나라도 변경되면 전체 배치를 거부합니다."
-
 msgid "The shelves and bins where stock physically sits"
 msgstr "재고가 실제로 보관되는 선반과 빈(bin)"
 
@@ -19025,9 +19007,6 @@ msgstr "이 공정들은 여러 공급업체에서 처리 가능합니다. 각 �
 msgid "These parts are being replaced by this one. Each rule is set on the old part; open it to change the rule."
 msgstr "이 부품들이 이 부품으로 대체됩니다. 각 규칙은 기존 부품에 설정되어 있으니 규칙을 변경하려면 해당 부품을 열어주세요."
 
-msgid "These references remain traceable but do not create a new Unassessed obligation."
-msgstr "이 참조 항목은 계속 추적할 수 있지만 새로운 미평가 의무가 발생하지는 않습니다."
-
 msgid "These rows link to data outside this company, so a safety copy of your current data can't be made. Deleting them cannot be undone. If they turn out to be shared with other companies in this group, nothing is deleted and the demo data isn't applied."
 msgstr "이 행들은 이 회사 외부의 데이터로 연결되어 있으므로 현재 데이터의 백업 복사본을 만들 수 없습니다. 이를 삭제하면 되돌릴 수 없습니다. 이것이 이 그룹의 다른 회사들과 공유되는 것으로 판명되면 아무것도 삭제되지 않으며 데모 데이터도 적용되지 않습니다."
 
@@ -19244,9 +19223,6 @@ msgstr "이 수주는 관련 작업 지시가 있습니다. 이들을 어떻게 
 msgid "This sales order has lines that require jobs to be created"
 msgstr "이 수주는 작업 지시가 생성되어야 하는 라인이 있습니다."
 
-msgid "This source domain is restricted for your current permissions. No target identities or source facts are shown."
-msgstr "현재 권한으로는 이 소스 도메인에 접근할 수 없습니다. 대상 식별 정보나 원본 정보는 표시되지 않습니다."
-
 msgid "This station runs ability-gated work — it only runs while a qualified operator is on shift; operators assigned on the manning board further shape available labor."
 msgstr "이 작업장은 역량 게이트 작업을 실행합니다 — 자격 있는 작업자가 교대조에 있을 때만 실행됩니다; 인력 배치표에 할당된 작업자는 가용 노무를 더욱 형성합니다."
 
@@ -19422,6 +19398,9 @@ msgstr "제목"
 msgid "To"
 msgstr "까지"
 
+msgid "To assess"
+msgstr "평가 대상"
+
 msgid "To Date"
 msgstr "마감일"
 
@@ -19592,6 +19571,9 @@ msgstr "합계"
 
 msgid "Traceability"
 msgstr "추적성"
+
+msgid "Traceable references; no new Unassessed obligation."
+msgstr "추적 가능한 참조이며, 새로운 미평가 의무를 만들지 않습니다."
 
 msgid "Track"
 msgstr "추적"

@@ -68,6 +68,14 @@ msgstr "{0, plural, one {# satır bu şirketin dışındaki verilere bağlantı 
 msgid "{0, plural, one {# row links to data outside this company, so it can't be backed up. Skipping it backs up everything else.} other {# rows link to data outside this company, so they can't be backed up. Skipping them backs up everything else.}}"
 msgstr "{0, plural, one {# satır bu şirketin dışındaki verilere bağlantı kuruyor, bu nedenle yedeklenemez. Bunu atlayarak diğer her şeyi yedekleyebilirsiniz.} other {# satır bu şirketin dışındaki verilere bağlantı kuruyor, bu nedenle yedeklenemez. Bunları atlayarak diğer her şeyi yedekleyebilirsiniz.}}"
 
+#. placeholder {0}: candidates.length
+msgid "{0, plural, one {# selected target} other {# selected targets}}"
+msgstr "{0, plural, one {# hedef seçildi} other {# hedef seçildi}}"
+
+#. placeholder {0}: selectedKeys.size
+msgid "{0, plural, one {# selected} other {# selected}}"
+msgstr "{0, plural, one {# seçildi} other {# seçildi}}"
+
 #. placeholder {0}: bulkSuccess.noOpCount
 msgid "{0, plural, one {# target was already current.} other {# targets were already current.}}"
 msgstr "{0, plural, one {# hedef zaten günceldi.} other {# hedef zaten günceldi.}}"
@@ -225,13 +233,8 @@ msgid "{0} scrapped"
 msgstr "{0} hurdaya alındı"
 
 #. placeholder {0}: selected.length
-#. placeholder {0}: selectedKeys.size
 msgid "{0} selected"
 msgstr "{0} seçildi"
-
-#. placeholder {0}: candidates.length
-msgid "{0} selected targets"
-msgstr "{0} hedef seçildi"
 
 #. placeholder {0}: suggestions.length
 msgid "{0} suggested batches"
@@ -1769,6 +1772,9 @@ msgstr "Denetlenebilir varlıklardaki tüm değişiklikler kaydediliyor."
 msgid "All Companies"
 msgstr "Tüm Şirketler"
 
+msgid "All complete"
+msgstr "Tümü tamam"
+
 msgid "All Customers"
 msgstr "Tüm Müşteriler"
 
@@ -1802,6 +1808,9 @@ msgstr "Tüm iade edilebilir satırlar"
 
 msgid "All rows imported — {inserted} inserted, {updated} updated."
 msgstr "{inserted} eklendi, {updated} güncellendi — tüm satırlar içe aktarıldı."
+
+msgid "All selected targets are rechecked. Any conflict rejects the whole batch."
+msgstr "Seçilen tüm hedefler yeniden kontrol edilir. Herhangi bir çakışma tüm grubu reddeder."
 
 msgid "All shifts"
 msgstr "Tüm vardiyalar"
@@ -2761,6 +2770,9 @@ msgstr "Değerlendirme kapsamı dikkat gerektiriyor"
 msgid "Assessment created"
 msgstr "Değerlendirme oluşturuldu"
 
+msgid "Assessment locked"
+msgstr "Değerlendirme kilitli"
+
 msgid "Assessment reassessed"
 msgstr "Değerlendirme yeniden değerlendirildi"
 
@@ -2926,6 +2938,9 @@ msgstr "Kimlik Doğrulayıcı Uygulaması"
 msgid "Authenticator QR code"
 msgstr "Doğrulayıcı QR kodu"
 
+msgid "Authorized identities only. Source facts remain unavailable."
+msgstr "Yalnızca yetkili kimlikler. Kaynak verileri kullanılamaz durumda."
+
 msgid "Authorized overtime on top of the shift"
 msgstr "Vardiyayı çok aşan yetkili fazla mesai"
 
@@ -3031,9 +3046,6 @@ msgstr "Onay bekliyor"
 
 msgid "Back"
 msgstr "Geri"
-
-msgid "Back to Change Notice"
-msgstr "Değişiklik bildirimine dön"
 
 msgid "Back to traceability"
 msgstr "İzlenebilirliğe geri dön"
@@ -3377,6 +3389,9 @@ msgstr "Kendi yöntemi olarak oluşturulmuş ve maliyetlendirilmiş"
 msgid "Built off to the side, then carried in at its join step"
 msgstr "Yanında inşa edildi, ardından birleştirme adımında taşındı"
 
+msgid "Bulk Impact selection"
+msgstr "Toplu Etki seçimi"
+
 msgid "Bulk Import"
 msgstr "Toplu İçe Aktarma"
 
@@ -3550,9 +3565,6 @@ msgstr "İptal edildi"
 
 msgid "Cancelled"
 msgstr "İptal edildi"
-
-msgid "Cancelled · New Impact assessment is locked. Existing operational follow-up remains available."
-msgstr "İptal edildi · Yeni Etki değerlendirmesi kilitli. Mevcut operasyonel takip kullanılabilir durumda."
 
 msgid "Cannot add parameters to unsaved operation"
 msgstr "Kaydedilmemiş işleme parametre eklenemez"
@@ -4864,12 +4876,6 @@ msgstr "Ülke kodu"
 
 msgid "Coverage"
 msgstr "Vardiya katılımı"
-
-msgid "Coverage failed. This is not an empty or safe result; refresh after the source is available."
-msgstr "Kapsam başarısız oldu. Bu, boş veya güvenli bir sonuç değildir; kaynak kullanılabilir olduktan sonra yenileyin."
-
-msgid "Coverage is partial. Counts and source-deletion conclusions are withheld where the scan could not be completed."
-msgstr "Kapsam kısmi. Taramanın tamamlanamadığı yerlerde sayımlar ve kaynak silme sonuçları gösterilmez."
 
 msgid "Create"
 msgstr "Oluştur"
@@ -6489,9 +6495,6 @@ msgstr "bitti"
 msgid "Done"
 msgstr "Bitti"
 
-msgid "Done · Engineering released. Operational assessment remains available."
-msgstr "Tamamlandı · Mühendislik yayına alındı. Operasyonel değerlendirme kullanılabilir durumda."
-
 msgid "Done Adding"
 msgstr "Ekleme Bitti"
 
@@ -7527,9 +7530,6 @@ msgstr "Her koşul eşleşmelidir"
 msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "Kapsamdaki her test, yapılandırılmış sisteminizde, verilerinizle geçer."
 
-msgid "Every linked task must be Completed or Skipped before this Impact can be resolved."
-msgstr "Bu Etki çözümlenebilmeden önce bağlantılı tüm görevler Tamamlandı veya Atlandı durumunda olmalıdır."
-
 msgid "Every match"
 msgstr "Her eşleşme"
 
@@ -7595,6 +7595,9 @@ msgstr "İstisnai Sertifika"
 
 msgid "Exemption Reason"
 msgstr "İstisnai Nedeni"
+
+msgid "Existing follow-up and resolution remain available."
+msgstr "Mevcut takip ve sonuçlandırma kullanılabilir durumda."
 
 msgid "Existing mappings. Pick a different provider option to re-map."
 msgstr "Mevcut eşlemeler. Yeniden eşlemek için farklı bir sağlayıcı seçeneği seçin."
@@ -8895,14 +8898,8 @@ msgstr "Yüksek"
 msgid "Hints in the first row"
 msgstr "İlk satırdaki ipuçları"
 
-msgid "Historical"
-msgstr "Tarihsel"
-
 msgid "Historical causes"
 msgstr "Tarihsel nedenler"
-
-msgid "Historical coverage is incomplete."
-msgstr "Tarihsel kapsam eksik."
 
 msgid "Historical data older than what's on the Data Migration Map"
 msgstr "Veri Taşıma Haritasında olanlardan daha eski geçmiş veriler"
@@ -9360,6 +9357,9 @@ msgstr "Eksik"
 
 msgid "Incomplete backup — not restorable"
 msgstr "Eksik yedek — geri yüklenemez"
+
+msgid "Incomplete domains have unavailable counts, not zero exposure."
+msgstr "Eksik alanların sayıları kullanılamaz; bu, etkilenmenin sıfır olduğu anlamına gelmez."
 
 msgid "Incoterm"
 msgstr "Incoterm"
@@ -10369,8 +10369,14 @@ msgstr "Bağlı Sorun"
 msgid "Linked PO"
 msgstr "Bağlantılı Sipariş"
 
+msgid "Linked task coverage is incomplete. Decision state is independent of task status."
+msgstr "Bağlı görev kapsamı eksik. Karar durumu görev durumundan bağımsızdır."
+
 msgid "Linked tasks"
 msgstr "Bağlı görevler"
+
+msgid "Linked tasks must be Completed or Skipped."
+msgstr "Bağlı görevler Tamamlandı veya Atlanmış olmalıdır."
 
 msgid "Linking preserves the task's existing origin and status. It does not resolve this Impact decision."
 msgstr "Bağlama, görevin mevcut kaynağını ve durumunu korur. Bu, Etki kararını çözümlemez."
@@ -11665,6 +11671,9 @@ msgstr "En yeniden önce"
 msgid "Next"
 msgstr "İleri"
 
+msgid "Next Action"
+msgstr "Sonraki işlem"
+
 msgid "Next Calibration"
 msgstr "Son Kalibrasyon"
 
@@ -11834,6 +11843,9 @@ msgstr "Hiç maliyet geçmişi bulunamadı"
 msgid "No credits yet"
 msgstr "Henüz kredi yok"
 
+msgid "No current exposure matches these filters."
+msgstr "Bu filtrelerle eşleşen güncel etkilenme yok."
+
 msgid "No current operational exposure is available."
 msgstr "Güncel operasyonel etkilenme kullanılabilir değil."
 
@@ -11930,9 +11942,6 @@ msgstr "Gruplanmış bildirim yok"
 msgid "No groups assigned"
 msgstr "Atanmış grup yok"
 
-msgid "No historical references are available."
-msgstr "Kullanılabilir geçmiş referans yok."
-
 msgid "No history is recorded for this assessment."
 msgstr "Bu değerlendirme için geçmiş kaydı yok."
 
@@ -11959,9 +11968,6 @@ msgstr "Burada henüz hiçbir maddenin envanter hareketi yok."
 
 msgid "No jobs are scheduled at this location yet — release a job to see work-center load."
 msgstr "Bu lokasyon'da henüz hiçbir iş emri planlanmadı — iş merkezi yükünü görmek için bir iş emri'ni serbest bırakın."
-
-msgid "No Jobs or Job Materials are available."
-msgstr "İş emirleri veya İş emri malzemeleri kullanılabilir değil."
 
 msgid "No jobs were created"
 msgstr "İş emri oluşturulmadı"
@@ -12120,9 +12126,6 @@ msgstr "Bu operasyon için henüz kaydedilmiş üretim olayı yok"
 msgid "No production recorded yet."
 msgstr "Henüz kayıtlı üretim yok."
 
-msgid "No Purchase Order lines are available."
-msgstr "Satın alma siparişi satırları kullanılabilir değil."
-
 msgid "No purchases in this period"
 msgstr "Bu dönemde satın alma yok"
 
@@ -12248,9 +12251,6 @@ msgstr "Atanan eğitim yok"
 
 msgid "No transactions in this period"
 msgstr "Bu dönemde işlem yok"
-
-msgid "No unavailable source rows are available."
-msgstr "Kullanılamayan kaynak satırı kullanılabilir değil."
 
 msgid "No unmapped accounts match a provider code"
 msgstr "Haritalanmamış hesaplar sağlayıcı kodundan herhangi biriyle uyuşmıyor"
@@ -13636,6 +13636,9 @@ msgstr "Lütfen verilerinizin bir CSV dosyasını yükleyin"
 msgid "PO"
 msgstr "SİP"
 
+msgid "PO Lines"
+msgstr "Satın alma satırları"
+
 msgid "PO Number"
 msgstr "PO Numarası"
 
@@ -13933,9 +13936,6 @@ msgstr "Üretilen stok kartı"
 msgid "Producing Job"
 msgstr "Üretim iş emri"
 
-msgid "Producing Jobs"
-msgstr "Üretim iş emirleri"
-
 msgid "Product issues during hypercare"
 msgstr "Hypercare sırasında ürün sorunları"
 
@@ -14189,9 +14189,6 @@ msgstr "Satın alma siparişi satırı"
 
 msgid "Purchase Order Line"
 msgstr "Satın Alma Siparişi Kalemi"
-
-msgid "Purchase Order lines"
-msgstr "Satın alma siparişi satırları"
 
 msgid "Purchase Order Location"
 msgstr "Satın Alma Siparişi Konumu"
@@ -15309,12 +15306,6 @@ msgstr "Sonuçlandırma notu"
 msgid "Resolve"
 msgstr "Sonuçlandır"
 
-msgid "Resolve after every linked task is Completed or Skipped."
-msgstr "Bağlı tüm görevler Tamamlandı veya Atlandı durumuna geldikten sonra sonuçlandır."
-
-msgid "Resolve after linked task coverage is complete."
-msgstr "Bağlı görev kapsamı tamamlandıktan sonra sonuçlandır."
-
 msgid "Resolve operational impact"
 msgstr "Operasyonel etkiyi sonuçlandır"
 
@@ -16250,6 +16241,9 @@ msgstr "Müşteri fiyatlandırması ve koşullarını belirleyen segmentler"
 msgid "Select"
 msgstr "Seç"
 
+msgid "Select {domain} {item} from {source}"
+msgstr "{source} kaynağından {domain} {item} seç"
+
 msgid "Select a assignee"
 msgstr "Bir atanan seçin"
 
@@ -17124,9 +17118,6 @@ msgstr "Çözüm Mühendisi"
 msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
 msgstr "PDF'den çıkarılan bazı satırlar stok kartlarınıza otomatik olarak eşleştirilemedi. Aşağıdaki her satırı gözden geçirin ve eşleştirin."
 
-msgid "Some linked task metadata is unavailable. Decision state is shown independently and has not been inferred from task status. Task details are omitted where linked-task coverage could not be read."
-msgstr "Bazı bağlı görev meta verileri kullanılamıyor. Karar durumu bağımsız olarak gösterilir ve görev durumundan çıkarılmamıştır. Bağlı görev kapsamının okunamadığı yerlerde görev ayrıntıları gösterilmez."
-
 msgid "Some records won't come back. Type <0>{CONFIRM_WORD}</0> to continue."
 msgstr "Bazı kayıtlar geri gelmeyecek. Devam etmek için <0>{CONFIRM_WORD}</0> yazın."
 
@@ -17180,9 +17171,6 @@ msgstr "Kaynak Belge Kimliği"
 
 msgid "Source document readable"
 msgstr "Okunabilir kaynak belge"
-
-msgid "Source identities are retained only where they were authorized; decision-relevant facts are withheld until coverage is restored."
-msgstr "Kaynak kimlikleri yalnızca yetki verilen durumlarda saklanır; kapsam geri yüklenene kadar kararla ilgili bilgiler gizlenir."
 
 msgid "Source Item"
 msgstr "Kaynak Ürün"
@@ -17828,9 +17816,6 @@ msgstr "Arzû ve Talep"
 
 msgid "Support"
 msgstr "Destek"
-
-msgid "Supported purchasing and production targets that can receive an independent Impact assessment."
-msgstr "Bağımsız Etki değerlendirmesi yapılabilen desteklenen satın alma ve üretim hedefleri."
 
 #. placeholder {0}: supportedModelTypes.join(", ")
 msgid "Supports {0} files"
@@ -18782,9 +18767,6 @@ msgstr "Planlayıcı, aşağıdaki geçerli olan ilk kuralı kullanır, ardında
 msgid "The selected rows do not share an available conclusion. Adjust the selection before reviewing it."
 msgstr "Seçilen satırlar kullanılabilir bir sonuç içermiyor. İncelemeden önce seçimi ayarlayın."
 
-msgid "The server will recheck every target and reject the whole batch if any source fact, eligibility rule, or decision revision changed after this preview."
-msgstr "Sunucu her hedefi yeniden kontrol edecek ve bu önizlemeden sonra herhangi bir kaynak bilgisi, uygunluk kuralı veya karar revizyonu değiştiyse tüm partiyi reddedecek."
-
 msgid "The shelves and bins where stock physically sits"
 msgstr "Stoğun fiziksel olarak bulunduğu raflar ve gözler"
 
@@ -19025,9 +19007,6 @@ msgstr "Bu operasyonlar birden fazla tedarikçili bir proses kullanır. Her biri
 msgid "These parts are being replaced by this one. Each rule is set on the old part; open it to change the rule."
 msgstr "Bu parçalar bu birim tarafından değiştiriliyor. Her kural eski parçaya ayarlanmış; kuralı değiştirmek için açın."
 
-msgid "These references remain traceable but do not create a new Unassessed obligation."
-msgstr "Bu referanslar izlenebilirliğini korur, ancak yeni bir Değerlendirilmemiş yükümlülük oluşturmaz."
-
 msgid "These rows link to data outside this company, so a safety copy of your current data can't be made. Deleting them cannot be undone. If they turn out to be shared with other companies in this group, nothing is deleted and the demo data isn't applied."
 msgstr "Bu satırlar bu şirketin dışındaki verilere bağlantılı, bu yüzden mevcut verilerinizin güvenlik kopyası oluşturulamaz. Onları silmek geri alınamaz. Eğer bu grup içindeki diğer şirketlerle paylaşıldığı ortaya çıkarsa, hiçbir şey silinmez ve demo verileri uygulanmaz."
 
@@ -19244,9 +19223,6 @@ msgstr "Bu satış siparişinin ilişkili iş emirleri var. Bunlarla ne yapacağ
 msgid "This sales order has lines that require jobs to be created"
 msgstr "Bu satış siparişi, oluşturulması gereken iş emirlerini gerektiren satırlar içerir"
 
-msgid "This source domain is restricted for your current permissions. No target identities or source facts are shown."
-msgstr "Bu kaynak alanı mevcut izinleriniz nedeniyle kısıtlıdır. Hedef kimlikleri veya kaynak bilgileri gösterilmez."
-
 msgid "This station runs ability-gated work — it only runs while a qualified operator is on shift; operators assigned on the manning board further shape available labor."
 msgstr "Bu istasyon yetkinlik kapısı geçmeli işleri çalıştırır — yalnızca nitelikli operatör vardiyada olduğu sürece çalışır; kadro tarafından atanan operatörler kullanılabilir işçiliği şekillendirir."
 
@@ -19422,6 +19398,9 @@ msgstr "Unvan"
 msgid "To"
 msgstr "Kime"
 
+msgid "To assess"
+msgstr "Değerlendirilecek"
+
 msgid "To Date"
 msgstr "Bitiş Tarihi"
 
@@ -19592,6 +19571,9 @@ msgstr "Toplamlar"
 
 msgid "Traceability"
 msgstr "İzlenebilirlik"
+
+msgid "Traceable references; no new Unassessed obligation."
+msgstr "İzlenebilir referanslar; yeni bir değerlendirilmemiş yükümlülük doğurmaz."
 
 msgid "Track"
 msgstr "Takip Et"

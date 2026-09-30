@@ -1,37 +1,86 @@
+import { createElement, type ReactNode } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { ChangeNoticeImpactWorkspaceReadModel } from "~/modules/items";
+
+const presentation = vi.hoisted(() => ({ params: new URLSearchParams() }));
+
 import { getImpactDecisionFilterValue } from "./ChangeNoticeImpactFilters";
 
 vi.mock("@carbon/form", () => ({ ValidatedForm: () => null }));
-vi.mock("@carbon/react", () => ({
-  Badge: () => null,
-  Button: () => null,
-  Card: () => null,
-  CardContent: () => null,
-  CardHeader: () => null,
-  CardTitle: () => null,
-  Checkbox: () => null,
-  Drawer: () => null,
-  DrawerBody: () => null,
-  DrawerContent: () => null,
-  DrawerFooter: () => null,
-  DrawerHeader: () => null,
-  DrawerTitle: () => null,
-  HStack: () => null,
-  VStack: () => null
-}));
+vi.mock("@carbon/react", () => {
+  const passthrough = (props: { children?: ReactNode }) => props.children;
+  const exports = Object.fromEntries(
+    [
+      "Alert",
+      "AlertDescription",
+      "AlertTitle",
+      "Badge",
+      "Card",
+      "CardAction",
+      "CardAttribute",
+      "CardAttributeLabel",
+      "CardAttributes",
+      "CardAttributeValue",
+      "CardContent",
+      "CardHeader",
+      "CardTitle",
+      "Drawer",
+      "DrawerBody",
+      "DrawerContent",
+      "DrawerFooter",
+      "DrawerHeader",
+      "DrawerTitle",
+      "HStack",
+      "VStack",
+      "Status",
+      "TruncatedTooltipText",
+      "Tooltip",
+      "TooltipTrigger",
+      "TooltipContent"
+    ].map((name) => [name, passthrough])
+  );
+  return {
+    ...exports,
+    Checkbox: () => null,
+    MenuIcon: () => null,
+    MenuItem: () => null,
+    IconButton: () => null,
+    Button: (props: { children?: ReactNode; isDisabled?: boolean }) =>
+      createElement("button", { disabled: props.isDisabled }, props.children)
+  };
+});
 vi.mock("@carbon/utils", () => ({ formatDate: vi.fn() }));
 vi.mock("@lingui/react/macro", () => ({
-  Plural: () => null,
-  Trans: () => null,
-  useLingui: () => ({ t: (value: string) => value })
+  Plural: (props: { value: number; one: string; other: string }) =>
+    (props.value === 1 ? props.one : props.other).replace(
+      "#",
+      String(props.value)
+    ),
+  Trans: (props: { children?: ReactNode }) => props.children,
+  useLingui: () => ({
+    t: (parts: TemplateStringsArray, ...values: unknown[]) =>
+      parts.reduce(
+        (text, part, index) => text + part + (values[index] ?? ""),
+        ""
+      )
+  })
 }));
-vi.mock("@react-aria/i18n", () => ({ useLocale: () => ({ locale: "en-US" }) }));
+vi.mock("@react-aria/i18n", () => ({
+  useLocale: () => ({ locale: "en-US" }),
+  useNumberFormatter: () => ({ format: String })
+}));
 vi.mock("react-icons/lu", () => ({
+  LuArrowRight: () => null,
+  LuCircleCheck: () => null,
+  LuInfo: () => null,
+  LuListTodo: () => null,
+  LuPackage: () => null,
   LuChevronRight: () => null,
   LuExternalLink: () => null,
   LuHistory: () => null,
   LuRefreshCw: () => null,
-  LuTriangle: () => null
+  LuTriangleAlert: () => null
 }));
 vi.mock("react-router", () => ({
   Link: () => null,
@@ -39,6 +88,49 @@ vi.mock("react-router", () => ({
   useRevalidator: () => ({ revalidate: vi.fn() })
 }));
 vi.mock("~/components", () => ({ EmployeeAvatar: () => null }));
+vi.mock("~/components/Hyperlink", () => ({
+  default: (props: { children?: ReactNode }) => props.children
+}));
+vi.mock("~/components/Table", () => ({
+  default: (props: {
+    data: Parameters<
+      typeof getChangeNoticeImpactDecisionControls
+    >[0]["candidate"][];
+    columns: {
+      cell?: (context: {
+        row: {
+          original: Parameters<
+            typeof getChangeNoticeImpactDecisionControls
+          >[0]["candidate"];
+        };
+      }) => ReactNode;
+    }[];
+    emptyState?: ReactNode;
+  }) =>
+    createElement(
+      "div",
+      { "data-impact-table": true },
+      props.data.length === 0
+        ? props.emptyState
+        : props.data.map((row, index) =>
+            createElement(
+              "div",
+              { key: index },
+              props.columns.map((column, columnIndex) =>
+                createElement(
+                  "span",
+                  { key: columnIndex },
+                  column.cell?.({ row: { original: row } })
+                )
+              )
+            )
+          )
+    )
+}));
+vi.mock("./ChangeNoticeImpactFilters", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./ChangeNoticeImpactFilters")>()),
+  ChangeNoticeImpactFilterBar: () => null
+}));
 vi.mock("~/components/Form", () => ({
   Boolean: () => null,
   Hidden: () => null,
@@ -49,7 +141,7 @@ vi.mock("~/components/Form", () => ({
 }));
 vi.mock("~/hooks", () => ({
   usePermissions: () => ({ can: () => true }),
-  useUrlParams: () => [new URLSearchParams(), vi.fn()]
+  useUrlParams: () => [presentation.params, vi.fn()]
 }));
 vi.mock("~/modules/items", () => ({
   changeNoticeImpactDecisionBulkFormValidator: {},
@@ -92,7 +184,14 @@ vi.mock("~/modules/purchasing/ui/PurchaseOrder/PurchasingStatus", () => ({
   default: () => null
 }));
 vi.mock("~/utils/path", () => ({
-  path: { to: { changeNoticeImpact: (id: string) => `/impact/${id}` } }
+  path: {
+    to: {
+      changeNoticeImpact: (id: string) => `/impact/${id}`,
+      purchaseOrderLine: () => "/po/line",
+      job: () => "/job",
+      jobMaterials: () => "/job/materials"
+    }
+  }
 }));
 vi.mock("./ChangeNoticeStatus", () => ({ default: () => null }));
 vi.mock("./ChangeNoticeImpactTasks", () => ({
@@ -103,6 +202,7 @@ vi.mock("./ChangeNoticeImpactHistory", () => ({
 }));
 
 const {
+  default: ChangeNoticeImpactWorkspace,
   canSelectChangeNoticeImpactCandidate,
   canViewChangeNoticeImpactHistory,
   conditionBadges,
@@ -658,3 +758,153 @@ function pendingCandidateDecision() {
     persistedSnapshot: null
   };
 }
+
+function workspaceData(
+  rows: ChangeNoticeImpactWorkspaceReadModel["candidates"]
+): ChangeNoticeImpactWorkspaceReadModel {
+  const coverage = (
+    targetType: ChangeNoticeImpactWorkspaceReadModel["candidates"][number]["targetType"]
+  ): ChangeNoticeImpactWorkspaceReadModel["coverage"]["job"] => ({
+    targetType,
+    status: "complete",
+    currentExposureCount: 2,
+    historicalReferenceCount: 0,
+    unassessedCount: 1,
+    nextCursor: { current: null, historical: null }
+  });
+  return {
+    changeNoticeId: "cn-1",
+    changeNoticeStatus: "Draft",
+    candidates: rows,
+    coverage: {
+      purchaseOrderLine: coverage("purchaseOrderLine"),
+      job: coverage("job"),
+      jobMaterial: coverage("jobMaterial")
+    },
+    taskCoverage: { status: "complete" }
+  };
+}
+
+function renderWorkspace(data: ChangeNoticeImpactWorkspaceReadModel) {
+  return renderToStaticMarkup(
+    createElement(ChangeNoticeImpactWorkspace, {
+      id: "cn-1",
+      changeNotice: null,
+      data,
+      actions: []
+    })
+  );
+}
+
+function workspaceText(markup: string) {
+  return markup
+    .replace(/<[^>]+>/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+describe("Change Notice Impact scan presentation", () => {
+  beforeEach(() => {
+    presentation.params = new URLSearchParams();
+  });
+
+  it("keeps rich evidence collapsed and uses readable identities with one next action", () => {
+    const markup = renderWorkspace(
+      workspaceData([
+        candidate({
+          item: { readableId: "BAT-48", readableIdWithRevision: "BAT-48.A" },
+          parent: {
+            type: "purchaseOrder",
+            id: "opaque-parent",
+            readableId: "PO001",
+            status: "Draft",
+            supplierName: "Supplier"
+          },
+          targetId: "opaque-target",
+          decision: {
+            status: "Action required",
+            rationale: "LONG_PRIVATE_RATIONALE"
+          }
+        })
+      ])
+    );
+    const text = workspaceText(markup);
+    expect(text).toContain("BAT-48.A");
+    expect(text).toContain("PO001");
+    expect(text).toContain("Resolve");
+    expect(text).not.toContain("Reassess");
+    expect(text).not.toContain("opaque-target");
+    expect(text).not.toContain("LONG_PRIVATE_RATIONALE");
+    expect(text).not.toContain("Historical references");
+    expect(text).not.toContain("Unavailable source rows");
+  });
+
+  it("keeps source-deleted references historical without new assessment controls", () => {
+    const text = workspaceText(
+      renderWorkspace(
+        workspaceData([
+          candidate({
+            sourceAvailability: "Source deleted",
+            exposureClassification: "Historical reference",
+            currentSnapshot: null
+          })
+        ])
+      )
+    );
+    expect(text).toContain("Historical references");
+    expect(text).toContain("Source deleted");
+    expect(text).not.toContain("Unavailable source rows");
+    expect(text).not.toContain("Resolve");
+    expect(text).not.toContain("Reassess");
+  });
+
+  it("does not expose malformed Restricted identities and does not present missing counts as zero", () => {
+    const data = workspaceData([
+      candidate({
+        sourceAvailability: "Restricted",
+        item: { readableId: "SECRET_ITEM" },
+        parent: { type: "job", id: "secret", readableId: "SECRET_JOB" }
+      })
+    ]);
+    data.coverage.job = {
+      ...data.coverage.job,
+      status: "restricted",
+      currentExposureCount: null,
+      unassessedCount: null,
+      errorMessage: "SECRET_ERROR"
+    };
+    const text = workspaceText(renderWorkspace(data));
+    expect(text).not.toContain("SECRET");
+    expect(text).toContain("Restricted");
+    expect(text).toContain("To assessUnavailable");
+    expect(text.match(/Assessment coverage needs attention/g)).toHaveLength(1);
+    expect(text).toContain("No complete current result is available.");
+  });
+
+  it("retains authoritative counts when display filters match no loaded row", () => {
+    presentation.params = new URLSearchParams({ search: "does-not-match" });
+    const text = workspaceText(renderWorkspace(workspaceData([candidate()])));
+    expect(text).toContain("To assess3");
+    expect(text).toContain(
+      "No Impact rows match the current search and filters."
+    );
+  });
+
+  it("keeps Done reassessment available and Cancelled assessment locked", () => {
+    const data = workspaceData([
+      candidate({
+        decision: { status: "No action required" },
+        freshness: "Current"
+      })
+    ]);
+    data.changeNoticeStatus = "Done";
+    expect(workspaceText(renderWorkspace(data))).toContain("Reassess");
+    expect(workspaceText(renderWorkspace(data))).not.toContain(
+      "Assessment locked"
+    );
+    data.changeNoticeStatus = "Cancelled";
+    const text = workspaceText(renderWorkspace(data));
+    expect(text).toContain("Assessment locked");
+    expect(text).not.toContain("Reassess");
+  });
+});

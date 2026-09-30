@@ -68,6 +68,14 @@ msgstr "{0, plural, one {# 行はこの会社の外部のデータにリンク�
 msgid "{0, plural, one {# row links to data outside this company, so it can't be backed up. Skipping it backs up everything else.} other {# rows link to data outside this company, so they can't be backed up. Skipping them backs up everything else.}}"
 msgstr "{0, plural, one {# 行はこの会社の外部のデータにリンクしているため、バックアップできません。スキップすると、他のすべてがバックアップされます。} other {# 行はこの会社の外部のデータにリンクしているため、バックアップできません。スキップすると、他のすべてがバックアップされます。}}"
 
+#. placeholder {0}: candidates.length
+msgid "{0, plural, one {# selected target} other {# selected targets}}"
+msgstr "{0, plural, one {# 件の対象を選択} other {# 件の対象を選択}}"
+
+#. placeholder {0}: selectedKeys.size
+msgid "{0, plural, one {# selected} other {# selected}}"
+msgstr "{0, plural, one {# 件選択} other {# 件選択}}"
+
 #. placeholder {0}: bulkSuccess.noOpCount
 msgid "{0, plural, one {# target was already current.} other {# targets were already current.}}"
 msgstr "{0, plural, one {# 件の対象はすでに最新です。} other {# 件の対象はすでに最新です。}}"
@@ -225,13 +233,8 @@ msgid "{0} scrapped"
 msgstr "{0}廃棄"
 
 #. placeholder {0}: selected.length
-#. placeholder {0}: selectedKeys.size
 msgid "{0} selected"
 msgstr "{0} 件選択"
-
-#. placeholder {0}: candidates.length
-msgid "{0} selected targets"
-msgstr "選択済みの対象 {0}件"
 
 #. placeholder {0}: suggestions.length
 msgid "{0} suggested batches"
@@ -1769,6 +1772,9 @@ msgstr "監査対象エンティティへのすべての変更が記録されて
 msgid "All Companies"
 msgstr "すべての会社"
 
+msgid "All complete"
+msgstr "すべて完了"
+
 msgid "All Customers"
 msgstr "すべての得意先"
 
@@ -1802,6 +1808,9 @@ msgstr "すべての返品対象明細"
 
 msgid "All rows imported — {inserted} inserted, {updated} updated."
 msgstr "すべての行をインポート—{inserted}行挿入、{updated}行更新。"
+
+msgid "All selected targets are rechecked. Any conflict rejects the whole batch."
+msgstr "選択した対象はすべて再確認されます。競合がある場合はバッチ全体が拒否されます。"
 
 msgid "All shifts"
 msgstr "すべてのシフト"
@@ -2761,6 +2770,9 @@ msgstr "評価の網羅状況に注意が必要です"
 msgid "Assessment created"
 msgstr "評価を作成しました"
 
+msgid "Assessment locked"
+msgstr "評価はロックされています"
+
 msgid "Assessment reassessed"
 msgstr "評価を再評価しました"
 
@@ -2926,6 +2938,9 @@ msgstr "認証器アプリ"
 msgid "Authenticator QR code"
 msgstr "認証器QRコード"
 
+msgid "Authorized identities only. Source facts remain unavailable."
+msgstr "権限のある識別情報のみを表示します。ソースの情報は引き続き利用できません。"
+
 msgid "Authorized overtime on top of the shift"
 msgstr "シフトを超えた認可残業"
 
@@ -3031,9 +3046,6 @@ msgstr "承認待ち"
 
 msgid "Back"
 msgstr "戻る"
-
-msgid "Back to Change Notice"
-msgstr "変更通知に戻る"
 
 msgid "Back to traceability"
 msgstr "トレーサビリティに戻る"
@@ -3377,6 +3389,9 @@ msgstr "独自の方法として構築および原価計算"
 msgid "Built off to the side, then carried in at its join step"
 msgstr "サイドで構築されて、その結合ステップで配置される"
 
+msgid "Bulk Impact selection"
+msgstr "影響の一括選択"
+
 msgid "Bulk Import"
 msgstr "一括インポート"
 
@@ -3550,9 +3565,6 @@ msgstr "キャンセル済み"
 
 msgid "Cancelled"
 msgstr "キャンセル済み"
-
-msgid "Cancelled · New Impact assessment is locked. Existing operational follow-up remains available."
-msgstr "キャンセル済み · 新規の影響評価はロック中です。既存の運用フォローアップは引き続き利用可能です。"
 
 msgid "Cannot add parameters to unsaved operation"
 msgstr "保存されていない操作にパラメータを追加できません"
@@ -4864,12 +4876,6 @@ msgstr "国コード"
 
 msgid "Coverage"
 msgstr "配置"
-
-msgid "Coverage failed. This is not an empty or safe result; refresh after the source is available."
-msgstr "網羅状況の取得に失敗しました。これは空の結果でも安全な結果でもありません。ソースが利用可能になったら更新してください。"
-
-msgid "Coverage is partial. Counts and source-deletion conclusions are withheld where the scan could not be completed."
-msgstr "網羅状況は一部です。スキャンを完了できなかった箇所では、件数とソースが削除されたかどうかの判定は表示されません。"
 
 msgid "Create"
 msgstr "作成"
@@ -6489,9 +6495,6 @@ msgstr "完了"
 msgid "Done"
 msgstr "完了"
 
-msgid "Done · Engineering released. Operational assessment remains available."
-msgstr "完了 · エンジニアリングはリリース済み。業務評価は引き続き利用可能です。"
-
 msgid "Done Adding"
 msgstr "追加完了"
 
@@ -7527,9 +7530,6 @@ msgstr "すべての条件が一致する必要があります"
 msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "スコープ内のすべてのテストが、設定されたシステムで、あなたのデータを使用して合格します。"
 
-msgid "Every linked task must be Completed or Skipped before this Impact can be resolved."
-msgstr "この影響を解決する前に、リンクされたすべてのタスクを完了またはスキップ済みにする必要があります。"
-
 msgid "Every match"
 msgstr "すべてのマッチ"
 
@@ -7595,6 +7595,9 @@ msgstr "免除証明書"
 
 msgid "Exemption Reason"
 msgstr "免除理由"
+
+msgid "Existing follow-up and resolution remain available."
+msgstr "既存のフォローアップと解決は引き続き利用できます。"
 
 msgid "Existing mappings. Pick a different provider option to re-map."
 msgstr "既存のマッピング。異なるプロバイダーオプションを選択して再マップしてください。"
@@ -8895,14 +8898,8 @@ msgstr "高"
 msgid "Hints in the first row"
 msgstr "最初の行のヒント"
 
-msgid "Historical"
-msgstr "過去の"
-
 msgid "Historical causes"
 msgstr "過去の原因"
-
-msgid "Historical coverage is incomplete."
-msgstr "過去の情報の網羅性が不完全です。"
 
 msgid "Historical data older than what's on the Data Migration Map"
 msgstr "データ移行マップにあるもの以前の履歴データ"
@@ -9360,6 +9357,9 @@ msgstr "不完全"
 
 msgid "Incomplete backup — not restorable"
 msgstr "不完全なバックアップ — 復元できません"
+
+msgid "Incomplete domains have unavailable counts, not zero exposure."
+msgstr "不完全な領域の件数は利用不可であり、影響がゼロという意味ではありません。"
 
 msgid "Incoterm"
 msgstr "インコタームズ"
@@ -10369,8 +10369,14 @@ msgstr "リンク済み問題"
 msgid "Linked PO"
 msgstr "リンク済みPO"
 
+msgid "Linked task coverage is incomplete. Decision state is independent of task status."
+msgstr "リンク済みタスクの網羅状況が不完全です。判断はタスクステータスとは独立しています。"
+
 msgid "Linked tasks"
 msgstr "リンク済みタスク"
+
+msgid "Linked tasks must be Completed or Skipped."
+msgstr "リンク済みタスクは完了またはスキップ済みである必要があります。"
 
 msgid "Linking preserves the task's existing origin and status. It does not resolve this Impact decision."
 msgstr "リンクしても、タスクの既存の起点とステータスは維持されます。この操作で影響の判定は解決されません。"
@@ -11665,6 +11671,9 @@ msgstr "最新順"
 msgid "Next"
 msgstr "次へ"
 
+msgid "Next Action"
+msgstr "次のアクション"
+
 msgid "Next Calibration"
 msgstr "次の校正"
 
@@ -11834,6 +11843,9 @@ msgstr "原価の履歴が見つかりません"
 msgid "No credits yet"
 msgstr "クレジットはまだありません"
 
+msgid "No current exposure matches these filters."
+msgstr "この絞り込みに一致する現在の影響範囲はありません。"
+
 msgid "No current operational exposure is available."
 msgstr "現在の業務上の影響範囲は利用できません。"
 
@@ -11930,9 +11942,6 @@ msgstr "グループ化された通知がありません"
 msgid "No groups assigned"
 msgstr "グループが割り当てられていません"
 
-msgid "No historical references are available."
-msgstr "過去の参照情報はありません。"
-
 msgid "No history is recorded for this assessment."
 msgstr "この評価の履歴は記録されていません。"
 
@@ -11959,9 +11968,6 @@ msgstr "ここにはまだアイテムの在庫活動がありません。"
 
 msgid "No jobs are scheduled at this location yet — release a job to see work-center load."
 msgstr "この拠点ではまだ製造指図がスケジュール化されていません — 製造指図をリリースして作業区負荷を確認してください。"
-
-msgid "No Jobs or Job Materials are available."
-msgstr "利用可能な製造指図または指図材料はありません。"
 
 msgid "No jobs were created"
 msgstr "製造指図は作成されませんでした"
@@ -12120,9 +12126,6 @@ msgstr "この操作で記録された生産イベントはまだありません
 msgid "No production recorded yet."
 msgstr "生産がまだ記録されていません。"
 
-msgid "No Purchase Order lines are available."
-msgstr "利用可能な発注書明細はありません。"
-
 msgid "No purchases in this period"
 msgstr "この期間に購入がありません"
 
@@ -12248,9 +12251,6 @@ msgstr "割り当てられた教育訓練がありません"
 
 msgid "No transactions in this period"
 msgstr "この期間に取引がありません"
-
-msgid "No unavailable source rows are available."
-msgstr "利用できないソース行はありません。"
 
 msgid "No unmapped accounts match a provider code"
 msgstr "マップされていない勘定科目でプロバイダーコードと一致するものがありません"
@@ -13636,6 +13636,9 @@ msgstr "あなたのデータのCSVファイルをアップロードしてくだ
 msgid "PO"
 msgstr "発注書"
 
+msgid "PO Lines"
+msgstr "発注行"
+
 msgid "PO Number"
 msgstr "発注番号"
 
@@ -13933,9 +13936,6 @@ msgstr "製造品目"
 msgid "Producing Job"
 msgstr "製造中の製造指図"
 
-msgid "Producing Jobs"
-msgstr "製造中の製造指図"
-
 msgid "Product issues during hypercare"
 msgstr "ハイパーケア中の製品の問題"
 
@@ -14189,9 +14189,6 @@ msgstr "発注書の明細"
 
 msgid "Purchase Order Line"
 msgstr "発注書明細"
-
-msgid "Purchase Order lines"
-msgstr "発注書の明細"
 
 msgid "Purchase Order Location"
 msgstr "発注書拠点"
@@ -15309,12 +15306,6 @@ msgstr "解決メモ"
 msgid "Resolve"
 msgstr "解決する"
 
-msgid "Resolve after every linked task is Completed or Skipped."
-msgstr "紐付けられたすべてのタスクが完了またはスキップ済みになった後に解決する。"
-
-msgid "Resolve after linked task coverage is complete."
-msgstr "紐付けられたタスクの対象範囲が完了した後に解決する。"
-
 msgid "Resolve operational impact"
 msgstr "業務への影響を解決する"
 
@@ -16250,6 +16241,9 @@ msgstr "得意先の価格設定と条件を決定するセグメント"
 msgid "Select"
 msgstr "選択"
 
+msgid "Select {domain} {item} from {source}"
+msgstr "{source} の {domain} {item} を選択"
+
 msgid "Select a assignee"
 msgstr "担当者を選択"
 
@@ -17124,9 +17118,6 @@ msgstr "ソリューションズエンジニア"
 msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
 msgstr "PDFから抽出された一部の明細は在庫品目に自動的にマップできませんでした。以下の各明細を確認してマップしてください。"
 
-msgid "Some linked task metadata is unavailable. Decision state is shown independently and has not been inferred from task status. Task details are omitted where linked-task coverage could not be read."
-msgstr "一部の紐付けタスクのメタデータを利用できません。意思決定の状態は独立して表示され、タスクのステータスから推測されたものではありません。紐付けタスクの対象範囲を読み取れなかった場合、そのタスクの詳細は省略されます。"
-
 msgid "Some records won't come back. Type <0>{CONFIRM_WORD}</0> to continue."
 msgstr "いくつかのレコードは戻りません。続行するには<0>{CONFIRM_WORD}</0>と入力してください。"
 
@@ -17180,9 +17171,6 @@ msgstr "参照伝票ID"
 
 msgid "Source document readable"
 msgstr "参照伝票判読可能"
-
-msgid "Source identities are retained only where they were authorized; decision-relevant facts are withheld until coverage is restored."
-msgstr "認可された場合に限り、ソースの識別情報を保持しています。対象範囲が復元されるまで、意思決定に関連する事実は提示されません。"
 
 msgid "Source Item"
 msgstr "ソースアイテム"
@@ -17828,9 +17816,6 @@ msgstr "供給と所要量"
 
 msgid "Support"
 msgstr "サポート"
-
-msgid "Supported purchasing and production targets that can receive an independent Impact assessment."
-msgstr "独立した影響評価を実施できる、サポート対象の購買・生産対象。"
 
 #. placeholder {0}: supportedModelTypes.join(", ")
 msgid "Supports {0} files"
@@ -18782,9 +18767,6 @@ msgstr "スケジューラーは以下の最初に適用されるルールを使
 msgid "The selected rows do not share an available conclusion. Adjust the selection before reviewing it."
 msgstr "選択した行には利用可能な結論が共通していません。選択内容を調整してから確認してください。"
 
-msgid "The server will recheck every target and reject the whole batch if any source fact, eligibility rule, or decision revision changed after this preview."
-msgstr "サーバーはすべての対象を再確認し、このプレビュー後にソース情報、適格性ルール、または判定リビジョンのいずれかが変更されていた場合、バッチ全体を却下します。"
-
 msgid "The shelves and bins where stock physically sits"
 msgstr "在庫が物理的に置かれている棚とビン。"
 
@@ -19025,9 +19007,6 @@ msgstr "これらの工程は複数の仕入先に対応可能な工法を使用
 msgid "These parts are being replaced by this one. Each rule is set on the old part; open it to change the rule."
 msgstr "これらの部品はこの部品で置き換わっています。各ルールは旧部品に設定されています；ルールを変更するには旧部品を開いてください。"
 
-msgid "These references remain traceable but do not create a new Unassessed obligation."
-msgstr "これらの参照は引き続き追跡可能ですが、新たな未評価の義務を発生させません。"
-
 msgid "These rows link to data outside this company, so a safety copy of your current data can't be made. Deleting them cannot be undone. If they turn out to be shared with other companies in this group, nothing is deleted and the demo data isn't applied."
 msgstr "これらの行は、この会社の外部のデータにリンクしています。このため、現在のデータのセーフコピーを作成できません。これらの削除は取り消すことができません。これらがこのグループ内の他の会社と共有されている場合、何も削除されず、デモデータは適用されません。"
 
@@ -19244,9 +19223,6 @@ msgstr "この受注には関連する製造指図があります。それらで
 msgid "This sales order has lines that require jobs to be created"
 msgstr "この受注には製造指図の作成が必要な明細があります"
 
-msgid "This source domain is restricted for your current permissions. No target identities or source facts are shown."
-msgstr "このソースドメインは現在の権限では制限されています。対象の識別情報やソース情報は表示されません。"
-
 msgid "This station runs ability-gated work — it only runs while a qualified operator is on shift; operators assigned on the manning board further shape available labor."
 msgstr "このステーションはスキル制限のある作業を実行します — 適切なスキルを持つ作業者がシフト中のみ実行されます。人員配置ボードに割り当てられた作業者は、利用可能な労務をさらに決定します。"
 
@@ -19422,6 +19398,9 @@ msgstr "タイトル"
 msgid "To"
 msgstr "へ"
 
+msgid "To assess"
+msgstr "評価待ち"
+
 msgid "To Date"
 msgstr "終了日"
 
@@ -19592,6 +19571,9 @@ msgstr "合計"
 
 msgid "Traceability"
 msgstr "トレーサビリティ"
+
+msgid "Traceable references; no new Unassessed obligation."
+msgstr "追跡可能な参照情報です。未評価の新たな義務は発生しません。"
 
 msgid "Track"
 msgstr "追跡"

@@ -64,4 +64,25 @@ describe("ChangeNoticeImpactSnapshotFacts presentation", () => {
     expect(snapshot.status).toBe("Ready");
     expect(displayJobStatus("Planned")).toBe("Planned");
   });
+
+  it("fits the containing pane without truncating decision-relevant facts", () => {
+    const markup = renderToStaticMarkup(
+      createElement(SnapshotFacts, { candidate, snapshot })
+    );
+    expect(markup).toContain("auto-fit");
+    expect(markup).not.toContain("lg:grid-cols-4");
+    expect(markup).not.toContain("truncate");
+    const rendered = text(markup);
+    for (const fact of [
+      "Planned:",
+      "Completed:",
+      "Remaining:",
+      "Due:",
+      "Job status:",
+      "Shipped:",
+      "Received to inventory:",
+      "Method:"
+    ])
+      expect(rendered).toContain(fact);
+  });
 });

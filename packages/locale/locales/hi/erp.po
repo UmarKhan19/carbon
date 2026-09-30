@@ -68,6 +68,14 @@ msgstr "{0, plural, one {# पंक्ति इस कंपनी के ब�
 msgid "{0, plural, one {# row links to data outside this company, so it can't be backed up. Skipping it backs up everything else.} other {# rows link to data outside this company, so they can't be backed up. Skipping them backs up everything else.}}"
 msgstr "{0, plural, one {# पंक्ति इस कंपनी के बाहर डेटा से जुड़ी है, इसलिए इसे बैकअप नहीं किया जा सकता। इसे छोड़ने से सब कुछ और बैकअप हो जाता है।} other {# पंक्तियाँ इस कंपनी के बाहर डेटा से जुड़ी हैं, इसलिए उन्हें बैकअप नहीं किया जा सकता। उन्हें छोड़ने से सब कुछ और बैकअप हो जाता है।}}"
 
+#. placeholder {0}: candidates.length
+msgid "{0, plural, one {# selected target} other {# selected targets}}"
+msgstr "{0, plural, one {# लक्ष्य चुना गया} other {# लक्ष्य चुने गए}}"
+
+#. placeholder {0}: selectedKeys.size
+msgid "{0, plural, one {# selected} other {# selected}}"
+msgstr "{0, plural, one {# चुना गया} other {# चुने गए}}"
+
 #. placeholder {0}: bulkSuccess.noOpCount
 msgid "{0, plural, one {# target was already current.} other {# targets were already current.}}"
 msgstr "{0, plural, one {# लक्ष्य पहले से अद्यतन था।} other {# लक्ष्य पहले से अद्यतन थे।}}"
@@ -225,13 +233,8 @@ msgid "{0} scrapped"
 msgstr "{0} स्क्रैप किया गया"
 
 #. placeholder {0}: selected.length
-#. placeholder {0}: selectedKeys.size
 msgid "{0} selected"
 msgstr "{0} चुने गए"
-
-#. placeholder {0}: candidates.length
-msgid "{0} selected targets"
-msgstr "{0} चयनित लक्ष्य"
 
 #. placeholder {0}: suggestions.length
 msgid "{0} suggested batches"
@@ -1769,6 +1772,9 @@ msgstr "सभी ऑडिट योग्य संस्थाओं मे�
 msgid "All Companies"
 msgstr "सभी कंपनियां"
 
+msgid "All complete"
+msgstr "सब पूर्ण"
+
 msgid "All Customers"
 msgstr "सभी ग्राहक"
 
@@ -1802,6 +1808,9 @@ msgstr "सभी रिटर्न योग्य पंक्तियाँ
 
 msgid "All rows imported — {inserted} inserted, {updated} updated."
 msgstr "सभी पंक्तियाँ आयात की गईं — {inserted} डाली गईं, {updated} अपडेट की गईं।"
+
+msgid "All selected targets are rechecked. Any conflict rejects the whole batch."
+msgstr "चुने गए सभी लक्ष्यों की फिर से जाँच की जाती है। कोई भी टकराव पूरे बैच को अस्वीकार कर देता है।"
 
 msgid "All shifts"
 msgstr "सभी शिफ्ट"
@@ -2761,6 +2770,9 @@ msgstr "आकलन कवरेज पर ध्यान आवश्यक �
 msgid "Assessment created"
 msgstr "आकलन बनाया गया"
 
+msgid "Assessment locked"
+msgstr "आकलन लॉक है"
+
 msgid "Assessment reassessed"
 msgstr "आकलन का पुनः आकलन किया गया"
 
@@ -2926,6 +2938,9 @@ msgstr "ऑथेंटिकेटर ऐप"
 msgid "Authenticator QR code"
 msgstr "प्रमाणकर्ता QR कोड"
 
+msgid "Authorized identities only. Source facts remain unavailable."
+msgstr "केवल अधिकृत पहचानें। स्रोत डेटा अभी भी अनुपलब्ध है।"
+
 msgid "Authorized overtime on top of the shift"
 msgstr "शिफ्ट के अतिरिक्त अधिकृत ओवरटाइम"
 
@@ -3031,9 +3046,6 @@ msgstr "अनुमोदन की प्रतीक्षा में"
 
 msgid "Back"
 msgstr "वापस"
-
-msgid "Back to Change Notice"
-msgstr "परिवर्तन सूचना पर वापस जाएँ"
 
 msgid "Back to traceability"
 msgstr "ट्रेसेबिलिटी पर वापस जाएं"
@@ -3377,6 +3389,9 @@ msgstr "अपनी स्वयं की विधि के रूप मे
 msgid "Built off to the side, then carried in at its join step"
 msgstr "बग़ल में बनाया गया, फिर इसके जॉइन चरण में ले जाया गया"
 
+msgid "Bulk Impact selection"
+msgstr "प्रभाव का बल्क चयन"
+
 msgid "Bulk Import"
 msgstr "बल्क आयात"
 
@@ -3550,9 +3565,6 @@ msgstr "रद्द किया गया"
 
 msgid "Cancelled"
 msgstr "रद्द किया गया"
-
-msgid "Cancelled · New Impact assessment is locked. Existing operational follow-up remains available."
-msgstr "रद्द · नया प्रभाव आकलन लॉक है। मौजूदा परिचालन फ़ॉलो-अप अभी भी उपलब्ध है।"
 
 msgid "Cannot add parameters to unsaved operation"
 msgstr "असहेजे गए ऑपरेशन में पैरामीटर नहीं जोड़े जा सकते"
@@ -4864,12 +4876,6 @@ msgstr "देश कोड"
 
 msgid "Coverage"
 msgstr "कवरेज"
-
-msgid "Coverage failed. This is not an empty or safe result; refresh after the source is available."
-msgstr "कवरेज विफल रहा। यह खाली या सुरक्षित परिणाम नहीं है; स्रोत उपलब्ध होने के बाद रीफ़्रेश करें।"
-
-msgid "Coverage is partial. Counts and source-deletion conclusions are withheld where the scan could not be completed."
-msgstr "कवरेज आंशिक है। जहाँ स्कैन पूरा नहीं किया जा सका, वहाँ संख्या और स्रोत-विलोपन संबंधी निष्कर्ष उपलब्ध नहीं कराए गए हैं।"
 
 msgid "Create"
 msgstr "बनाएं"
@@ -6489,9 +6495,6 @@ msgstr "हो गया"
 msgid "Done"
 msgstr "हो गया"
 
-msgid "Done · Engineering released. Operational assessment remains available."
-msgstr "हो गया · इंजीनियरिंग द्वारा जारी। परिचालन आकलन अभी भी उपलब्ध है।"
-
 msgid "Done Adding"
 msgstr "जोड़ना पूरा किया"
 
@@ -7527,9 +7530,6 @@ msgstr "हर शर्त मेल खानी चाहिए"
 msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "आपकी कॉन्फ़िगर की गई सिस्टम में, आपके डेटा के साथ, हर स्कोप में आने वाला टेस्ट पास होता है।"
 
-msgid "Every linked task must be Completed or Skipped before this Impact can be resolved."
-msgstr "इस प्रभाव का समाधान करने से पहले, प्रत्येक लिंक किए गए कार्य की स्थिति पूर्ण या छोड़ी गई होनी चाहिए।"
-
 msgid "Every match"
 msgstr "हर मेल"
 
@@ -7595,6 +7595,9 @@ msgstr "छूट प्रमाणपत्र"
 
 msgid "Exemption Reason"
 msgstr "छूट कारण"
+
+msgid "Existing follow-up and resolution remain available."
+msgstr "मौजूदा फ़ॉलो-अप और समाधान उपलब्ध रहते हैं।"
 
 msgid "Existing mappings. Pick a different provider option to re-map."
 msgstr "मौजूदा मैपिंग। पुनः-मैप करने के लिए एक अलग प्रदाता विकल्प चुनें।"
@@ -8895,14 +8898,8 @@ msgstr "उच्च"
 msgid "Hints in the first row"
 msgstr "पहली पंक्ति में संकेत"
 
-msgid "Historical"
-msgstr "ऐतिहासिक"
-
 msgid "Historical causes"
 msgstr "ऐतिहासिक कारण"
-
-msgid "Historical coverage is incomplete."
-msgstr "ऐतिहासिक कवरेज अधूरी है।"
 
 msgid "Historical data older than what's on the Data Migration Map"
 msgstr "डेटा माइग्रेशन मैप पर जो है उससे पुराना ऐतिहासिक डेटा"
@@ -9360,6 +9357,9 @@ msgstr "अधूरा"
 
 msgid "Incomplete backup — not restorable"
 msgstr "अधूरा बैकअप — पुनर्स्थापना योग्य नहीं"
+
+msgid "Incomplete domains have unavailable counts, not zero exposure."
+msgstr "अधूरे डोमेन की गणनाएँ अनुपलब्ध हैं, प्रभाव शून्य नहीं है।"
 
 msgid "Incoterm"
 msgstr "इनकोटर्म"
@@ -10369,8 +10369,14 @@ msgstr "जुड़ी समस्या"
 msgid "Linked PO"
 msgstr "लिंक्ड PO"
 
+msgid "Linked task coverage is incomplete. Decision state is independent of task status."
+msgstr "लिंक किए गए कार्यों की कवरेज अधूरी है। निर्णय की स्थिति कार्य की स्थिति से स्वतंत्र है।"
+
 msgid "Linked tasks"
 msgstr "लिंक किए गए कार्य"
+
+msgid "Linked tasks must be Completed or Skipped."
+msgstr "लिंक किए गए कार्य पूर्ण या छोड़े गए होने चाहिए।"
 
 msgid "Linking preserves the task's existing origin and status. It does not resolve this Impact decision."
 msgstr "लिंक करने से कार्य की मौजूदा उत्पत्ति और स्थिति बनी रहती है। इससे यह प्रभाव संबंधी निर्णय हल नहीं होता।"
@@ -11665,6 +11671,9 @@ msgstr "नवीनतम पहले"
 msgid "Next"
 msgstr "अगला"
 
+msgid "Next Action"
+msgstr "अगली कार्रवाई"
+
 msgid "Next Calibration"
 msgstr "अगला अंशांकन"
 
@@ -11834,6 +11843,9 @@ msgstr "कोई लागत इतिहास नहीं मिला"
 msgid "No credits yet"
 msgstr "अभी कोई क्रेडिट नहीं"
 
+msgid "No current exposure matches these filters."
+msgstr "इन फ़िल्टरों से कोई वर्तमान जोखिम मेल नहीं खाता।"
+
 msgid "No current operational exposure is available."
 msgstr "वर्तमान परिचालन जोखिम उपलब्ध नहीं है।"
 
@@ -11930,9 +11942,6 @@ msgstr "कोई समूहीकृत सूचनाएं नहीं"
 msgid "No groups assigned"
 msgstr "कोई समूह असाइन नहीं किया गया"
 
-msgid "No historical references are available."
-msgstr "कोई ऐतिहासिक संदर्भ उपलब्ध नहीं हैं।"
-
 msgid "No history is recorded for this assessment."
 msgstr "इस आकलन के लिए कोई इतिहास दर्ज नहीं है।"
 
@@ -11959,9 +11968,6 @@ msgstr "अभी तक यहाँ कोई आइटम इन्वें�
 
 msgid "No jobs are scheduled at this location yet — release a job to see work-center load."
 msgstr "इस स्थान पर अभी तक कोई जॉब शेड्यूल नहीं किया गया है — वर्क-सेंटर लोड देखने के लिए एक जॉब जारी करें।"
-
-msgid "No Jobs or Job Materials are available."
-msgstr "कोई जॉब या जॉब सामग्री उपलब्ध नहीं है।"
 
 msgid "No jobs were created"
 msgstr "कोई जॉब नहीं बनाया गया"
@@ -12120,9 +12126,6 @@ msgstr "इस ऑपरेशन के लिए अभी तक कोई �
 msgid "No production recorded yet."
 msgstr "अभी तक कोई उत्पादन दर्ज नहीं किया गया।"
 
-msgid "No Purchase Order lines are available."
-msgstr "कोई क्रय आदेश पंक्ति उपलब्ध नहीं है।"
-
 msgid "No purchases in this period"
 msgstr "इस अवधि में कोई खरीद नहीं"
 
@@ -12248,9 +12251,6 @@ msgstr "कोई प्रशिक्षण निर्धारित नह
 
 msgid "No transactions in this period"
 msgstr "इस अवधि में कोई लेनदेन नहीं"
-
-msgid "No unavailable source rows are available."
-msgstr "कोई अनुपलब्ध स्रोत पंक्ति उपलब्ध नहीं है।"
 
 msgid "No unmapped accounts match a provider code"
 msgstr "कोई भी अनमैप किया गया खाता प्रदाता कोड से मेल नहीं खाता"
@@ -13636,6 +13636,9 @@ msgstr "कृपया अपने डेटा की एक CSV फ़ाइ
 msgid "PO"
 msgstr "PO"
 
+msgid "PO Lines"
+msgstr "खरीद ऑर्डर पंक्तियाँ"
+
 msgid "PO Number"
 msgstr "PO संख्या"
 
@@ -13933,9 +13936,6 @@ msgstr "उत्पादित आइटम"
 msgid "Producing Job"
 msgstr "उत्पादन जॉब"
 
-msgid "Producing Jobs"
-msgstr "उत्पादन जॉब"
-
 msgid "Product issues during hypercare"
 msgstr "हाइपरकेयर के दौरान उत्पाद समस्याएं"
 
@@ -14189,9 +14189,6 @@ msgstr "क्रय आदेश पंक्ति"
 
 msgid "Purchase Order Line"
 msgstr "क्रय आदेश पंक्ति"
-
-msgid "Purchase Order lines"
-msgstr "क्रय आदेश पंक्तियाँ"
 
 msgid "Purchase Order Location"
 msgstr "क्रय आदेश स्थान"
@@ -15309,12 +15306,6 @@ msgstr "समाधान नोट"
 msgid "Resolve"
 msgstr "समाधान करें"
 
-msgid "Resolve after every linked task is Completed or Skipped."
-msgstr "प्रत्येक लिंक किया गया कार्य पूर्ण या छोड़ा गया होने के बाद समाधान करें।"
-
-msgid "Resolve after linked task coverage is complete."
-msgstr "लिंक किए गए कार्यों का कवरेज पूरा होने के बाद समाधान करें।"
-
 msgid "Resolve operational impact"
 msgstr "परिचालन प्रभाव का समाधान करें"
 
@@ -16250,6 +16241,9 @@ msgstr "ऐसे सेगमेंट जो ग्राहक मूल्�
 msgid "Select"
 msgstr "चुनें"
 
+msgid "Select {domain} {item} from {source}"
+msgstr "{source} से {domain} {item} चुनें"
+
 msgid "Select a assignee"
 msgstr "एक असाइनी चुनें"
 
@@ -17124,9 +17118,6 @@ msgstr "समाधान इंजीनियर"
 msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
 msgstr "PDF से निकाली गई कुछ पंक्तियों को आपकी इन्वेंटरी आइटम्स से स्वचालित रूप से मैप नहीं किया जा सका। नीचे प्रत्येक पंक्ति की समीक्षा करें और मैप करें।"
 
-msgid "Some linked task metadata is unavailable. Decision state is shown independently and has not been inferred from task status. Task details are omitted where linked-task coverage could not be read."
-msgstr "लिंक किए गए कुछ कार्यों का मेटाडेटा उपलब्ध नहीं है। निर्णय की स्थिति स्वतंत्र रूप से दिखाई जाती है और कार्य की स्थिति से उसका अनुमान नहीं लगाया गया है। जहाँ लिंक किए गए कार्यों का कवरेज पढ़ा नहीं जा सका, वहाँ कार्य विवरण हटा दिए गए हैं।"
-
 msgid "Some records won't come back. Type <0>{CONFIRM_WORD}</0> to continue."
 msgstr "कुछ रिकॉर्ड वापस नहीं आएंगे। जारी रखने के लिए <0>{CONFIRM_WORD}</0> टाइप करें।"
 
@@ -17180,9 +17171,6 @@ msgstr "स्रोत दस्तावेज़ ID"
 
 msgid "Source document readable"
 msgstr "स्रोत दस्तावेज़ पठनीय"
-
-msgid "Source identities are retained only where they were authorized; decision-relevant facts are withheld until coverage is restored."
-msgstr "स्रोत पहचान केवल वहीं रखी जाती हैं जहाँ उन्हें अधिकृत किया गया था; कवरेज बहाल होने तक निर्णय के लिए प्रासंगिक तथ्य रोके जाते हैं।"
 
 msgid "Source Item"
 msgstr "स्रोत आइटम"
@@ -17828,9 +17816,6 @@ msgstr "आपूर्ति और मांग"
 
 msgid "Support"
 msgstr "समर्थन"
-
-msgid "Supported purchasing and production targets that can receive an independent Impact assessment."
-msgstr "समर्थित क्रय और उत्पादन लक्ष्य, जिन पर स्वतंत्र प्रभाव मूल्यांकन किया जा सकता है।"
 
 #. placeholder {0}: supportedModelTypes.join(", ")
 msgid "Supports {0} files"
@@ -18782,9 +18767,6 @@ msgstr "शेड्यूलर नीचे दिए गए पहले न�
 msgid "The selected rows do not share an available conclusion. Adjust the selection before reviewing it."
 msgstr "चुनी गई पंक्तियों में कोई साझा उपलब्ध निष्कर्ष नहीं है। समीक्षा करने से पहले चयन समायोजित करें।"
 
-msgid "The server will recheck every target and reject the whole batch if any source fact, eligibility rule, or decision revision changed after this preview."
-msgstr "सर्वर हर लक्ष्य की फिर से जाँच करेगा और इस पूर्वावलोकन के बाद किसी स्रोत तथ्य, पात्रता नियम या निर्णय रिवीजन में बदलाव होने पर पूरे बैच को अस्वीकार कर देगा।"
-
 msgid "The shelves and bins where stock physically sits"
 msgstr "वह शेल्फ और बिन जहां स्टॉक भौतिक रूप से रखा जाता है"
 
@@ -19025,9 +19007,6 @@ msgstr "ये ऑपरेशन कई आपूर्तिकर्ताओ
 msgid "These parts are being replaced by this one. Each rule is set on the old part; open it to change the rule."
 msgstr "ये पार्ट्स इसके द्वारा प्रतिस्थापित किए जा रहे हैं। प्रत्येक नियम पुराने पार्ट पर सेट है; नियम बदलने के लिए इसे खोलें।"
 
-msgid "These references remain traceable but do not create a new Unassessed obligation."
-msgstr "ये संदर्भ ट्रेस करने योग्य बने रहते हैं, लेकिन कोई नया “मूल्यांकन नहीं किया गया” दायित्व नहीं बनाते।"
-
 msgid "These rows link to data outside this company, so a safety copy of your current data can't be made. Deleting them cannot be undone. If they turn out to be shared with other companies in this group, nothing is deleted and the demo data isn't applied."
 msgstr "ये पंक्तियां इस कंपनी के बाहर के डेटा से जुड़ी हैं, इसलिए आपके वर्तमान डेटा की एक सुरक्षा प्रति नहीं बनाई जा सकती। उन्हें हटाना पूर्ववत् नहीं किया जा सकता। यदि वे इस समूह की अन्य कंपनियों के साथ साझा निकलते हैं, तो कुछ भी हटाया नहीं जाता और डेमो डेटा लागू नहीं किया जाता है।"
 
@@ -19244,9 +19223,6 @@ msgstr "इस विक्रय आदेश के पास जुड़ी 
 msgid "This sales order has lines that require jobs to be created"
 msgstr "इस विक्रय आदेश के पास पंक्तियां हैं जिनके लिए जॉब बनाने की आवश्यकता है"
 
-msgid "This source domain is restricted for your current permissions. No target identities or source facts are shown."
-msgstr "आपकी वर्तमान अनुमतियों के तहत इस स्रोत डोमेन तक पहुँच प्रतिबंधित है। लक्ष्य पहचान या स्रोत तथ्य नहीं दिखाए गए हैं।"
-
 msgid "This station runs ability-gated work — it only runs while a qualified operator is on shift; operators assigned on the manning board further shape available labor."
 msgstr "यह स्टेशन कौशल-गेटेड कार्य चलाता है — यह केवल तब चलता है जब एक योग्य ऑपरेटर शिफ्ट पर हो; मानिंग बोर्ड पर असाइन किए गए ऑपरेटर उपलब्ध श्रम को आगे आकार देते हैं।"
 
@@ -19422,6 +19398,9 @@ msgstr "शीर्षक"
 msgid "To"
 msgstr "को"
 
+msgid "To assess"
+msgstr "आकलन हेतु"
+
 msgid "To Date"
 msgstr "दिनांक तक"
 
@@ -19592,6 +19571,9 @@ msgstr "कुल"
 
 msgid "Traceability"
 msgstr "ट्रेसेबिलिटी"
+
+msgid "Traceable references; no new Unassessed obligation."
+msgstr "ट्रेस करने योग्य संदर्भ; इससे मूल्यांकन न किया गया नया दायित्व नहीं बनता।"
 
 msgid "Track"
 msgstr "ट्रैक करें"

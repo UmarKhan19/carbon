@@ -123,7 +123,7 @@ function CurrentState({
     ) : undefined;
 
   return (
-    <div className="space-y-2 rounded-md border border-border/70 bg-muted/40 p-3 text-xs">
+    <div className="space-y-2 border-b border-border pb-4 text-xs">
       <div className="font-medium">
         <Trans>Current state</Trans>
       </div>
@@ -381,8 +381,8 @@ function HistoryEntryCard({
     : undefined;
 
   return (
-    <div className="w-full rounded-lg border bg-muted/40 p-4">
-      <div className="mb-3 flex items-start justify-between gap-3">
+    <div className="w-full rounded-lg border p-4">
+      <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
           {entry.createdBy ? (
             <EmployeeAvatar employeeId={entry.createdBy} />
@@ -454,9 +454,9 @@ export function ChangeNoticeImpactHistory({
         <DrawerHeader>
           <DrawerTitle className="flex items-center gap-2">
             <LuHistory className="size-5" />
-            <span>
+            <span className="min-w-0">
               <Trans>Impact history</Trans>
-              <span className="ml-2 text-sm font-normal text-muted-foreground">
+              <span className="block break-words text-xs font-normal text-muted-foreground">
                 {domainLabel(candidate.targetType)}
                 {itemLabel ? ` · ${itemLabel}` : ""}
               </span>

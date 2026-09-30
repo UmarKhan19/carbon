@@ -1,11 +1,17 @@
 import { ValidatedForm } from "@carbon/form";
 import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
   Badge,
   Button,
   Card,
   CardAction,
+  CardAttribute,
+  CardAttributeLabel,
+  CardAttributes,
+  CardAttributeValue,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
   Drawer,
@@ -16,21 +22,36 @@ import {
   DrawerTitle,
   HStack,
   IconButton,
+  MenuIcon,
+  MenuItem,
+  Status,
+  Table as TableBase,
+  Tbody,
+  Td,
+  Th,
+  Thead,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  Tr,
+  TruncatedTooltipText,
   VStack
 } from "@carbon/react";
 import { Plural, Trans, useLingui } from "@lingui/react/macro";
-import { useLocale } from "@react-aria/i18n";
-import type { ComponentProps, ReactNode } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNumberFormatter } from "@react-aria/i18n";
+import type { CellContext, ColumnDef } from "@tanstack/react-table";
+import type { ComponentProps, MouseEvent, ReactNode } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import {
+  LuArrowRight,
   LuChevronRight,
+  LuCircleCheck,
   LuExternalLink,
   LuHistory,
+  LuInfo,
+  LuPackage,
   LuRefreshCw,
-  LuTriangle
+  LuTriangleAlert
 } from "react-icons/lu";
 import { Link, useFetcher, useRevalidator } from "react-router";
 import type { z } from "zod";
@@ -42,6 +63,8 @@ import {
   TextArea,
   TextAreaControlled
 } from "~/components/Form";
+import Hyperlink from "~/components/Hyperlink";
+import Table from "~/components/Table";
 import IndeterminateCheckbox from "~/components/Table/components/IndeterminateCheckbox";
 import { usePermissions, useUrlParams } from "~/hooks";
 import {
@@ -74,7 +97,6 @@ import {
 import { ChangeNoticeImpactHistory } from "./ChangeNoticeImpactHistory";
 import { SnapshotFacts } from "./ChangeNoticeImpactSnapshotFacts";
 import { ChangeNoticeImpactTasks } from "./ChangeNoticeImpactTasks";
-import ChangeNoticeStatus from "./ChangeNoticeStatus";
 
 const CURRENT_EXPOSURE = "Current operational exposure";
 const HISTORICAL_REFERENCE = "Historical reference";
@@ -424,9 +446,19 @@ function stateBadge(
   if (!status) return null;
 
   return (
-    <Badge variant="outline" className="whitespace-nowrap">
+    <Status
+      disableTooltip
+      color={
+        status === "Action required"
+          ? "orange"
+          : status === "Resolved"
+            ? "green"
+            : "gray"
+      }
+      className="whitespace-nowrap"
+    >
       {decisionLabel(status)}
-    </Badge>
+    </Status>
   );
 }
 
@@ -459,8 +491,15 @@ export function conditionBadges(candidate: Candidate) {
       </Badge>
     );
   }
+  badges.push(...freshnessBadges(candidate));
+  return badges;
+}
+
+// Freshness is meaningful only when it is not plain `Current`; unchanged rows
+// keep a quiet cell so the scan row stays readable.
+function freshnessBadges(candidate: Candidate) {
   if (candidate.freshness === "Changed since assessment") {
-    badges.push(
+    return [
       <Badge
         key="freshness"
         variant="outline"
@@ -468,9 +507,10 @@ export function conditionBadges(candidate: Candidate) {
       >
         <Trans>Changed since assessment</Trans>
       </Badge>
-    );
-  } else if (candidate.freshness === "Unknown") {
-    badges.push(
+    ];
+  }
+  if (candidate.freshness === "Unknown") {
+    return [
       <Badge
         key="freshness"
         variant="outline"
@@ -478,30 +518,19 @@ export function conditionBadges(candidate: Candidate) {
       >
         <Trans>Freshness unavailable</Trans>
       </Badge>
-    );
+    ];
   }
-  return badges;
+  return [];
 }
 
-function sourceLink(candidate: Candidate) {
-  if (!candidate.parent || candidate.sourceAvailability !== "Present") {
+function sourceHref(candidate: Candidate) {
+  if (!candidate.parent || candidate.sourceAvailability !== "Present")
     return null;
-  }
-  const href =
-    candidate.targetType === "purchaseOrderLine"
-      ? path.to.purchaseOrderLine(candidate.parent.id, candidate.targetId)
-      : candidate.targetType === "job"
-        ? path.to.job(candidate.parent.id)
-        : path.to.jobMaterials(candidate.parent.id);
-  return (
-    <Link
-      to={href}
-      className="inline-flex shrink-0 items-center gap-1 text-xs text-primary hover:underline"
-    >
-      <LuExternalLink className="size-3" />
-      <Trans>Open source</Trans>
-    </Link>
-  );
+  return candidate.targetType === "purchaseOrderLine"
+    ? path.to.purchaseOrderLine(candidate.parent.id, candidate.targetId)
+    : candidate.targetType === "job"
+      ? path.to.job(candidate.parent.id)
+      : path.to.jobMaterials(candidate.parent.id);
 }
 
 function provenanceLabel(label: string | null): ReactNode {
@@ -774,8 +803,11 @@ function ImpactDecisionDrawer({
               )}
 
               <div className="w-full space-y-2 rounded-md bg-muted/40 p-3 text-xs">
-                <div className="font-medium">
-                  {domainLabel(candidate.targetType)} · {candidate.targetId}
+                <TargetIdentity candidate={candidate} />
+                <div className="text-muted-foreground">
+                  {candidate.parent?.readableId ?? (
+                    <Trans>Source record unavailable</Trans>
+                  )}
                 </div>
                 <SnapshotFacts candidate={candidate} />
                 {candidate.freshness === "Changed since assessment" && (
@@ -897,10 +929,7 @@ function ImpactDecisionDrawer({
                       complete.
                     </Trans>
                   ) : (
-                    <Trans>
-                      Every linked task must be Completed or Skipped before this
-                      Impact can be resolved.
-                    </Trans>
+                    <Trans>Linked tasks must be Completed or Skipped.</Trans>
                   )}
                 </div>
               )}
@@ -1021,21 +1050,6 @@ function ImpactBulkDecisionDrawer({
 
   const failedResponse =
     fetcher.data && !fetcher.data.success ? fetcher.data : null;
-  const selectedTargetLabel = (candidate: Candidate) => (
-    <div className="min-w-0">
-      <div className="font-medium">
-        {domainLabel(candidate.targetType)} · {candidate.targetId}
-      </div>
-      <div className="text-xs text-muted-foreground">
-        {candidate.parent?.readableId ?? (
-          <Trans>Source record unavailable</Trans>
-        )}
-        {candidate.item?.readableIdWithRevision
-          ? ` · ${candidate.item.readableIdWithRevision}`
-          : ""}
-      </div>
-    </div>
-  );
 
   return (
     <Drawer open onOpenChange={(open) => !open && onClose()}>
@@ -1066,37 +1080,65 @@ function ImpactBulkDecisionDrawer({
 
               <div className="w-full space-y-2 rounded-md bg-muted/40 p-3 text-xs">
                 <div className="font-medium">
-                  <Trans>{candidates.length} selected targets</Trans>
+                  <Plural
+                    value={candidates.length}
+                    one="# selected target"
+                    other="# selected targets"
+                  />
                 </div>
                 <p className="text-muted-foreground">
                   <Trans>
-                    The server will recheck every target and reject the whole
-                    batch if any source fact, eligibility rule, or decision
-                    revision changed after this preview.
+                    All selected targets are rechecked. Any conflict rejects the
+                    whole batch.
                   </Trans>
                 </p>
               </div>
 
-              <div className="max-h-64 w-full space-y-2 overflow-y-auto rounded-md border border-border/70 p-2">
-                {candidates.map((candidate) => (
-                  <div
-                    key={`${candidate.targetType}-${candidate.targetId}`}
-                    className="space-y-2 rounded-md border border-border/70 p-2"
-                  >
-                    {selectedTargetLabel(candidate)}
-                    <div className="flex flex-wrap items-center gap-2 text-xs">
-                      <span className="text-muted-foreground">
-                        <Trans>Current conclusion</Trans>:
-                      </span>
-                      {stateBadge(
-                        candidate,
-                        coverage[candidate.targetType].status
-                      )}
-                      {conditionBadges(candidate)}
-                    </div>
-                    <SnapshotFacts candidate={candidate} />
-                  </div>
-                ))}
+              <div className="w-full min-w-0 overflow-x-auto rounded-lg border border-border">
+                <TableBase full className="text-xs">
+                  <Thead>
+                    <Tr>
+                      <Th scope="col" className="px-3">
+                        <Trans>Target</Trans>
+                      </Th>
+                      <Th scope="col" className="px-3">
+                        <Trans>Current conclusion</Trans>
+                      </Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {candidates.map((candidate) => (
+                      <Fragment
+                        key={`${candidate.targetType}-${candidate.targetId}`}
+                      >
+                        <Tr>
+                          <Td className="px-3 py-2">
+                            <TargetIdentity candidate={candidate} />
+                            <div className="text-muted-foreground">
+                              {candidate.parent?.readableId ?? (
+                                <Trans>Source record unavailable</Trans>
+                              )}
+                            </div>
+                          </Td>
+                          <Td className="px-3 py-2">
+                            <div className="flex flex-wrap gap-2">
+                              {stateBadge(
+                                candidate,
+                                coverage[candidate.targetType].status
+                              )}
+                              {conditionBadges(candidate)}
+                            </div>
+                          </Td>
+                        </Tr>
+                        <Tr>
+                          <Td colSpan={2} className="px-3 pb-3">
+                            <SnapshotFacts candidate={candidate} />
+                          </Td>
+                        </Tr>
+                      </Fragment>
+                    ))}
+                  </Tbody>
+                </TableBase>
               </div>
 
               <Select
@@ -1250,25 +1292,169 @@ function DecisionControls({
           <Trans>Resolve</Trans>
         </Button>
       )}
-      {controls.resolveBlock === "taskCoverage" && (
-        <span className="text-xs text-amber-700 dark:text-amber-300">
-          <Trans>Resolve after linked task coverage is complete.</Trans>
-        </span>
-      )}
-      {controls.resolveBlock === "nonTerminalTask" && (
-        <span className="text-xs text-amber-700 dark:text-amber-300">
-          <Trans>
-            Resolve after every linked task is Completed or Skipped.
-          </Trans>
+      {controls.resolveBlock && (
+        <span className="text-xs text-muted-foreground">
+          <ResolutionBlockReason block={controls.resolveBlock} />
         </span>
       )}
     </div>
   );
 }
 
-function ImpactRow({
-  changeNoticeId,
+type ImpactTableProps = {
+  changeNoticeId: string;
+  candidates: Candidate[];
+  actions: ChangeNoticeActionTask[];
+  coverage: ChangeNoticeImpactWorkspaceReadModel["coverage"];
+  taskCoverageStatus: ChangeNoticeImpactWorkspaceReadModel["taskCoverage"]["status"];
+  changeNoticeStatus: ChangeNotice["status"] | null | undefined;
+  canUpdate: boolean;
+  onRefresh: () => void;
+  onOpenDecision: (
+    candidate: Candidate,
+    mode: ChangeNoticeImpactDecisionMode
+  ) => void;
+  onOpenHistory: (candidate: Candidate) => void;
+  selectionEnabled: boolean;
+  selectedKeys: ReadonlySet<string>;
+  onToggleSelection: (candidate: Candidate, selected: boolean) => void;
+  emptyMessage?: ReactNode;
+};
+
+function TargetIdentity({ candidate }: { candidate: Candidate }) {
+  const label = candidate.item?.readableIdWithRevision ??
+    candidate.item?.readableId ?? <Trans>Item details unavailable</Trans>;
+  return (
+    <div className="min-w-0">
+      <TruncatedTooltipText tooltip={label} className="truncate font-medium">
+        {label}
+      </TruncatedTooltipText>
+      <div className="text-xs text-muted-foreground">
+        {domainLabel(candidate.targetType)}
+      </div>
+    </div>
+  );
+}
+
+function SourceIdentity({ candidate }: { candidate: Candidate }) {
+  const href = sourceHref(candidate);
+  if (!candidate.parent)
+    return (
+      <span className="text-xs text-muted-foreground">
+        <Trans>Source record unavailable</Trans>
+      </span>
+    );
+  return (
+    <div className="min-w-0 space-y-1">
+      {href ? (
+        <Hyperlink
+          to={href}
+          onClick={(event: MouseEvent<HTMLElement>) => event.stopPropagation()}
+          className="whitespace-nowrap"
+        >
+          {candidate.parent.readableId}
+        </Hyperlink>
+      ) : (
+        <span className="whitespace-nowrap">{candidate.parent.readableId}</span>
+      )}
+      <div className="text-xs">
+        <ParentStatus parent={candidate.parent} />
+      </div>
+      {candidate.parent.type === "purchaseOrder" &&
+        candidate.parent.supplierName && (
+          <TruncatedTooltipText
+            tooltip={candidate.parent.supplierName}
+            className="truncate text-xs text-muted-foreground"
+          >
+            {candidate.parent.supplierName}
+          </TruncatedTooltipText>
+        )}
+    </div>
+  );
+}
+
+function ResolutionBlockReason({
+  block
+}: {
+  block: Exclude<ImpactResolutionBlock, null>;
+}) {
+  return block === "taskCoverage" ? (
+    <Trans>
+      Resolution is unavailable until linked task coverage is complete.
+    </Trans>
+  ) : (
+    <Trans>Linked tasks must be Completed or Skipped.</Trans>
+  );
+}
+
+function NextDecisionAction({
   candidate,
+  controls,
+  onOpen
+}: {
+  candidate: Candidate;
+  controls: ChangeNoticeImpactDecisionControls;
+  onOpen: (mode: ChangeNoticeImpactDecisionMode) => void;
+}) {
+  const mode =
+    candidate.decision?.status === "Action required"
+      ? controls.resolve
+        ? "resolve"
+        : null
+      : controls.assess
+        ? "assess"
+        : controls.reassess
+          ? "reassess"
+          : null;
+  if (!mode) return null;
+  const blocked = mode === "resolve" && controls.resolveBlock !== null;
+  const button = (
+    <Button
+      type="button"
+      size="sm"
+      variant="secondary"
+      isDisabled={blocked}
+      onClick={(event) => {
+        event.stopPropagation();
+        onOpen(mode);
+      }}
+    >
+      {mode === "assess" ? (
+        <Trans>Assess</Trans>
+      ) : mode === "reassess" ? (
+        <Trans>Reassess</Trans>
+      ) : (
+        <Trans>Resolve</Trans>
+      )}
+    </Button>
+  );
+  if (!blocked || !controls.resolveBlock) return button;
+  // The button is disabled and cannot take focus, so the wrapper carries it. The
+  // reason is rendered as hidden text (not `aria-label`, which a plain div does
+  // not support) so keyboard and screen-reader users get it without hovering.
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div
+          tabIndex={0}
+          className="w-fit rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <span className="sr-only">
+            <ResolutionBlockReason block={controls.resolveBlock} />
+          </span>
+          {button}
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <ResolutionBlockReason block={controls.resolveBlock} />
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+function ImpactDetails({
+  candidate,
+  changeNoticeId,
   actions,
   coverageStatus,
   taskCoverageStatus,
@@ -1276,13 +1462,10 @@ function ImpactRow({
   canUpdate,
   onRefresh,
   onOpenDecision,
-  onOpenHistory,
-  selectionEnabled,
-  isSelected,
-  onToggleSelection
+  onOpenHistory
 }: {
-  changeNoticeId: string;
   candidate: Candidate;
+  changeNoticeId: string;
   actions: ChangeNoticeActionTask[];
   coverageStatus: ChangeNoticeImpactCoverage["status"];
   taskCoverageStatus: ChangeNoticeImpactWorkspaceReadModel["taskCoverage"]["status"];
@@ -1294,84 +1477,31 @@ function ImpactRow({
     mode: ChangeNoticeImpactDecisionMode
   ) => void;
   onOpenHistory: (candidate: Candidate) => void;
-  selectionEnabled: boolean;
-  isSelected: boolean;
-  onToggleSelection: (candidate: Candidate, selected: boolean) => void;
 }) {
-  const canSelect =
-    selectionEnabled &&
-    canSelectChangeNoticeImpactCandidate({
-      candidate,
-      coverageStatus,
-      taskCoverageStatus,
-      changeNoticeStatus,
-      canUpdate
-    });
-  const itemLabel = candidate.item?.readableIdWithRevision ??
-    candidate.item?.readableId ?? <Trans>Item details unavailable</Trans>;
-  const badges = conditionBadges(candidate);
-
   return (
-    <div className="space-y-3 rounded-md border border-border/70 p-3">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="flex min-w-0 items-start gap-2">
-          {(canSelect || isSelected) && (
-            <IndeterminateCheckbox
-              checked={isSelected}
-              indeterminate={false}
-              disabled={!canSelect}
-              aria-label={`Select ${candidate.targetType} ${candidate.targetId}`}
-              onChange={(selected) => onToggleSelection(candidate, selected)}
-            />
-          )}
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="font-medium">
-                {domainLabel(candidate.targetType)}
-              </span>
-              {stateBadge(candidate, coverageStatus)}
-              {badges}
-            </div>
-            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-              {candidate.parent && (
-                <span className="inline-flex items-center gap-1">
-                  <span>{candidate.parent.readableId}</span>
-                  <ParentStatus parent={candidate.parent} />
-                </span>
-              )}
-              {candidate.parent?.type === "purchaseOrder" &&
-                candidate.parent.supplierName && (
-                  <span>
-                    <Trans>Supplier</Trans>: {candidate.parent.supplierName}
-                  </span>
-                )}
-              <span>{itemLabel}</span>
-            </div>
-          </div>
+    <div className="@container w-[calc(100cqw-2px)] max-w-full space-y-3 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {stateBadge(candidate, coverageStatus)}
+          {conditionBadges(candidate)}
         </div>
-        {(sourceLink(candidate) ||
-          canViewChangeNoticeImpactHistory(candidate)) && (
-          <div className="flex shrink-0 items-center gap-1">
-            {sourceLink(candidate)}
-            {canViewChangeNoticeImpactHistory(candidate) && (
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                onClick={() => onOpenHistory(candidate)}
-              >
-                <LuHistory className="size-3.5" />
-                <Trans>History</Trans>
-              </Button>
-            )}
-          </div>
+        {canViewChangeNoticeImpactHistory(candidate) && (
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            leftIcon={<LuHistory />}
+            onClick={() => onOpenHistory(candidate)}
+          >
+            <Trans>History</Trans>
+          </Button>
         )}
       </div>
       <SnapshotFacts candidate={candidate} />
       {candidate.unavailableReason && (
-        <div className="text-xs text-amber-700 dark:text-amber-300">
+        <p className="text-xs text-muted-foreground">
           {candidate.unavailableReason}
-        </div>
+        </p>
       )}
       <DecisionSummary candidate={candidate} />
       <AssessmentSnapshot candidate={candidate} />
@@ -1392,6 +1522,292 @@ function ImpactRow({
         changeNoticeStatus={changeNoticeStatus}
         canUpdate={canUpdate}
         onOpen={(mode) => onOpenDecision(candidate, mode)}
+      />
+    </div>
+  );
+}
+
+function ImpactTable({
+  changeNoticeId,
+  candidates,
+  actions,
+  coverage,
+  taskCoverageStatus,
+  changeNoticeStatus,
+  canUpdate,
+  onRefresh,
+  onOpenDecision,
+  onOpenHistory,
+  selectionEnabled,
+  selectedKeys,
+  onToggleSelection,
+  emptyMessage
+}: ImpactTableProps) {
+  const { t } = useLingui();
+  // Keep rows from the same source document adjacent (the previous grouped layout
+  // order) without nesting a table per document.
+  const orderedCandidates = useMemo(
+    () => groupCandidates(candidates).flatMap((group) => group.candidates),
+    [candidates]
+  );
+  const controlsFor = useCallback(
+    (candidate: Candidate) =>
+      getChangeNoticeImpactDecisionControls({
+        candidate,
+        coverageStatus: coverage[candidate.targetType].status,
+        taskCoverageStatus,
+        changeNoticeStatus,
+        canUpdate
+      }),
+    [coverage, taskCoverageStatus, changeNoticeStatus, canUpdate]
+  );
+  // Local selection deliberately retains the existing all-data reconciliation and
+  // stale blockers. Native Table select-all/range selection has no eligibility gate.
+  const columns = useMemo<ColumnDef<Candidate>[]>(
+    () => [
+      ...(selectionEnabled
+        ? [
+            {
+              id: "Select",
+              header: () => (
+                <span className="sr-only">
+                  <Trans>Select Row</Trans>
+                </span>
+              ),
+              size: 40,
+              cell: ({ row }: CellContext<Candidate, unknown>) => {
+                const candidate = row.original;
+                const eligible = canSelectChangeNoticeImpactCandidate({
+                  candidate,
+                  coverageStatus: coverage[candidate.targetType].status,
+                  taskCoverageStatus,
+                  changeNoticeStatus,
+                  canUpdate
+                });
+                const selected = selectedKeys.has(
+                  getChangeNoticeImpactSelectionKey(
+                    candidate.targetType,
+                    candidate.targetId
+                  )
+                );
+                if (!eligible && !selected) return null;
+                const item =
+                  candidate.item?.readableIdWithRevision ??
+                  candidate.item?.readableId ??
+                  t`Item details unavailable`;
+                const source =
+                  candidate.parent?.readableId ?? t`Source record unavailable`;
+                const domain =
+                  candidate.targetType === "purchaseOrderLine"
+                    ? t`Purchase Order line`
+                    : candidate.targetType === "job"
+                      ? t`Producing Job`
+                      : t`Job Material`;
+                return (
+                  <IndeterminateCheckbox
+                    checked={selected}
+                    indeterminate={false}
+                    disabled={!eligible}
+                    aria-label={t`Select ${domain} ${item} from ${source}`}
+                    onClick={(event: MouseEvent<HTMLButtonElement>) =>
+                      event.stopPropagation()
+                    }
+                    onChange={(checked) =>
+                      onToggleSelection(candidate, checked)
+                    }
+                  />
+                );
+              }
+            }
+          ]
+        : []),
+      {
+        id: "Target",
+        header: t`Target`,
+        size: 190,
+        cell: ({ row }) => <TargetIdentity candidate={row.original} />,
+        meta: { icon: <LuPackage /> }
+      },
+      {
+        id: "Source",
+        header: t`Source`,
+        size: 150,
+        cell: ({ row }) => <SourceIdentity candidate={row.original} />,
+        meta: { icon: <LuExternalLink /> }
+      },
+      ...(selectionEnabled
+        ? [
+            {
+              id: "Decision",
+              header: t`Decision`,
+              size: 175,
+              cell: ({ row }: CellContext<Candidate, unknown>) => (
+                <div className="flex flex-wrap items-center gap-1">
+                  {stateBadge(
+                    row.original,
+                    coverage[row.original.targetType].status
+                  )}
+                  {freshnessBadges(row.original)}
+                </div>
+              ),
+              meta: { icon: <LuCircleCheck /> }
+            }
+          ]
+        : [
+            {
+              id: "Reason",
+              header: t`Reason`,
+              size: 230,
+              cell: ({ row }: CellContext<Candidate, unknown>) => (
+                <div className="space-y-1 text-xs text-muted-foreground">
+                  {row.original.sourceAvailability === "Source deleted" ? (
+                    <Trans>Source deleted</Trans>
+                  ) : (
+                    (exposureLabel(row.original.exposureClassification) ?? (
+                      <Trans>Unavailable</Trans>
+                    ))
+                  )}
+                  {row.original.unavailableReason && (
+                    <TruncatedTooltipText
+                      tooltip={row.original.unavailableReason}
+                      className="truncate"
+                    >
+                      {row.original.unavailableReason}
+                    </TruncatedTooltipText>
+                  )}
+                </div>
+              ),
+              meta: { icon: <LuInfo /> }
+            }
+          ]),
+      {
+        id: "NextAction",
+        header: t`Next Action`,
+        size: 120,
+        cell: ({ row }) => (
+          <NextDecisionAction
+            candidate={row.original}
+            controls={controlsFor(row.original)}
+            onOpen={(mode) => onOpenDecision(row.original, mode)}
+          />
+        ),
+        meta: { icon: <LuArrowRight /> }
+      }
+    ],
+    [
+      selectionEnabled,
+      coverage,
+      taskCoverageStatus,
+      changeNoticeStatus,
+      canUpdate,
+      selectedKeys,
+      onToggleSelection,
+      controlsFor,
+      onOpenDecision,
+      t
+    ]
+  );
+  const renderContextMenu = useCallback(
+    (candidate: Candidate) => {
+      const controls = controlsFor(candidate);
+      const href = sourceHref(candidate);
+      return (
+        <>
+          {controls.assess && (
+            <MenuItem onClick={() => onOpenDecision(candidate, "assess")}>
+              <MenuIcon icon={<LuCircleCheck />} />
+              <Trans>Assess</Trans>
+            </MenuItem>
+          )}
+          {controls.reassess && (
+            <MenuItem onClick={() => onOpenDecision(candidate, "reassess")}>
+              <MenuIcon icon={<LuRefreshCw />} />
+              <Trans>Reassess</Trans>
+            </MenuItem>
+          )}
+          {controls.resolve && (
+            <MenuItem
+              disabled={controls.resolveBlock !== null}
+              onClick={() => onOpenDecision(candidate, "resolve")}
+            >
+              <MenuIcon icon={<LuCircleCheck />} />
+              <Trans>Resolve</Trans>
+            </MenuItem>
+          )}
+          {canViewChangeNoticeImpactHistory(candidate) && (
+            <MenuItem onClick={() => onOpenHistory(candidate)}>
+              <MenuIcon icon={<LuHistory />} />
+              <Trans>History</Trans>
+            </MenuItem>
+          )}
+          {href && (
+            <MenuItem asChild>
+              <Link to={href}>
+                <MenuIcon icon={<LuExternalLink />} />
+                <Trans>Open source</Trans>
+              </Link>
+            </MenuItem>
+          )}
+        </>
+      );
+    },
+    [controlsFor, onOpenDecision, onOpenHistory]
+  );
+  // Expansion is index-keyed inside Table; reset it only when visible row order
+  // changes, never on a checkbox change or an ordinary same-row revalidation.
+  const rowOrderKey = JSON.stringify(
+    orderedCandidates.map((candidate) =>
+      getChangeNoticeImpactSelectionKey(
+        candidate.targetType,
+        candidate.targetId
+      )
+    )
+  );
+  return (
+    // The shared Table hardcodes `h-full` + `contain: strict`, which collapses
+    // this natural-height list. The class overrides keep the page as the only
+    // scroll owner while the table still scrolls sideways in a narrow pane.
+    <div className="@container w-full min-w-0 overflow-hidden [&>div]:h-auto [&_[id=table-container]]:h-auto [&_[id=table-container]]:![contain:layout_style]">
+      <Table<Candidate>
+        key={rowOrderKey}
+        compact
+        columns={columns}
+        data={orderedCandidates}
+        getRowId={(candidate) =>
+          getChangeNoticeImpactSelectionKey(
+            candidate.targetType,
+            candidate.targetId
+          )
+        }
+        withSearch={false}
+        withSimpleSorting={false}
+        sort={null}
+        withPagination={false}
+        withCsvExport={false}
+        withColumnOrdering={false}
+        withSidebarTrigger={false}
+        withSavedView={false}
+        withSelectableRows={false}
+        emptyState={
+          <p className="p-6 text-center text-sm text-muted-foreground">
+            {emptyMessage}
+          </p>
+        }
+        renderContextMenu={renderContextMenu}
+        renderExpandedRow={(candidate) => (
+          <ImpactDetails
+            candidate={candidate}
+            changeNoticeId={changeNoticeId}
+            actions={actions}
+            coverageStatus={coverage[candidate.targetType].status}
+            taskCoverageStatus={taskCoverageStatus}
+            changeNoticeStatus={changeNoticeStatus}
+            canUpdate={canUpdate}
+            onRefresh={onRefresh}
+            onOpenDecision={onOpenDecision}
+            onOpenHistory={onOpenHistory}
+          />
+        )}
       />
     </div>
   );
@@ -1422,143 +1838,68 @@ export function groupCandidates(candidates: Candidate[]): Group[] {
   );
 }
 
-function DocumentGroups({
-  changeNoticeId,
-  candidates,
-  actions,
-  emptyMessage,
-  coverage,
-  taskCoverageStatus,
-  changeNoticeStatus,
-  canUpdate,
-  onRefresh,
-  onOpenDecision,
-  onOpenHistory,
-  selectionEnabled,
-  selectedKeys,
-  onToggleSelection
-}: {
-  changeNoticeId: string;
-  candidates: Candidate[];
-  actions: ChangeNoticeActionTask[];
-  emptyMessage: ReactNode;
-  coverage: ChangeNoticeImpactWorkspaceReadModel["coverage"];
-  taskCoverageStatus: ChangeNoticeImpactWorkspaceReadModel["taskCoverage"]["status"];
-  changeNoticeStatus: ChangeNotice["status"] | null | undefined;
-  canUpdate: boolean;
-  onRefresh: () => void;
-  onOpenDecision: (
-    candidate: Candidate,
-    mode: ChangeNoticeImpactDecisionMode
-  ) => void;
-  onOpenHistory: (candidate: Candidate) => void;
-  selectionEnabled: boolean;
-  selectedKeys: ReadonlySet<string>;
-  onToggleSelection: (candidate: Candidate, selected: boolean) => void;
-}) {
-  const groups = groupCandidates(candidates);
-  if (groups.length === 0) {
-    return (
-      <div className="rounded-md border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
-        {emptyMessage}
-      </div>
-    );
-  }
-  return (
-    <div className="space-y-3">
-      {groups.map((group) => (
-        <Card key={group.key}>
-          <CardHeader className="pb-3">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <CardTitle className="text-sm">
-                {group.label || <Trans>Source record unavailable</Trans>}
-              </CardTitle>
-              {group.parent && (
-                <span className="text-xs text-muted-foreground">
-                  <ParentStatus parent={group.parent} />
-                </span>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {group.candidates.map((candidate) => (
-              <ImpactRow
-                key={`${candidate.targetType}-${candidate.targetId}`}
-                changeNoticeId={changeNoticeId}
-                candidate={candidate}
-                actions={actions}
-                coverageStatus={coverage[candidate.targetType].status}
-                taskCoverageStatus={taskCoverageStatus}
-                changeNoticeStatus={changeNoticeStatus}
-                canUpdate={canUpdate}
-                onRefresh={onRefresh}
-                onOpenDecision={onOpenDecision}
-                onOpenHistory={onOpenHistory}
-                selectionEnabled={selectionEnabled}
-                isSelected={selectedKeys.has(
-                  getChangeNoticeImpactSelectionKey(
-                    candidate.targetType,
-                    candidate.targetId
-                  )
-                )}
-                onToggleSelection={onToggleSelection}
-              />
-            ))}
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
+function coverageDomains(data: ChangeNoticeImpactWorkspaceReadModel) {
+  return [
+    {
+      key: "purchaseOrderLine",
+      label: <Trans>PO Lines</Trans>,
+      coverage: data.coverage.purchaseOrderLine
+    },
+    { key: "job", label: <Trans>Jobs</Trans>, coverage: data.coverage.job },
+    {
+      key: "jobMaterial",
+      label: <Trans>Materials</Trans>,
+      coverage: data.coverage.jobMaterial
+    }
+  ];
 }
 
 function CoverageNotice({
-  label,
-  coverage
+  data
 }: {
-  label: ReactNode;
-  coverage: ChangeNoticeImpactCoverage;
+  data: ChangeNoticeImpactWorkspaceReadModel;
 }) {
-  if (coverage.status === "complete") return null;
+  const incompleteDomains = coverageDomains(data).filter(
+    ({ coverage }) => coverage.status !== "complete"
+  );
+  if (incompleteDomains.length === 0) return null;
   return (
-    <div className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-sm">
-      <LuTriangle className="mt-0.5 size-4 shrink-0 text-amber-600" />
-      <div>
-        <div className="font-medium">{label}</div>
-        <div className="text-xs text-muted-foreground">
-          {coverage.status === "restricted" ? (
-            <Trans>
-              This source domain is restricted for your current permissions. No
-              target identities or source facts are shown.
-            </Trans>
-          ) : coverage.status === "partial" ? (
-            <Trans>
-              Coverage is partial. Counts and source-deletion conclusions are
-              withheld where the scan could not be completed.
-            </Trans>
-          ) : (
-            <Trans>
-              Coverage failed. This is not an empty or safe result; refresh
-              after the source is available.
-            </Trans>
-          )}
-        </div>
-        {coverage.errorMessage && (
-          <div className="mt-1 text-xs text-muted-foreground">
-            {coverage.errorMessage}
-          </div>
-        )}
-      </div>
-    </div>
+    <Alert variant="warning">
+      <LuTriangleAlert />
+      <AlertTitle>
+        <Trans>Assessment coverage needs attention</Trans>
+      </AlertTitle>
+      <AlertDescription className="space-y-1">
+        <p>
+          <Trans>
+            Incomplete domains have unavailable counts, not zero exposure.
+          </Trans>
+        </p>
+        <ul className="space-y-1">
+          {incompleteDomains.map(({ key, label, coverage }) => (
+            <li key={key}>
+              <span className="font-medium">{label}</span>:{" "}
+              {coverage.status === "restricted" ? (
+                <Trans>Restricted</Trans>
+              ) : coverage.status === "partial" ? (
+                <Trans>Partial</Trans>
+              ) : (
+                <Trans>Failed</Trans>
+              )}
+              {coverage.status !== "restricted" && coverage.errorMessage && (
+                <span className="ml-1">{coverage.errorMessage}</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </AlertDescription>
+    </Alert>
   );
 }
 
 function CoverageCount({ value }: { value: number | null }) {
-  const { locale } = useLocale();
-  return value === null ? (
-    <Trans>Unavailable</Trans>
-  ) : (
-    value.toLocaleString(locale)
-  );
+  const formatter = useNumberFormatter();
+  return value === null ? <Trans>Unavailable</Trans> : formatter.format(value);
 }
 
 function CoverageSummary({
@@ -1566,64 +1907,51 @@ function CoverageSummary({
 }: {
   data: ChangeNoticeImpactWorkspaceReadModel;
 }) {
-  const domains = [
-    {
-      key: "purchaseOrderLine" as const,
-      label: <Trans>Purchase Order lines</Trans>,
-      coverage: data.coverage.purchaseOrderLine
-    },
-    {
-      key: "job" as const,
-      label: <Trans>Producing Jobs</Trans>,
-      coverage: data.coverage.job
-    },
-    {
-      key: "jobMaterial" as const,
-      label: <Trans>Job Materials</Trans>,
-      coverage: data.coverage.jobMaterial
-    }
-  ];
+  const domains = coverageDomains(data);
+  const counts = domains.map(({ coverage }) => coverage.unassessedCount);
+  const toAssess = counts.every((count) => count !== null)
+    ? counts.reduce<number>((sum, count) => sum + (count ?? 0), 0)
+    : null;
   return (
-    <section aria-labelledby="impact-coverage-heading" className="w-full">
-      <h2 id="impact-coverage-heading" className="sr-only">
-        <Trans>Assessment coverage</Trans>
-      </h2>
-      <div className="grid gap-2 md:grid-cols-3">
-        {domains.map(({ key, label, coverage }) => (
-          <Card key={key}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">{label}</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-3 gap-2 text-xs">
-              <div>
-                <div className="text-muted-foreground">
-                  <Trans>Current</Trans>
-                </div>
-                <div className="text-lg font-semibold">
-                  <CoverageCount value={coverage.currentExposureCount} />
-                </div>
-              </div>
-              <div>
-                <div className="text-muted-foreground">
-                  <Trans>Historical</Trans>
-                </div>
-                <div className="text-lg font-semibold">
-                  <CoverageCount value={coverage.historicalReferenceCount} />
-                </div>
-              </div>
-              <div>
-                <div className="text-muted-foreground">
-                  <Trans>Unassessed</Trans>
-                </div>
-                <div className="text-lg font-semibold">
-                  <CoverageCount value={coverage.unassessedCount} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </section>
+    <CardAttributes className="grid grid-cols-2 gap-x-6 gap-y-3 @lg:grid-cols-5">
+      {domains.map(({ key, label, coverage }) => (
+        <CardAttribute
+          key={key}
+          className="flex-col items-start gap-1 md:items-start"
+        >
+          <CardAttributeLabel>{label}</CardAttributeLabel>
+          <CardAttributeValue className="text-sm font-medium tabular-nums">
+            <CoverageCount value={coverage.currentExposureCount} />
+          </CardAttributeValue>
+        </CardAttribute>
+      ))}
+      <CardAttribute className="flex-col items-start gap-1 md:items-start">
+        <CardAttributeLabel>
+          <Trans>To assess</Trans>
+        </CardAttributeLabel>
+        <CardAttributeValue className="text-sm font-medium tabular-nums">
+          <CoverageCount value={toAssess} />
+        </CardAttributeValue>
+      </CardAttribute>
+      <CardAttribute className="flex-col items-start gap-1 md:items-start">
+        <CardAttributeLabel>
+          <Trans>Assessment coverage</Trans>
+        </CardAttributeLabel>
+        <CardAttributeValue>
+          {domains.every(({ coverage }) => coverage.status === "complete") ? (
+            // Incomplete coverage is explained by the alert above; only the
+            // quiet healthy state needs a marker here.
+            <Badge variant="outline">
+              <Trans>All complete</Trans>
+            </Badge>
+          ) : (
+            <span className="text-sm text-muted-foreground">
+              <Trans>Unavailable</Trans>
+            </span>
+          )}
+        </CardAttributeValue>
+      </CardAttribute>
+    </CardAttributes>
   );
 }
 
@@ -1711,13 +2039,6 @@ export default function ChangeNoticeImpactWorkspace({
       hasIncompleteImpactTaskFilter(filters, data.taskCoverage.status)
   });
   const currentCandidates = filteredCandidates.filter(isCurrent);
-  const currentPurchaseOrderCandidates = currentCandidates.filter(
-    (candidate) => candidate.targetType === "purchaseOrderLine"
-  );
-  const currentProductionCandidates = currentCandidates.filter(
-    (candidate) =>
-      candidate.targetType === "job" || candidate.targetType === "jobMaterial"
-  );
   const historicalCandidates = filteredCandidates.filter(isHistorical);
   const unavailableCandidates = filteredCandidates.filter(isUnavailable);
   const taskCoverageHasWarning = data.taskCoverage.status !== "complete";
@@ -1837,11 +2158,11 @@ export default function ChangeNoticeImpactWorkspace({
   const selectionContent = (
     <div
       role="group"
-      aria-label="Bulk Impact selection"
+      aria-label={t`Bulk Impact selection`}
       className="ml-auto flex flex-wrap items-center justify-end gap-2"
     >
       <span className="text-xs text-muted-foreground tabular-nums">
-        <Trans>{selectedKeys.size} selected</Trans>
+        <Plural value={selectedKeys.size} one="# selected" other="# selected" />
       </span>
       {selectedKeys.size > 0 && (
         <>
@@ -1899,14 +2220,10 @@ export default function ChangeNoticeImpactWorkspace({
     <VStack spacing={4} className="mx-auto w-full max-w-[1400px] p-4">
       <Card className="w-full">
         <HStack className="w-full items-start justify-between">
-          <CardHeader className="min-w-0 flex-1">
-            <Link
-              to={path.to.changeNoticeDetails(id)}
-              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-            >
-              <LuChevronRight className="size-3 rotate-180" />
-              <Trans>Back to Change Notice</Trans>
-            </Link>
+          <CardHeader className="min-w-0 flex-1 pb-3">
+            <CardTitle className="text-base">
+              <Trans>Operational Impact</Trans>
+            </CardTitle>
           </CardHeader>
           <CardAction className="shrink-0">
             <Tooltip>
@@ -1927,34 +2244,16 @@ export default function ChangeNoticeImpactWorkspace({
             </Tooltip>
           </CardAction>
         </HStack>
-        <CardContent className="gap-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <CardTitle>
-              <Trans>Operational Impact</Trans>
-            </CardTitle>
-            {status && <ChangeNoticeStatus status={status} />}
-          </div>
-          <CardDescription className="flex flex-wrap gap-x-2">
-            <span>
-              {changeNotice?.changeOrderId ?? <Trans>Change Notice</Trans>}
-            </span>
-            {changeNotice?.name && <span>· {changeNotice.name}</span>}
-          </CardDescription>
-          {status === "Done" && (
-            <CardDescription className="text-emerald-700 dark:text-emerald-300">
-              <Trans>
-                Done · Engineering released. Operational assessment remains
-                available.
-              </Trans>
-            </CardDescription>
-          )}
+        <CardContent className="@container gap-3">
+          <CoverageSummary data={data} />
           {status === "Cancelled" && (
-            <CardDescription className="text-amber-700 dark:text-amber-300">
-              <Trans>
-                Cancelled · New Impact assessment is locked. Existing
-                operational follow-up remains available.
-              </Trans>
-            </CardDescription>
+            <p className="text-xs text-muted-foreground">
+              <span className="font-medium">
+                <Trans>Assessment locked</Trans>
+              </span>
+              {" · "}
+              <Trans>Existing follow-up and resolution remain available.</Trans>
+            </p>
           )}
         </CardContent>
       </Card>
@@ -2005,227 +2304,141 @@ export default function ChangeNoticeImpactWorkspace({
         </div>
       )}
 
-      {coverageHasWarning && (
-        <div className="space-y-2">
-          <CoverageNotice
-            label={<Trans>Assessment coverage needs attention</Trans>}
-            coverage={
-              [
-                data.coverage.purchaseOrderLine,
-                data.coverage.job,
-                data.coverage.jobMaterial
-              ].find((coverage) => coverage.status !== "complete") ??
-              data.coverage.purchaseOrderLine
-            }
-          />
-          <div className="grid gap-2 md:grid-cols-3">
-            <CoverageNotice
-              label={<Trans>Purchase Order lines</Trans>}
-              coverage={data.coverage.purchaseOrderLine}
-            />
-            <CoverageNotice
-              label={<Trans>Producing Jobs</Trans>}
-              coverage={data.coverage.job}
-            />
-            <CoverageNotice
-              label={<Trans>Job Materials</Trans>}
-              coverage={data.coverage.jobMaterial}
-            />
-          </div>
-        </div>
-      )}
+      <CoverageNotice data={data} />
       {taskCoverageHasWarning && (
         <div className="rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-muted-foreground">
           <Trans>
-            Some linked task metadata is unavailable. Decision state is shown
-            independently and has not been inferred from task status. Task
-            details are omitted where linked-task coverage could not be read.
+            Linked task coverage is incomplete. Decision state is independent of
+            task status.
           </Trans>
         </div>
       )}
 
-      <CoverageSummary data={data} />
-
-      <section className="w-full space-y-3">
-        <div>
-          <h2 className="text-base font-semibold">
-            <Trans>Current operational exposure</Trans>
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            <Trans>
-              Supported purchasing and production targets that can receive an
-              independent Impact assessment.
-            </Trans>
-          </p>
-        </div>
-        <ChangeNoticeImpactFilterBar
-          taskCoverageStatus={data.taskCoverage.status}
-          selectionContent={selectionContent}
-          selectionNotices={selectionNotices}
-        />
-        {filteredEmptyState ? (
-          <div className="w-full rounded-md border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
-            {filteredEmptyState === "incomplete" ? (
-              <Trans>
-                No matching loaded Impact rows are visible. Coverage is
-                incomplete, so this is not a complete result.
-              </Trans>
-            ) : (
-              <Trans>
-                No Impact rows match the current search and filters.
-              </Trans>
-            )}
-          </div>
-        ) : (
-          (currentCandidates.length > 0 || !hasDisplayFilters) &&
-          (currentCandidates.length === 0 ? (
-            <div className="rounded-md border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
-              {coverageHasWarning ? (
+      <section
+        aria-labelledby="impact-current-heading"
+        className="w-full space-y-3"
+      >
+        <h2 id="impact-current-heading" className="text-sm font-medium">
+          <Trans>Current operational exposure</Trans>
+        </h2>
+        <div className="w-full min-w-0 overflow-hidden rounded-lg border border-border bg-card">
+          <ChangeNoticeImpactFilterBar
+            taskCoverageStatus={data.taskCoverage.status}
+            selectionContent={selectionContent}
+            selectionNotices={selectionNotices}
+          />
+          <ImpactTable
+            changeNoticeId={id}
+            candidates={currentCandidates}
+            actions={actions}
+            coverage={data.coverage}
+            taskCoverageStatus={data.taskCoverage.status}
+            changeNoticeStatus={status}
+            canUpdate={canUpdate}
+            onRefresh={handleTaskMutation}
+            onOpenDecision={openDecision}
+            onOpenHistory={openHistory}
+            selectionEnabled
+            selectedKeys={selectedKeys}
+            onToggleSelection={toggleSelection}
+            emptyMessage={
+              filteredEmptyState === "incomplete" ? (
+                <Trans>
+                  No matching loaded Impact rows are visible. Coverage is
+                  incomplete, so this is not a complete result.
+                </Trans>
+              ) : filteredEmptyState === "complete" ? (
+                <Trans>
+                  No Impact rows match the current search and filters.
+                </Trans>
+              ) : hasDisplayFilters ? (
+                <Trans>No current exposure matches these filters.</Trans>
+              ) : coverageHasWarning ? (
                 <Trans>No complete current result is available.</Trans>
               ) : (
                 <Trans>No current operational exposure is available.</Trans>
-              )}
-            </div>
-          ) : (
-            <>
-              {(currentPurchaseOrderCandidates.length > 0 ||
-                !hasDisplayFilters) && (
-                <DocumentGroups
-                  changeNoticeId={id}
-                  candidates={currentPurchaseOrderCandidates}
-                  actions={actions}
-                  coverage={data.coverage}
-                  taskCoverageStatus={data.taskCoverage.status}
-                  changeNoticeStatus={status}
-                  canUpdate={canUpdate}
-                  onRefresh={handleTaskMutation}
-                  onOpenDecision={openDecision}
-                  onOpenHistory={openHistory}
-                  selectionEnabled
-                  selectedKeys={selectedKeys}
-                  onToggleSelection={toggleSelection}
-                  emptyMessage={
-                    <Trans>No Purchase Order lines are available.</Trans>
-                  }
-                />
-              )}
-              {(currentProductionCandidates.length > 0 ||
-                !hasDisplayFilters) && (
-                <DocumentGroups
-                  changeNoticeId={id}
-                  candidates={currentProductionCandidates}
-                  actions={actions}
-                  coverage={data.coverage}
-                  taskCoverageStatus={data.taskCoverage.status}
-                  changeNoticeStatus={status}
-                  canUpdate={canUpdate}
-                  onRefresh={handleTaskMutation}
-                  onOpenDecision={openDecision}
-                  onOpenHistory={openHistory}
-                  selectionEnabled
-                  selectedKeys={selectedKeys}
-                  onToggleSelection={toggleSelection}
-                  emptyMessage={
-                    <Trans>No Jobs or Job Materials are available.</Trans>
-                  }
-                />
-              )}
-            </>
-          ))
-        )}
+              )
+            }
+          />
+        </div>
       </section>
 
-      {!filteredEmptyState && (
-        <>
-          {(historicalCandidates.length > 0 || !hasDisplayFilters) && (
-            <section className="w-full space-y-3">
-              <div>
-                <h2 className="text-base font-semibold">
-                  <Trans>Historical references</Trans>
-                </h2>
-                <p className="text-xs text-muted-foreground">
-                  <Trans>
-                    These references remain traceable but do not create a new
-                    Unassessed obligation.
-                  </Trans>
-                </p>
-              </div>
-              <DocumentGroups
-                changeNoticeId={id}
-                candidates={historicalCandidates}
-                actions={actions}
-                coverage={data.coverage}
-                taskCoverageStatus={data.taskCoverage.status}
-                changeNoticeStatus={status}
-                canUpdate={canUpdate}
-                onRefresh={handleTaskMutation}
-                onOpenDecision={openDecision}
-                onOpenHistory={openHistory}
-                selectionEnabled={false}
-                selectedKeys={selectedKeys}
-                onToggleSelection={toggleSelection}
-                emptyMessage={
-                  coverageHasWarning ? (
-                    <Trans>Historical coverage is incomplete.</Trans>
-                  ) : (
-                    <Trans>No historical references are available.</Trans>
-                  )
-                }
-              />
-            </section>
-          )}
-
-          {unavailableCandidates.length > 0 && (
-            <section className="w-full space-y-3">
-              <div>
-                <h2 className="text-base font-semibold">
-                  <Trans>Unavailable source rows</Trans>
-                </h2>
-                <p className="text-xs text-muted-foreground">
-                  <Trans>
-                    Source identities are retained only where they were
-                    authorized; decision-relevant facts are withheld until
-                    coverage is restored.
-                  </Trans>
-                </p>
-              </div>
-              <DocumentGroups
-                changeNoticeId={id}
-                candidates={unavailableCandidates}
-                actions={actions}
-                coverage={data.coverage}
-                taskCoverageStatus={data.taskCoverage.status}
-                changeNoticeStatus={status}
-                canUpdate={canUpdate}
-                onRefresh={handleTaskMutation}
-                onOpenDecision={openDecision}
-                onOpenHistory={openHistory}
-                selectionEnabled={false}
-                selectedKeys={selectedKeys}
-                onToggleSelection={toggleSelection}
-                emptyMessage={
-                  <Trans>No unavailable source rows are available.</Trans>
-                }
-              />
-            </section>
-          )}
-        </>
+      {historicalCandidates.length > 0 && (
+        <section
+          aria-labelledby="impact-historical-heading"
+          className="w-full space-y-2"
+        >
+          <h2 id="impact-historical-heading" className="text-sm font-medium">
+            <Trans>Historical references</Trans>
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            <Trans>Traceable references; no new Unassessed obligation.</Trans>
+          </p>
+          <div className="overflow-hidden rounded-lg border border-border">
+            <ImpactTable
+              changeNoticeId={id}
+              candidates={historicalCandidates}
+              actions={actions}
+              coverage={data.coverage}
+              taskCoverageStatus={data.taskCoverage.status}
+              changeNoticeStatus={status}
+              canUpdate={canUpdate}
+              onRefresh={handleTaskMutation}
+              onOpenDecision={openDecision}
+              onOpenHistory={openHistory}
+              selectionEnabled={false}
+              selectedKeys={selectedKeys}
+              onToggleSelection={toggleSelection}
+            />
+          </div>
+        </section>
       )}
 
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="text-sm">
-            <Trans>Informational context only</Trans>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-xs text-muted-foreground">
+      {unavailableCandidates.length > 0 && (
+        <section
+          aria-labelledby="impact-unavailable-heading"
+          className="w-full space-y-2"
+        >
+          <h2 id="impact-unavailable-heading" className="text-sm font-medium">
+            <Trans>Unavailable source rows</Trans>
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            <Trans>
+              Authorized identities only. Source facts remain unavailable.
+            </Trans>
+          </p>
+          <div className="overflow-hidden rounded-lg border border-border">
+            <ImpactTable
+              changeNoticeId={id}
+              candidates={unavailableCandidates}
+              actions={actions}
+              coverage={data.coverage}
+              taskCoverageStatus={data.taskCoverage.status}
+              changeNoticeStatus={status}
+              canUpdate={canUpdate}
+              onRefresh={handleTaskMutation}
+              onOpenDecision={openDecision}
+              onOpenHistory={openHistory}
+              selectionEnabled={false}
+              selectedKeys={selectedKeys}
+              onToggleSelection={toggleSelection}
+            />
+          </div>
+        </section>
+      )}
+
+      <details className="w-full text-xs text-muted-foreground">
+        <summary className="cursor-pointer">
+          <Trans>Informational context only</Trans>
+        </summary>
+        <p className="mt-2">
           <Trans>
             Receipts, inspections, sales, shipments, and other related records
             are outside the current Impact assessment scope. They do not count
             toward assessment totals or offer decision controls here.
           </Trans>
-        </CardContent>
-      </Card>
+        </p>
+      </details>
 
       {bulkDrawerOpen &&
         !bulkSelectionBlocked &&

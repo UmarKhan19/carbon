@@ -250,7 +250,16 @@ function ImpactTaskCreateDrawer({
               <Hidden name="decisionId" value={candidate.decision?.id ?? ""} />
               <div className="w-full rounded-md bg-muted/40 p-3 text-xs">
                 <div className="font-medium">
-                  <Trans>Follow-up for</Trans> {candidate.targetId}
+                  {candidate.item?.readableIdWithRevision ??
+                    candidate.item?.readableId ?? (
+                      <Trans>Item details unavailable</Trans>
+                    )}
+                </div>
+                <div className="text-muted-foreground">
+                  <Trans>Follow-up for</Trans>{" "}
+                  {candidate.parent?.readableId ?? (
+                    <Trans>Source record unavailable</Trans>
+                  )}
                 </div>
                 <div className="text-muted-foreground">
                   <Trans>Task origin: Impact follow-up</Trans>
@@ -521,42 +530,44 @@ function LinkedActionTask({
 }) {
   const taskOrigin = action.taskOrigin ?? task.taskOrigin;
   return (
-    <ChangeNoticeActionTaskItem
-      action={action}
-      changeOrderId={changeNoticeId}
-      changeNoticeStatus={changeNoticeStatus}
-      canEditWorkflow={false}
-      showIntegrations={false}
-      showDelete={false}
-      onTaskMutation={onRefresh}
-      headerExtras={
-        <>
-          <Badge variant="outline" className="whitespace-nowrap">
-            {taskOriginLabel(taskOrigin)}
-          </Badge>
-          {canDesignate && (
-            <RelationshipButton
-              operation="designate"
-              changeNoticeId={changeNoticeId}
-              candidate={candidate}
-              task={task}
-              disabled={!canDesignate}
-              onSuccess={onRefresh}
-            />
-          )}
-          {canUnlink && (
-            <RelationshipButton
-              operation="unlink"
-              changeNoticeId={changeNoticeId}
-              candidate={candidate}
-              task={task}
-              disabled={!canUnlink}
-              onSuccess={onRefresh}
-            />
-          )}
-        </>
-      }
-    />
+    <div className="@container [&>div>div:first-child]:flex-wrap [&>div>div:first-child]:gap-2 [&>div>div:first-child>div:first-child]:min-w-0 [&>div>div:first-child>div:first-child]:break-words @max-md:[&>div>div:first-child>div:first-child]:basis-full [&>div>div:last-child]:flex-wrap [&>div>div:last-child]:gap-2 [&>div>div:last-child>div]:flex-wrap @max-md:[&>div>div:last-child>div:first-child]:basis-full">
+      <ChangeNoticeActionTaskItem
+        action={action}
+        changeOrderId={changeNoticeId}
+        changeNoticeStatus={changeNoticeStatus}
+        canEditWorkflow={false}
+        showIntegrations={false}
+        showDelete={false}
+        onTaskMutation={onRefresh}
+        headerExtras={
+          <div className="flex flex-wrap items-center justify-end gap-1">
+            <Badge variant="outline" className="whitespace-nowrap">
+              {taskOriginLabel(taskOrigin)}
+            </Badge>
+            {canDesignate && (
+              <RelationshipButton
+                operation="designate"
+                changeNoticeId={changeNoticeId}
+                candidate={candidate}
+                task={task}
+                disabled={!canDesignate}
+                onSuccess={onRefresh}
+              />
+            )}
+            {canUnlink && (
+              <RelationshipButton
+                operation="unlink"
+                changeNoticeId={changeNoticeId}
+                candidate={candidate}
+                task={task}
+                disabled={!canUnlink}
+                onSuccess={onRefresh}
+              />
+            )}
+          </div>
+        }
+      />
+    </div>
   );
 }
 
@@ -663,7 +674,7 @@ export function ChangeNoticeImpactTasks({
           <Trans>Linked tasks</Trans>
         </div>
         {hasControls && (
-          <HStack spacing={1}>
+          <HStack spacing={1} className="flex-wrap">
             {controls.canCreate && (
               <Button
                 type="button"

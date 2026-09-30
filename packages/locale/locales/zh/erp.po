@@ -68,6 +68,14 @@ msgstr "{0, plural, one {# 行链接到该公司外的数据，无法制作当�
 msgid "{0, plural, one {# row links to data outside this company, so it can't be backed up. Skipping it backs up everything else.} other {# rows link to data outside this company, so they can't be backed up. Skipping them backs up everything else.}}"
 msgstr "{0, plural, one {# 行链接到该公司外的数据，无法备份。跳过它可以备份其他所有内容。} other {# 行链接到该公司外的数据，无法备份。跳过它们可以备份其他所有内容。}}"
 
+#. placeholder {0}: candidates.length
+msgid "{0, plural, one {# selected target} other {# selected targets}}"
+msgstr "{0, plural, one {已选择 # 个目标} other {已选择 # 个目标}}"
+
+#. placeholder {0}: selectedKeys.size
+msgid "{0, plural, one {# selected} other {# selected}}"
+msgstr "{0, plural, one {已选择 # 个} other {已选择 # 个}}"
+
 #. placeholder {0}: bulkSuccess.noOpCount
 msgid "{0, plural, one {# target was already current.} other {# targets were already current.}}"
 msgstr "{0, plural, one {# 个目标已是最新状态。} other {# 个目标已是最新状态。}}"
@@ -225,13 +233,8 @@ msgid "{0} scrapped"
 msgstr "{0} 报废"
 
 #. placeholder {0}: selected.length
-#. placeholder {0}: selectedKeys.size
 msgid "{0} selected"
 msgstr "{0} 已选择"
-
-#. placeholder {0}: candidates.length
-msgid "{0} selected targets"
-msgstr "已选择 {0} 个目标"
 
 #. placeholder {0}: suggestions.length
 msgid "{0} suggested batches"
@@ -1769,6 +1772,9 @@ msgstr "所有可审计实体的更改都正在被记录。"
 msgid "All Companies"
 msgstr "所有公司"
 
+msgid "All complete"
+msgstr "全部完成"
+
 msgid "All Customers"
 msgstr "所有客户"
 
@@ -1802,6 +1808,9 @@ msgstr "所有可退货的行"
 
 msgid "All rows imported — {inserted} inserted, {updated} updated."
 msgstr "所有行已导入—{inserted}行插入，{updated}行更新。"
+
+msgid "All selected targets are rechecked. Any conflict rejects the whole batch."
+msgstr "所有选定的目标都会重新检查。任何冲突都会拒绝整批。"
 
 msgid "All shifts"
 msgstr "所有班次"
@@ -2761,6 +2770,9 @@ msgstr "评估覆盖范围需要关注"
 msgid "Assessment created"
 msgstr "已创建评估"
 
+msgid "Assessment locked"
+msgstr "评估已锁定"
+
 msgid "Assessment reassessed"
 msgstr "已重新评估"
 
@@ -2926,6 +2938,9 @@ msgstr "身份验证器应用"
 msgid "Authenticator QR code"
 msgstr "身份验证器二维码"
 
+msgid "Authorized identities only. Source facts remain unavailable."
+msgstr "仅显示已授权的标识。来源信息仍不可用。"
+
 msgid "Authorized overtime on top of the shift"
 msgstr "班次之外的授权加班"
 
@@ -3031,9 +3046,6 @@ msgstr "等待审批"
 
 msgid "Back"
 msgstr "返回"
-
-msgid "Back to Change Notice"
-msgstr "返回变更通知"
 
 msgid "Back to traceability"
 msgstr "返回可追溯性"
@@ -3377,6 +3389,9 @@ msgstr "作为独立方法构建和计算成本"
 msgid "Built off to the side, then carried in at its join step"
 msgstr "在侧面构建，然后在其连接步骤中带入"
 
+msgid "Bulk Impact selection"
+msgstr "影响批量选择"
+
 msgid "Bulk Import"
 msgstr "批量导入"
 
@@ -3550,9 +3565,6 @@ msgstr "已取消"
 
 msgid "Cancelled"
 msgstr "已取消"
-
-msgid "Cancelled · New Impact assessment is locked. Existing operational follow-up remains available."
-msgstr "已取消 · 新的影响评估已锁定。现有运营跟进仍可用。"
 
 msgid "Cannot add parameters to unsaved operation"
 msgstr "无法向未保存的操作添加参数"
@@ -4864,12 +4876,6 @@ msgstr "国家代码"
 
 msgid "Coverage"
 msgstr "覆盖范围"
-
-msgid "Coverage failed. This is not an empty or safe result; refresh after the source is available."
-msgstr "覆盖范围检查失败。此结果不是空结果，也不是安全结果；源数据可用后请刷新。"
-
-msgid "Coverage is partial. Counts and source-deletion conclusions are withheld where the scan could not be completed."
-msgstr "覆盖范围不完整。扫描无法完成的部分将不提供计数和源数据删除结论。"
 
 msgid "Create"
 msgstr "创建"
@@ -6489,9 +6495,6 @@ msgstr "完成"
 msgid "Done"
 msgstr "完成"
 
-msgid "Done · Engineering released. Operational assessment remains available."
-msgstr "处理完毕 · 工程已发布。运营评估仍可用。"
-
 msgid "Done Adding"
 msgstr "完成添加"
 
@@ -7527,9 +7530,6 @@ msgstr "每个条件都必须匹配"
 msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "您配置的系统中的每项范围内测试都通过了您的数据。"
 
-msgid "Every linked task must be Completed or Skipped before this Impact can be resolved."
-msgstr "解决此影响前，所有已关联任务必须处于“已完成”或“已跳过”状态。"
-
 msgid "Every match"
 msgstr "每次匹配"
 
@@ -7595,6 +7595,9 @@ msgstr "豁免证书"
 
 msgid "Exemption Reason"
 msgstr "豁免原因"
+
+msgid "Existing follow-up and resolution remain available."
+msgstr "现有跟进和解决措施仍然可用。"
 
 msgid "Existing mappings. Pick a different provider option to re-map."
 msgstr "现有映射。选择不同的提供商选项进行重新映射。"
@@ -8895,14 +8898,8 @@ msgstr "高"
 msgid "Hints in the first row"
 msgstr "第一行中的提示"
 
-msgid "Historical"
-msgstr "历史"
-
 msgid "Historical causes"
 msgstr "历史原因"
-
-msgid "Historical coverage is incomplete."
-msgstr "历史覆盖范围不完整。"
 
 msgid "Historical data older than what's on the Data Migration Map"
 msgstr "早于数据迁移地图上的数据的历史数据"
@@ -9360,6 +9357,9 @@ msgstr "不完整"
 
 msgid "Incomplete backup — not restorable"
 msgstr "备份不完整 — 无法恢复"
+
+msgid "Incomplete domains have unavailable counts, not zero exposure."
+msgstr "不完整领域的计数不可用，并不代表影响为零。"
 
 msgid "Incoterm"
 msgstr "贸易术语"
@@ -10369,8 +10369,14 @@ msgstr "关联问题"
 msgid "Linked PO"
 msgstr "关联采购订单"
 
+msgid "Linked task coverage is incomplete. Decision state is independent of task status."
+msgstr "已关联任务覆盖不完整。决策状态与任务状态相互独立。"
+
 msgid "Linked tasks"
 msgstr "已关联任务"
+
+msgid "Linked tasks must be Completed or Skipped."
+msgstr "已关联任务必须为已完成或已跳过。"
 
 msgid "Linking preserves the task's existing origin and status. It does not resolve this Impact decision."
 msgstr "关联会保留任务现有的来源和状态。它不会解决此项影响决策。"
@@ -11665,6 +11671,9 @@ msgstr "最新优先"
 msgid "Next"
 msgstr "下一步"
 
+msgid "Next Action"
+msgstr "下一步操作"
+
 msgid "Next Calibration"
 msgstr "下次校准"
 
@@ -11834,6 +11843,9 @@ msgstr "未找到成本历史记录"
 msgid "No credits yet"
 msgstr "尚无信用"
 
+msgid "No current exposure matches these filters."
+msgstr "没有当前影响记录符合这些筛选条件。"
+
 msgid "No current operational exposure is available."
 msgstr "当前没有可用的运营影响记录。"
 
@@ -11930,9 +11942,6 @@ msgstr "没有分组通知"
 msgid "No groups assigned"
 msgstr "没有已分配的组"
 
-msgid "No historical references are available."
-msgstr "没有可用的历史参考。"
-
 msgid "No history is recorded for this assessment."
 msgstr "此评估没有历史记录。"
 
@@ -11959,9 +11968,6 @@ msgstr "此处尚无物料库存活动。"
 
 msgid "No jobs are scheduled at this location yet — release a job to see work-center load."
 msgstr "此地点还没有排程工单——下达工单以查看工作中心负荷。"
-
-msgid "No Jobs or Job Materials are available."
-msgstr "没有可用的工单或工单物料。"
 
 msgid "No jobs were created"
 msgstr "没有创建工单"
@@ -12120,9 +12126,6 @@ msgstr "此操作尚未记录任何生产事件"
 msgid "No production recorded yet."
 msgstr "还没有生产记录。"
 
-msgid "No Purchase Order lines are available."
-msgstr "没有可用的采购订单行。"
-
 msgid "No purchases in this period"
 msgstr "此期间无采购"
 
@@ -12248,9 +12251,6 @@ msgstr "未分配培训"
 
 msgid "No transactions in this period"
 msgstr "此期间无交易"
-
-msgid "No unavailable source rows are available."
-msgstr "没有标记为不可用的来源行。"
 
 msgid "No unmapped accounts match a provider code"
 msgstr "没有未映射的账户与提供商代码匹配"
@@ -13636,6 +13636,9 @@ msgstr "请上传您的数据 CSV 文件"
 msgid "PO"
 msgstr "采购订单"
 
+msgid "PO Lines"
+msgstr "采购订单行"
+
 msgid "PO Number"
 msgstr "采购订单号"
 
@@ -13933,9 +13936,6 @@ msgstr "生产物料"
 msgid "Producing Job"
 msgstr "生产工单"
 
-msgid "Producing Jobs"
-msgstr "生产工单"
-
 msgid "Product issues during hypercare"
 msgstr "超级护理期间的产品问题"
 
@@ -14188,9 +14188,6 @@ msgid "Purchase Order line"
 msgstr "采购订单行"
 
 msgid "Purchase Order Line"
-msgstr "采购订单行"
-
-msgid "Purchase Order lines"
 msgstr "采购订单行"
 
 msgid "Purchase Order Location"
@@ -15309,12 +15306,6 @@ msgstr "解决备注"
 msgid "Resolve"
 msgstr "解决"
 
-msgid "Resolve after every linked task is Completed or Skipped."
-msgstr "所有关联任务均为“已完成”或“已跳过”后解决。"
-
-msgid "Resolve after linked task coverage is complete."
-msgstr "在关联任务覆盖完成后解决。"
-
 msgid "Resolve operational impact"
 msgstr "解决运营影响"
 
@@ -16250,6 +16241,9 @@ msgstr "驱动客户定价和条款的细分市场"
 msgid "Select"
 msgstr "选择"
 
+msgid "Select {domain} {item} from {source}"
+msgstr "从 {source} 选择 {domain} {item}"
+
 msgid "Select a assignee"
 msgstr "选择经办人"
 
@@ -17124,9 +17118,6 @@ msgstr "解决方案工程师"
 msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
 msgstr "从 PDF 提取的某些行无法自动映射到你的库存物料。查看并映射下面的每一行。"
 
-msgid "Some linked task metadata is unavailable. Decision state is shown independently and has not been inferred from task status. Task details are omitted where linked-task coverage could not be read."
-msgstr "部分关联任务元数据不可用。决策状态会独立显示，不会根据任务状态推断。对于无法读取关联任务覆盖情况的记录，将省略任务详细信息。"
-
 msgid "Some records won't come back. Type <0>{CONFIRM_WORD}</0> to continue."
 msgstr "某些记录不会回来。输入 <0>{CONFIRM_WORD}</0> 继续。"
 
@@ -17180,9 +17171,6 @@ msgstr "源单据ID"
 
 msgid "Source document readable"
 msgstr "源单据可读"
-
-msgid "Source identities are retained only where they were authorized; decision-relevant facts are withheld until coverage is restored."
-msgstr "来源标识仅在获得授权时保留；在覆盖恢复前，不提供与决策相关的事实。"
 
 msgid "Source Item"
 msgstr "源项目"
@@ -17828,9 +17816,6 @@ msgstr "供应与需求"
 
 msgid "Support"
 msgstr "支持"
-
-msgid "Supported purchasing and production targets that can receive an independent Impact assessment."
-msgstr "支持进行独立影响评估的采购和生产目标。"
 
 #. placeholder {0}: supportedModelTypes.join(", ")
 msgid "Supports {0} files"
@@ -18782,9 +18767,6 @@ msgstr "调度程序应用以下适用的第一条规则，然后减去停机时
 msgid "The selected rows do not share an available conclusion. Adjust the selection before reviewing it."
 msgstr "所选行没有共同的结论可供选择。请调整选择后再查看。"
 
-msgid "The server will recheck every target and reject the whole batch if any source fact, eligibility rule, or decision revision changed after this preview."
-msgstr "服务器将重新检查每个目标；如果在此预览之后任何源事实、资格规则或决策修订版发生变化，将拒绝整个生产批次。"
-
 msgid "The shelves and bins where stock physically sits"
 msgstr "库存实际存放的货架和料箱"
 
@@ -19025,9 +19007,6 @@ msgstr "这些工序使用的工艺支持多个供应商。请为每个工序选
 msgid "These parts are being replaced by this one. Each rule is set on the old part; open it to change the rule."
 msgstr "这些零件被此零件替代。每个规则都在旧零件上设置；打开它来更改规则。"
 
-msgid "These references remain traceable but do not create a new Unassessed obligation."
-msgstr "这些引用仍可追溯，但不会产生新的未评估义务。"
-
 msgid "These rows link to data outside this company, so a safety copy of your current data can't be made. Deleting them cannot be undone. If they turn out to be shared with other companies in this group, nothing is deleted and the demo data isn't applied."
 msgstr "这些行链接到此公司外部的数据，因此无法为您当前的数据创建安全副本。删除它们无法撤销。如果它们与此集团中的其他公司共享，则不会删除任何内容，演示数据也不会应用。"
 
@@ -19244,9 +19223,6 @@ msgstr "这个销售订单有关联的工单。选择如何处理它们。"
 msgid "This sales order has lines that require jobs to be created"
 msgstr "这个销售订单有需要创建工单的行。"
 
-msgid "This source domain is restricted for your current permissions. No target identities or source facts are shown."
-msgstr "此源域受您当前权限限制。不会显示任何目标标识或源事实。"
-
 msgid "This station runs ability-gated work — it only runs while a qualified operator is on shift; operators assigned on the manning board further shape available labor."
 msgstr "此工作中心运行需要特定技能的工作 — 仅当具有资格的操作员值班时才运行；人员配置委员会上指定的操作员进一步形成可用的人工。"
 
@@ -19422,6 +19398,9 @@ msgstr "标题"
 msgid "To"
 msgstr "至"
 
+msgid "To assess"
+msgstr "待评估"
+
 msgid "To Date"
 msgstr "截止日期"
 
@@ -19592,6 +19571,9 @@ msgstr "总计"
 
 msgid "Traceability"
 msgstr "可追溯性"
+
+msgid "Traceable references; no new Unassessed obligation."
+msgstr "可追溯的参考记录，不产生新的未评估义务。"
 
 msgid "Track"
 msgstr "追踪"

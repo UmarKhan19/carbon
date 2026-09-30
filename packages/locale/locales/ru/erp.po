@@ -68,6 +68,14 @@ msgstr "{0, plural, one {# строка связана с данными вне 
 msgid "{0, plural, one {# row links to data outside this company, so it can't be backed up. Skipping it backs up everything else.} other {# rows link to data outside this company, so they can't be backed up. Skipping them backs up everything else.}}"
 msgstr "{0, plural, one {# строка связана с данными вне этой организации, поэтому она не может быть зарезервирована. Пропуск позволит зарезервировать все остальное.} other {# строк связаны с данными вне этой организации, поэтому они не могут быть зарезервированы. Пропуск позволит зарезервировать все остальное.}}"
 
+#. placeholder {0}: candidates.length
+msgid "{0, plural, one {# selected target} other {# selected targets}}"
+msgstr "{0, plural, one {# выбранный целевой объект} other {# выбранных целевых объектов}}"
+
+#. placeholder {0}: selectedKeys.size
+msgid "{0, plural, one {# selected} other {# selected}}"
+msgstr "{0, plural, one {# выбран} other {# выбрано}}"
+
 #. placeholder {0}: bulkSuccess.noOpCount
 msgid "{0, plural, one {# target was already current.} other {# targets were already current.}}"
 msgstr "{0, plural, one {# целевой объект уже актуален.} other {# целевых объектов уже актуальны.}}"
@@ -225,13 +233,8 @@ msgid "{0} scrapped"
 msgstr "{0} брак"
 
 #. placeholder {0}: selected.length
-#. placeholder {0}: selectedKeys.size
 msgid "{0} selected"
 msgstr "{0} выбрано"
-
-#. placeholder {0}: candidates.length
-msgid "{0} selected targets"
-msgstr "{0} целевых объектов выбрано"
 
 #. placeholder {0}: suggestions.length
 msgid "{0} suggested batches"
@@ -1769,6 +1772,9 @@ msgstr "Все изменения в аудируемых сущностях з�
 msgid "All Companies"
 msgstr "Все компании"
 
+msgid "All complete"
+msgstr "Всё завершено"
+
 msgid "All Customers"
 msgstr "Все покупатели"
 
@@ -1802,6 +1808,9 @@ msgstr "Все возвратные строки"
 
 msgid "All rows imported — {inserted} inserted, {updated} updated."
 msgstr "Все строки импортированы — {inserted} вставлено, {updated} обновлено."
+
+msgid "All selected targets are rechecked. Any conflict rejects the whole batch."
+msgstr "Все выбранные целевые объекты проверяются повторно. Любой конфликт отклоняет всю партию."
 
 msgid "All shifts"
 msgstr "Все смены"
@@ -2761,6 +2770,9 @@ msgstr "Охват оценки требует внимания"
 msgid "Assessment created"
 msgstr "Оценка создана"
 
+msgid "Assessment locked"
+msgstr "Оценка заблокирована"
+
 msgid "Assessment reassessed"
 msgstr "Оценка пересмотрена"
 
@@ -2926,6 +2938,9 @@ msgstr "Приложение-аутентификатор"
 msgid "Authenticator QR code"
 msgstr "QR-код аутентификатора"
 
+msgid "Authorized identities only. Source facts remain unavailable."
+msgstr "Только авторизованные идентификаторы. Данные источника остаются недоступными."
+
 msgid "Authorized overtime on top of the shift"
 msgstr "Разрешена переработка поверх смены"
 
@@ -3031,9 +3046,6 @@ msgstr "Ожидает утверждения"
 
 msgid "Back"
 msgstr "Назад"
-
-msgid "Back to Change Notice"
-msgstr "Назад к извещению об изменении"
 
 msgid "Back to traceability"
 msgstr "Вернуться к прослеживаемости"
@@ -3377,6 +3389,9 @@ msgstr "Построен и рассчитан как собственный м�
 msgid "Built off to the side, then carried in at its join step"
 msgstr "Собрано отдельно, затем внесено на его шаг присоединения"
 
+msgid "Bulk Impact selection"
+msgstr "Массовый выбор «Влияние»"
+
 msgid "Bulk Import"
 msgstr "Массовый импорт"
 
@@ -3550,9 +3565,6 @@ msgstr "Отменено"
 
 msgid "Cancelled"
 msgstr "Отменено"
-
-msgid "Cancelled · New Impact assessment is locked. Existing operational follow-up remains available."
-msgstr "Отменено · Новая оценка влияния заблокирована. Существующее операционное сопровождение по-прежнему доступно."
 
 msgid "Cannot add parameters to unsaved operation"
 msgstr "Невозможно добавить параметры к несохраненной операции"
@@ -4864,12 +4876,6 @@ msgstr "Код страны"
 
 msgid "Coverage"
 msgstr "Покрытие"
-
-msgid "Coverage failed. This is not an empty or safe result; refresh after the source is available."
-msgstr "Проверка охвата не выполнена. Это не пустой и не безопасный результат; обновите данные после восстановления источника."
-
-msgid "Coverage is partial. Counts and source-deletion conclusions are withheld where the scan could not be completed."
-msgstr "Охват неполный. В местах, где сканирование не удалось завершить, количество и выводы об удалении источника не приводятся."
 
 msgid "Create"
 msgstr "Создать"
@@ -6489,9 +6495,6 @@ msgstr "готово"
 msgid "Done"
 msgstr "Готово"
 
-msgid "Done · Engineering released. Operational assessment remains available."
-msgstr "Завершено · Инженерная часть выпущена. Операционная оценка остаётся доступной."
-
 msgid "Done Adding"
 msgstr "Добавление завершено"
 
@@ -7527,9 +7530,6 @@ msgstr "Каждое условие должно совпадать"
 msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "Все тесты в области действия проходят в вашей настроенной системе с вашими данными."
 
-msgid "Every linked task must be Completed or Skipped before this Impact can be resolved."
-msgstr "Каждая связанная задача должна иметь статус «Завершено» или «Пропущено», прежде чем это влияние можно будет закрыть."
-
 msgid "Every match"
 msgstr "Каждое совпадение"
 
@@ -7595,6 +7595,9 @@ msgstr "Сертификат освобождения"
 
 msgid "Exemption Reason"
 msgstr "Причина освобождения"
+
+msgid "Existing follow-up and resolution remain available."
+msgstr "Существующие последующие действия и урегулирование остаются доступными."
 
 msgid "Existing mappings. Pick a different provider option to re-map."
 msgstr "Существующие отображения. Выберите другой вариант провайдера для переотображения."
@@ -8895,14 +8898,8 @@ msgstr "Высокий"
 msgid "Hints in the first row"
 msgstr "Подсказки в первой строке"
 
-msgid "Historical"
-msgstr "Исторические"
-
 msgid "Historical causes"
 msgstr "Исторические причины"
-
-msgid "Historical coverage is incomplete."
-msgstr "Охват исторических данных неполный."
 
 msgid "Historical data older than what's on the Data Migration Map"
 msgstr "Исторические данные старше, чем указано на карте миграции данных"
@@ -9360,6 +9357,9 @@ msgstr "Неполная"
 
 msgid "Incomplete backup — not restorable"
 msgstr "Неполная резервная копия — восстановление невозможно"
+
+msgid "Incomplete domains have unavailable counts, not zero exposure."
+msgstr "Для неполных доменов количество недоступно, это не нулевое воздействие."
 
 msgid "Incoterm"
 msgstr "Инкотермс"
@@ -10369,8 +10369,14 @@ msgstr "Связанная проблема"
 msgid "Linked PO"
 msgstr "Связанный ПО"
 
+msgid "Linked task coverage is incomplete. Decision state is independent of task status."
+msgstr "Охват связанных задач неполный. Состояние решения не зависит от статуса задачи."
+
 msgid "Linked tasks"
 msgstr "Связанные задачи"
+
+msgid "Linked tasks must be Completed or Skipped."
+msgstr "Связанные задачи должны быть Завершены или Пропущены."
 
 msgid "Linking preserves the task's existing origin and status. It does not resolve this Impact decision."
 msgstr "Связывание сохраняет исходное происхождение и статус задачи. Оно не принимает решение по данному влиянию."
@@ -11665,6 +11671,9 @@ msgstr "Сначала новые"
 msgid "Next"
 msgstr "Далее"
 
+msgid "Next Action"
+msgstr "Следующее действие"
+
 msgid "Next Calibration"
 msgstr "Следующая калибровка"
 
@@ -11834,6 +11843,9 @@ msgstr "История себестоимости не найдена"
 msgid "No credits yet"
 msgstr "Никаких кредитов еще нет"
 
+msgid "No current exposure matches these filters."
+msgstr "Ни одно текущее воздействие не соответствует этим фильтрам."
+
 msgid "No current operational exposure is available."
 msgstr "Данные о текущем операционном воздействии недоступны."
 
@@ -11930,9 +11942,6 @@ msgstr "Нет сгруппированных уведомлений"
 msgid "No groups assigned"
 msgstr "Нет назначенных групп"
 
-msgid "No historical references are available."
-msgstr "Исторические ссылки недоступны."
-
 msgid "No history is recorded for this assessment."
 msgstr "Для этой оценки история не зарегистрирована."
 
@@ -11959,9 +11968,6 @@ msgstr "Здесь еще нет активности с товарами."
 
 msgid "No jobs are scheduled at this location yet — release a job to see work-center load."
 msgstr "На этой площадке еще не запланированы производственные заказы — запустите производственный заказ в работу, чтобы увидеть нагрузку на рабочий центр."
-
-msgid "No Jobs or Job Materials are available."
-msgstr "Нет доступных производственных заказов или материалов заказов."
 
 msgid "No jobs were created"
 msgstr "Производственные заказы не были созданы"
@@ -12120,9 +12126,6 @@ msgstr "Для этой операции еще не записано ни од�
 msgid "No production recorded yet."
 msgstr "Производство еще не записано."
 
-msgid "No Purchase Order lines are available."
-msgstr "Нет доступных строк заказов поставщику."
-
 msgid "No purchases in this period"
 msgstr "Нет покупок в этом периоде"
 
@@ -12248,9 +12251,6 @@ msgstr "Обучение не назначено"
 
 msgid "No transactions in this period"
 msgstr "Нет транзакций в этом периоде"
-
-msgid "No unavailable source rows are available."
-msgstr "Нет недоступных исходных строк."
 
 msgid "No unmapped accounts match a provider code"
 msgstr "Ни один несопоставленный счет не совпадает с кодом системы"
@@ -13636,6 +13636,9 @@ msgstr "Пожалуйста, загрузите CSV-файл ваших дан�
 msgid "PO"
 msgstr "ПО"
 
+msgid "PO Lines"
+msgstr "Строки заказа"
+
 msgid "PO Number"
 msgstr "Номер ПО"
 
@@ -13933,9 +13936,6 @@ msgstr "Произведенная номенклатура"
 msgid "Producing Job"
 msgstr "Производственный заказ на выпуск"
 
-msgid "Producing Jobs"
-msgstr "Производственные заказы на выпуск"
-
 msgid "Product issues during hypercare"
 msgstr "Проблемы с продуктом во время гиперпомощи"
 
@@ -14189,9 +14189,6 @@ msgstr "Строка заказа поставщику"
 
 msgid "Purchase Order Line"
 msgstr "Строка Заказа поставщику"
-
-msgid "Purchase Order lines"
-msgstr "Строки заказа поставщику"
 
 msgid "Purchase Order Location"
 msgstr "Площадка Заказа поставщику"
@@ -15309,12 +15306,6 @@ msgstr "Примечание к решению"
 msgid "Resolve"
 msgstr "Урегулировать"
 
-msgid "Resolve after every linked task is Completed or Skipped."
-msgstr "Урегулировать после того, как каждой связанной задаче будет присвоен статус «Завершено» или «Пропущено»."
-
-msgid "Resolve after linked task coverage is complete."
-msgstr "Урегулировать после завершения охвата связанных задач."
-
 msgid "Resolve operational impact"
 msgstr "Урегулировать влияние на операционную деятельность"
 
@@ -16250,6 +16241,9 @@ msgstr "Сегменты, которые определяют ценообраз
 msgid "Select"
 msgstr "Выбрать"
 
+msgid "Select {domain} {item} from {source}"
+msgstr "Выбрать {domain} {item} из {source}"
+
 msgid "Select a assignee"
 msgstr "Выберите исполнителя"
 
@@ -17124,9 +17118,6 @@ msgstr "Инженер решений"
 msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
 msgstr "Некоторые строки, извлеченные из PDF, не удалось автоматически сопоставить с вашими номенклатурными позициями. Проверьте и сопоставьте каждую строку ниже."
 
-msgid "Some linked task metadata is unavailable. Decision state is shown independently and has not been inferred from task status. Task details are omitted where linked-task coverage could not be read."
-msgstr "Некоторые метаданные связанных задач недоступны. Состояние решения отображается независимо и не было выведено из статуса задач. Сведения о задачах не отображаются там, где не удалось получить данные об охвате связанных задач."
-
 msgid "Some records won't come back. Type <0>{CONFIRM_WORD}</0> to continue."
 msgstr "Некоторые записи не вернутся. Введите <0>{CONFIRM_WORD}</0> для продолжения."
 
@@ -17180,9 +17171,6 @@ msgstr "ID документа-основания"
 
 msgid "Source document readable"
 msgstr "Читаемый документ-основание"
-
-msgid "Source identities are retained only where they were authorized; decision-relevant facts are withheld until coverage is restored."
-msgstr "Идентификационные данные источников сохраняются только там, где это было разрешено; факты, имеющие значение для решения, не предоставляются до восстановления охвата."
 
 msgid "Source Item"
 msgstr "Исходный элемент"
@@ -17828,9 +17816,6 @@ msgstr "Обеспечение и потребность"
 
 msgid "Support"
 msgstr "Поддержка"
-
-msgid "Supported purchasing and production targets that can receive an independent Impact assessment."
-msgstr "Поддерживаемые цели в модулях «Закупки» и «Производство», для которых можно выполнить независимую оценку влияния."
 
 #. placeholder {0}: supportedModelTypes.join(", ")
 msgid "Supports {0} files"
@@ -18782,9 +18767,6 @@ msgstr "Планировщик применяет первое подходящ�
 msgid "The selected rows do not share an available conclusion. Adjust the selection before reviewing it."
 msgstr "У выбранных строк нет общего доступного заключения. Скорректируйте выбор перед проверкой."
 
-msgid "The server will recheck every target and reject the whole batch if any source fact, eligibility rule, or decision revision changed after this preview."
-msgstr "Сервер повторно проверит каждый целевой объект и отклонит всю серию, если после предварительного просмотра изменился какой-либо исходный факт, правило допустимости или ревизия решения."
-
 msgid "The shelves and bins where stock physically sits"
 msgstr "Полки и ячейки, где физически располагается запас."
 
@@ -19025,9 +19007,6 @@ msgstr "Эти операции выполняются по процессу с 
 msgid "These parts are being replaced by this one. Each rule is set on the old part; open it to change the rule."
 msgstr "Эти детали заменяются на эту. Каждое правило установлено на старой детали; откройте ее, чтобы изменить правило."
 
-msgid "These references remain traceable but do not create a new Unassessed obligation."
-msgstr "Эти ссылки остаются отслеживаемыми, но не создают нового обязательства со статусом «Не оценено»."
-
 msgid "These rows link to data outside this company, so a safety copy of your current data can't be made. Deleting them cannot be undone. If they turn out to be shared with other companies in this group, nothing is deleted and the demo data isn't applied."
 msgstr "Эти Строки ссылаются на данные вне этой Организации, поэтому невозможно создать резервную копию ваших текущих данных. Их удаление невозможно отменить. Если окажется, что они используются другими Организациями в этой группе, ничего не удаляется и демо-данные не применяются."
 
@@ -19244,9 +19223,6 @@ msgstr "Этот заказ покупателя имеет связанные �
 msgid "This sales order has lines that require jobs to be created"
 msgstr "Этот заказ покупателя имеет строки, требующие создания производственных заказов"
 
-msgid "This source domain is restricted for your current permissions. No target identities or source facts are shown."
-msgstr "Исходный домен ограничен для ваших текущих прав доступа. Идентификаторы целевых объектов и исходные факты не отображаются."
-
 msgid "This station runs ability-gated work — it only runs while a qualified operator is on shift; operators assigned on the manning board further shape available labor."
 msgstr "Эта станция выполняет работу, требующую определенных навыков — она работает только когда квалифицированный оператор находится на смене; операторы, назначенные на доску укомплектования, уточняют доступный труд."
 
@@ -19422,6 +19398,9 @@ msgstr "Название"
 msgid "To"
 msgstr "До"
 
+msgid "To assess"
+msgstr "К оценке"
+
 msgid "To Date"
 msgstr "До даты"
 
@@ -19592,6 +19571,9 @@ msgstr "Итоги"
 
 msgid "Traceability"
 msgstr "Прослеживаемость"
+
+msgid "Traceable references; no new Unassessed obligation."
+msgstr "Отслеживаемые ссылки; они не создают новое неоценённое обязательство."
 
 msgid "Track"
 msgstr "Отслеживание"

@@ -19,6 +19,9 @@ type SnapshotFactsProps = {
   emptyMessage?: ReactNode;
 };
 
+const factsLayout =
+  "grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-x-4 gap-y-2 text-xs";
+
 function formatQuantity(
   value: number,
   unit: string | null | undefined,
@@ -62,7 +65,7 @@ export function SnapshotFacts({
     snapshot.schema === "PO_LINE_SNAPSHOT_V1"
   ) {
     return (
-      <div className="grid gap-x-4 gap-y-1 text-xs sm:grid-cols-2 lg:grid-cols-4">
+      <div className={factsLayout}>
         <Fact
           label={<Trans>Ordered</Trans>}
           value={formatQuantity(
@@ -115,7 +118,7 @@ export function SnapshotFacts({
 
   if (candidate.targetType === "job" && snapshot.schema === "JOB_SNAPSHOT_V1") {
     return (
-      <div className="grid gap-x-4 gap-y-1 text-xs sm:grid-cols-2 lg:grid-cols-4">
+      <div className={factsLayout}>
         <Fact
           label={<Trans>Planned</Trans>}
           value={formatQuantity(
@@ -177,7 +180,7 @@ export function SnapshotFacts({
     snapshot.schema === "JOB_MATERIAL_SNAPSHOT_V1"
   ) {
     return (
-      <div className="grid gap-x-4 gap-y-1 text-xs sm:grid-cols-2 lg:grid-cols-4">
+      <div className={factsLayout}>
         <Fact
           label={<Trans>Required</Trans>}
           value={formatQuantity(
@@ -244,9 +247,9 @@ export function SnapshotFacts({
 
 function Fact({ label, value }: { label: ReactNode; value: ReactNode }) {
   return (
-    <div className="flex min-w-0 gap-1">
-      <span className="shrink-0 text-muted-foreground">{label}:</span>
-      <span className="truncate font-medium">{value}</span>
+    <div className="flex min-w-0 flex-wrap gap-x-1">
+      <span className="text-muted-foreground">{label}:</span>
+      <span className="break-words font-medium tabular-nums">{value}</span>
     </div>
   );
 }
