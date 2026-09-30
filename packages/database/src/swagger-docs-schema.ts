@@ -1551,6 +1551,150 @@ export default {
         tags: ["salesOrderShipment"]
       }
     },
+    "/reimbursementLineDimension": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLineDimension.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLineDimension.reimbursementLineId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLineDimension.dimensionId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLineDimension.valueId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLineDimension.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLineDimension.createdAt"
+          },
+          {
+            $ref: "#/parameters/select"
+          },
+          {
+            $ref: "#/parameters/order"
+          },
+          {
+            $ref: "#/parameters/range"
+          },
+          {
+            $ref: "#/parameters/rangeUnit"
+          },
+          {
+            $ref: "#/parameters/offset"
+          },
+          {
+            $ref: "#/parameters/limit"
+          },
+          {
+            $ref: "#/parameters/preferCount"
+          }
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/reimbursementLineDimension"
+              },
+              type: "array"
+            }
+          },
+          "206": {
+            description: "Partial Content"
+          }
+        },
+        tags: ["reimbursementLineDimension"]
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.reimbursementLineDimension"
+          },
+          {
+            $ref: "#/parameters/select"
+          },
+          {
+            $ref: "#/parameters/preferPost"
+          }
+        ],
+        responses: {
+          "201": {
+            description: "Created"
+          }
+        },
+        tags: ["reimbursementLineDimension"]
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLineDimension.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLineDimension.reimbursementLineId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLineDimension.dimensionId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLineDimension.valueId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLineDimension.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLineDimension.createdAt"
+          },
+          {
+            $ref: "#/parameters/preferReturn"
+          }
+        ],
+        responses: {
+          "204": {
+            description: "No Content"
+          }
+        },
+        tags: ["reimbursementLineDimension"]
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLineDimension.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLineDimension.reimbursementLineId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLineDimension.dimensionId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLineDimension.valueId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLineDimension.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLineDimension.createdAt"
+          },
+          {
+            $ref: "#/parameters/body.reimbursementLineDimension"
+          },
+          {
+            $ref: "#/parameters/preferReturn"
+          }
+        ],
+        responses: {
+          "204": {
+            description: "No Content"
+          }
+        },
+        tags: ["reimbursementLineDimension"]
+      }
+    },
     "/documentLabels": {
       get: {
         parameters: [
@@ -3601,6 +3745,222 @@ export default {
           }
         },
         tags: ["quoteShipment"]
+      }
+    },
+    "/reimbursementLine": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.reimbursementId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.accountId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.costCenterId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.projectId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.description"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.amount"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.sequence"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.createdBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.createdAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.updatedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.updatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.customFields"
+          },
+          {
+            $ref: "#/parameters/select"
+          },
+          {
+            $ref: "#/parameters/order"
+          },
+          {
+            $ref: "#/parameters/range"
+          },
+          {
+            $ref: "#/parameters/rangeUnit"
+          },
+          {
+            $ref: "#/parameters/offset"
+          },
+          {
+            $ref: "#/parameters/limit"
+          },
+          {
+            $ref: "#/parameters/preferCount"
+          }
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/reimbursementLine"
+              },
+              type: "array"
+            }
+          },
+          "206": {
+            description: "Partial Content"
+          }
+        },
+        tags: ["reimbursementLine"]
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.reimbursementLine"
+          },
+          {
+            $ref: "#/parameters/select"
+          },
+          {
+            $ref: "#/parameters/preferPost"
+          }
+        ],
+        responses: {
+          "201": {
+            description: "Created"
+          }
+        },
+        tags: ["reimbursementLine"]
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.reimbursementId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.accountId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.costCenterId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.projectId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.description"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.amount"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.sequence"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.createdBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.createdAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.updatedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.updatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.customFields"
+          },
+          {
+            $ref: "#/parameters/preferReturn"
+          }
+        ],
+        responses: {
+          "204": {
+            description: "No Content"
+          }
+        },
+        tags: ["reimbursementLine"]
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.reimbursementId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.accountId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.costCenterId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.projectId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.description"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.amount"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.sequence"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.createdBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.createdAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.updatedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.updatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursementLine.customFields"
+          },
+          {
+            $ref: "#/parameters/body.reimbursementLine"
+          },
+          {
+            $ref: "#/parameters/preferReturn"
+          }
+        ],
+        responses: {
+          "204": {
+            description: "No Content"
+          }
+        },
+        tags: ["reimbursementLine"]
       }
     },
     "/inspectionHistory": {
@@ -6556,6 +6916,9 @@ export default {
             $ref: "#/parameters/rowFilter.jobOperationsWithDependencies.assemblyInstructionId"
           },
           {
+            $ref: "#/parameters/rowFilter.jobOperationsWithDependencies.readyAt"
+          },
+          {
             $ref: "#/parameters/rowFilter.jobOperationsWithDependencies.inspectionDocumentId"
           },
           {
@@ -6759,6 +7122,9 @@ export default {
             $ref: "#/parameters/rowFilter.jobOperationsWithDependencies.assemblyInstructionId"
           },
           {
+            $ref: "#/parameters/rowFilter.jobOperationsWithDependencies.readyAt"
+          },
+          {
             $ref: "#/parameters/rowFilter.jobOperationsWithDependencies.inspectionDocumentId"
           },
           {
@@ -6914,6 +7280,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.jobOperationsWithDependencies.assemblyInstructionId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.jobOperationsWithDependencies.readyAt"
           },
           {
             $ref: "#/parameters/rowFilter.jobOperationsWithDependencies.inspectionDocumentId"
@@ -19687,6 +20056,9 @@ export default {
             $ref: "#/parameters/rowFilter.payment.customFields"
           },
           {
+            $ref: "#/parameters/rowFilter.payment.employeeId"
+          },
+          {
             $ref: "#/parameters/select"
           },
           {
@@ -19821,6 +20193,9 @@ export default {
             $ref: "#/parameters/rowFilter.payment.customFields"
           },
           {
+            $ref: "#/parameters/rowFilter.payment.employeeId"
+          },
+          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -19907,6 +20282,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.payment.customFields"
+          },
+          {
+            $ref: "#/parameters/rowFilter.payment.employeeId"
           },
           {
             $ref: "#/parameters/body.payment"
@@ -20668,9 +21046,6 @@ export default {
             $ref: "#/parameters/rowFilter.jobs.priority"
           },
           {
-            $ref: "#/parameters/rowFilter.jobs.productionQuantity"
-          },
-          {
             $ref: "#/parameters/rowFilter.jobs.projectedCompletionAt"
           },
           {
@@ -20678,6 +21053,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.jobs.scheduleOutdatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.jobs.productionQuantity"
           },
           {
             $ref: "#/parameters/rowFilter.jobs.jobMakeMethodId"
@@ -24754,6 +25132,9 @@ export default {
             $ref: "#/parameters/rowFilter.pricingRule.updatedAt"
           },
           {
+            $ref: "#/parameters/rowFilter.pricingRule.configurationPrices"
+          },
+          {
             $ref: "#/parameters/select"
           },
           {
@@ -24873,6 +25254,9 @@ export default {
             $ref: "#/parameters/rowFilter.pricingRule.updatedAt"
           },
           {
+            $ref: "#/parameters/rowFilter.pricingRule.configurationPrices"
+          },
+          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -24944,6 +25328,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.pricingRule.updatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.configurationPrices"
           },
           {
             $ref: "#/parameters/body.pricingRule"
@@ -25636,6 +26023,348 @@ export default {
           }
         },
         tags: ["companies"]
+      }
+    },
+    "/charge": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.charge.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.chargeId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.type"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.status"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.integration"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.cardAccountId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.offsetAccountId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.supplierId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.merchantName"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.cardHolderName"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.cardLast4"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.memo"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.transactionDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.postingDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.currencyCode"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.exchangeRate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.amount"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.journalId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.postedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.postedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.voidedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.voidedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.createdBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.createdAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.updatedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.updatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.customFields"
+          },
+          {
+            $ref: "#/parameters/select"
+          },
+          {
+            $ref: "#/parameters/order"
+          },
+          {
+            $ref: "#/parameters/range"
+          },
+          {
+            $ref: "#/parameters/rangeUnit"
+          },
+          {
+            $ref: "#/parameters/offset"
+          },
+          {
+            $ref: "#/parameters/limit"
+          },
+          {
+            $ref: "#/parameters/preferCount"
+          }
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/charge"
+              },
+              type: "array"
+            }
+          },
+          "206": {
+            description: "Partial Content"
+          }
+        },
+        tags: ["charge"]
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.charge"
+          },
+          {
+            $ref: "#/parameters/select"
+          },
+          {
+            $ref: "#/parameters/preferPost"
+          }
+        ],
+        responses: {
+          "201": {
+            description: "Created"
+          }
+        },
+        tags: ["charge"]
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.charge.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.chargeId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.type"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.status"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.integration"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.cardAccountId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.offsetAccountId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.supplierId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.merchantName"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.cardHolderName"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.cardLast4"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.memo"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.transactionDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.postingDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.currencyCode"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.exchangeRate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.amount"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.journalId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.postedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.postedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.voidedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.voidedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.createdBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.createdAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.updatedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.updatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.customFields"
+          },
+          {
+            $ref: "#/parameters/preferReturn"
+          }
+        ],
+        responses: {
+          "204": {
+            description: "No Content"
+          }
+        },
+        tags: ["charge"]
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.charge.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.chargeId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.type"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.status"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.integration"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.cardAccountId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.offsetAccountId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.supplierId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.merchantName"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.cardHolderName"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.cardLast4"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.memo"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.transactionDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.postingDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.currencyCode"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.exchangeRate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.amount"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.journalId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.postedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.postedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.voidedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.voidedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.createdBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.createdAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.updatedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.updatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.charge.customFields"
+          },
+          {
+            $ref: "#/parameters/body.charge"
+          },
+          {
+            $ref: "#/parameters/preferReturn"
+          }
+        ],
+        responses: {
+          "204": {
+            description: "No Content"
+          }
+        },
+        tags: ["charge"]
       }
     },
     "/process": {
@@ -34408,9 +35137,6 @@ export default {
             $ref: "#/parameters/rowFilter.job.priority"
           },
           {
-            $ref: "#/parameters/rowFilter.job.productionQuantity"
-          },
-          {
             $ref: "#/parameters/rowFilter.job.projectedCompletionAt"
           },
           {
@@ -34418,6 +35144,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.job.scheduleOutdatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.job.productionQuantity"
           },
           {
             $ref: "#/parameters/select"
@@ -34590,9 +35319,6 @@ export default {
             $ref: "#/parameters/rowFilter.job.priority"
           },
           {
-            $ref: "#/parameters/rowFilter.job.productionQuantity"
-          },
-          {
             $ref: "#/parameters/rowFilter.job.projectedCompletionAt"
           },
           {
@@ -34600,6 +35326,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.job.scheduleOutdatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.job.productionQuantity"
           },
           {
             $ref: "#/parameters/preferReturn"
@@ -34726,9 +35455,6 @@ export default {
             $ref: "#/parameters/rowFilter.job.priority"
           },
           {
-            $ref: "#/parameters/rowFilter.job.productionQuantity"
-          },
-          {
             $ref: "#/parameters/rowFilter.job.projectedCompletionAt"
           },
           {
@@ -34736,6 +35462,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.job.scheduleOutdatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.job.productionQuantity"
           },
           {
             $ref: "#/parameters/body.job"
@@ -40234,6 +40963,9 @@ export default {
             $ref: "#/parameters/rowFilter.accountDefault.salesReturnsAccount"
           },
           {
+            $ref: "#/parameters/rowFilter.accountDefault.employeeReimbursementsPayableAccount"
+          },
+          {
             $ref: "#/parameters/select"
           },
           {
@@ -40458,6 +41190,9 @@ export default {
             $ref: "#/parameters/rowFilter.accountDefault.salesReturnsAccount"
           },
           {
+            $ref: "#/parameters/rowFilter.accountDefault.employeeReimbursementsPayableAccount"
+          },
+          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -40634,6 +41369,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.salesReturnsAccount"
+          },
+          {
+            $ref: "#/parameters/rowFilter.accountDefault.employeeReimbursementsPayableAccount"
           },
           {
             $ref: "#/parameters/body.accountDefault"
@@ -41242,348 +41980,6 @@ export default {
           }
         },
         tags: ["procedureStep"]
-      }
-    },
-    "/cardTransaction": {
-      get: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.id"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.companyId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.cardTransactionId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.type"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.status"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.integration"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.cardAccountId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.offsetAccountId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.supplierId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.merchantName"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.cardHolderName"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.cardLast4"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.memo"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.transactionDate"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.postingDate"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.currencyCode"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.exchangeRate"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.amount"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.journalId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.postedAt"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.postedBy"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.voidedAt"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.voidedBy"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.createdBy"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.createdAt"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.updatedBy"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.updatedAt"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.customFields"
-          },
-          {
-            $ref: "#/parameters/select"
-          },
-          {
-            $ref: "#/parameters/order"
-          },
-          {
-            $ref: "#/parameters/range"
-          },
-          {
-            $ref: "#/parameters/rangeUnit"
-          },
-          {
-            $ref: "#/parameters/offset"
-          },
-          {
-            $ref: "#/parameters/limit"
-          },
-          {
-            $ref: "#/parameters/preferCount"
-          }
-        ],
-        responses: {
-          "200": {
-            description: "OK",
-            schema: {
-              items: {
-                $ref: "#/definitions/cardTransaction"
-              },
-              type: "array"
-            }
-          },
-          "206": {
-            description: "Partial Content"
-          }
-        },
-        tags: ["cardTransaction"]
-      },
-      post: {
-        parameters: [
-          {
-            $ref: "#/parameters/body.cardTransaction"
-          },
-          {
-            $ref: "#/parameters/select"
-          },
-          {
-            $ref: "#/parameters/preferPost"
-          }
-        ],
-        responses: {
-          "201": {
-            description: "Created"
-          }
-        },
-        tags: ["cardTransaction"]
-      },
-      delete: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.id"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.companyId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.cardTransactionId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.type"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.status"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.integration"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.cardAccountId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.offsetAccountId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.supplierId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.merchantName"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.cardHolderName"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.cardLast4"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.memo"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.transactionDate"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.postingDate"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.currencyCode"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.exchangeRate"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.amount"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.journalId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.postedAt"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.postedBy"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.voidedAt"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.voidedBy"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.createdBy"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.createdAt"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.updatedBy"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.updatedAt"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.customFields"
-          },
-          {
-            $ref: "#/parameters/preferReturn"
-          }
-        ],
-        responses: {
-          "204": {
-            description: "No Content"
-          }
-        },
-        tags: ["cardTransaction"]
-      },
-      patch: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.id"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.companyId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.cardTransactionId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.type"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.status"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.integration"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.cardAccountId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.offsetAccountId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.supplierId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.merchantName"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.cardHolderName"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.cardLast4"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.memo"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.transactionDate"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.postingDate"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.currencyCode"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.exchangeRate"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.amount"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.journalId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.postedAt"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.postedBy"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.voidedAt"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.voidedBy"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.createdBy"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.createdAt"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.updatedBy"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.updatedAt"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransaction.customFields"
-          },
-          {
-            $ref: "#/parameters/body.cardTransaction"
-          },
-          {
-            $ref: "#/parameters/preferReturn"
-          }
-        ],
-        responses: {
-          "204": {
-            description: "No Content"
-          }
-        },
-        tags: ["cardTransaction"]
       }
     },
     "/documentFavorite": {
@@ -44488,10 +44884,10 @@ export default {
             $ref: "#/parameters/rowFilter.jobOperation.assemblyInstructionId"
           },
           {
-            $ref: "#/parameters/rowFilter.jobOperation.inspectionDocumentId"
+            $ref: "#/parameters/rowFilter.jobOperation.readyAt"
           },
           {
-            $ref: "#/parameters/rowFilter.jobOperation.readyAt"
+            $ref: "#/parameters/rowFilter.jobOperation.inspectionDocumentId"
           },
           {
             $ref: "#/parameters/rowFilter.jobOperation.projectedCompletionAt"
@@ -44697,10 +45093,10 @@ export default {
             $ref: "#/parameters/rowFilter.jobOperation.assemblyInstructionId"
           },
           {
-            $ref: "#/parameters/rowFilter.jobOperation.inspectionDocumentId"
+            $ref: "#/parameters/rowFilter.jobOperation.readyAt"
           },
           {
-            $ref: "#/parameters/rowFilter.jobOperation.readyAt"
+            $ref: "#/parameters/rowFilter.jobOperation.inspectionDocumentId"
           },
           {
             $ref: "#/parameters/rowFilter.jobOperation.projectedCompletionAt"
@@ -44860,10 +45256,10 @@ export default {
             $ref: "#/parameters/rowFilter.jobOperation.assemblyInstructionId"
           },
           {
-            $ref: "#/parameters/rowFilter.jobOperation.inspectionDocumentId"
+            $ref: "#/parameters/rowFilter.jobOperation.readyAt"
           },
           {
-            $ref: "#/parameters/rowFilter.jobOperation.readyAt"
+            $ref: "#/parameters/rowFilter.jobOperation.inspectionDocumentId"
           },
           {
             $ref: "#/parameters/rowFilter.jobOperation.projectedCompletionAt"
@@ -46327,6 +46723,222 @@ export default {
           }
         },
         tags: ["customerType"]
+      }
+    },
+    "/chargeLine": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.chargeId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.accountId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.costCenterId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.projectId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.description"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.amount"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.sequence"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.createdBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.createdAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.updatedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.updatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.customFields"
+          },
+          {
+            $ref: "#/parameters/select"
+          },
+          {
+            $ref: "#/parameters/order"
+          },
+          {
+            $ref: "#/parameters/range"
+          },
+          {
+            $ref: "#/parameters/rangeUnit"
+          },
+          {
+            $ref: "#/parameters/offset"
+          },
+          {
+            $ref: "#/parameters/limit"
+          },
+          {
+            $ref: "#/parameters/preferCount"
+          }
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/chargeLine"
+              },
+              type: "array"
+            }
+          },
+          "206": {
+            description: "Partial Content"
+          }
+        },
+        tags: ["chargeLine"]
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.chargeLine"
+          },
+          {
+            $ref: "#/parameters/select"
+          },
+          {
+            $ref: "#/parameters/preferPost"
+          }
+        ],
+        responses: {
+          "201": {
+            description: "Created"
+          }
+        },
+        tags: ["chargeLine"]
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.chargeId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.accountId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.costCenterId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.projectId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.description"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.amount"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.sequence"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.createdBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.createdAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.updatedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.updatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.customFields"
+          },
+          {
+            $ref: "#/parameters/preferReturn"
+          }
+        ],
+        responses: {
+          "204": {
+            description: "No Content"
+          }
+        },
+        tags: ["chargeLine"]
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.chargeId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.accountId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.costCenterId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.projectId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.description"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.amount"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.sequence"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.createdBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.createdAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.updatedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.updatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.chargeLine.customFields"
+          },
+          {
+            $ref: "#/parameters/body.chargeLine"
+          },
+          {
+            $ref: "#/parameters/preferReturn"
+          }
+        ],
+        responses: {
+          "204": {
+            description: "No Content"
+          }
+        },
+        tags: ["chargeLine"]
       }
     },
     "/quoteMaterial": {
@@ -48847,222 +49459,6 @@ export default {
           }
         },
         tags: ["maintenanceDispatchEvent"]
-      }
-    },
-    "/cardTransactionLine": {
-      get: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.id"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.companyId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.cardTransactionId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.accountId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.costCenterId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.description"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.amount"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.sequence"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.createdBy"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.createdAt"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.updatedBy"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.updatedAt"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.customFields"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.projectId"
-          },
-          {
-            $ref: "#/parameters/select"
-          },
-          {
-            $ref: "#/parameters/order"
-          },
-          {
-            $ref: "#/parameters/range"
-          },
-          {
-            $ref: "#/parameters/rangeUnit"
-          },
-          {
-            $ref: "#/parameters/offset"
-          },
-          {
-            $ref: "#/parameters/limit"
-          },
-          {
-            $ref: "#/parameters/preferCount"
-          }
-        ],
-        responses: {
-          "200": {
-            description: "OK",
-            schema: {
-              items: {
-                $ref: "#/definitions/cardTransactionLine"
-              },
-              type: "array"
-            }
-          },
-          "206": {
-            description: "Partial Content"
-          }
-        },
-        tags: ["cardTransactionLine"]
-      },
-      post: {
-        parameters: [
-          {
-            $ref: "#/parameters/body.cardTransactionLine"
-          },
-          {
-            $ref: "#/parameters/select"
-          },
-          {
-            $ref: "#/parameters/preferPost"
-          }
-        ],
-        responses: {
-          "201": {
-            description: "Created"
-          }
-        },
-        tags: ["cardTransactionLine"]
-      },
-      delete: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.id"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.companyId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.cardTransactionId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.accountId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.costCenterId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.description"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.amount"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.sequence"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.createdBy"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.createdAt"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.updatedBy"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.updatedAt"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.customFields"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.projectId"
-          },
-          {
-            $ref: "#/parameters/preferReturn"
-          }
-        ],
-        responses: {
-          "204": {
-            description: "No Content"
-          }
-        },
-        tags: ["cardTransactionLine"]
-      },
-      patch: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.id"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.companyId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.cardTransactionId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.accountId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.costCenterId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.description"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.amount"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.sequence"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.createdBy"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.createdAt"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.updatedBy"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.updatedAt"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.customFields"
-          },
-          {
-            $ref: "#/parameters/rowFilter.cardTransactionLine.projectId"
-          },
-          {
-            $ref: "#/parameters/body.cardTransactionLine"
-          },
-          {
-            $ref: "#/parameters/preferReturn"
-          }
-        ],
-        responses: {
-          "204": {
-            description: "No Content"
-          }
-        },
-        tags: ["cardTransactionLine"]
       }
     },
     "/implementationFieldValue": {
@@ -53440,6 +53836,9 @@ export default {
             $ref: "#/parameters/rowFilter.assemblyInstructionStep.rootStepId"
           },
           {
+            $ref: "#/parameters/rowFilter.assemblyInstructionStep.hiddenComponentNodeIds"
+          },
+          {
             $ref: "#/parameters/select"
           },
           {
@@ -53592,6 +53991,9 @@ export default {
             $ref: "#/parameters/rowFilter.assemblyInstructionStep.rootStepId"
           },
           {
+            $ref: "#/parameters/rowFilter.assemblyInstructionStep.hiddenComponentNodeIds"
+          },
+          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -53696,6 +54098,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.assemblyInstructionStep.rootStepId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyInstructionStep.hiddenComponentNodeIds"
           },
           {
             $ref: "#/parameters/body.assemblyInstructionStep"
@@ -59546,6 +59951,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.salesOrderLines.convertedNonTaxableAddOnCost"
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesOrderLines.configuration"
           },
           {
             $ref: "#/parameters/rowFilter.salesOrderLines.itemReadableId"
@@ -71749,6 +72157,9 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLine.convertedNonTaxableAddOnCost"
           },
           {
+            $ref: "#/parameters/rowFilter.salesOrderLine.configuration"
+          },
+          {
             $ref: "#/parameters/select"
           },
           {
@@ -71940,6 +72351,9 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLine.convertedNonTaxableAddOnCost"
           },
           {
+            $ref: "#/parameters/rowFilter.salesOrderLine.configuration"
+          },
+          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -72083,6 +72497,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.salesOrderLine.convertedNonTaxableAddOnCost"
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesOrderLine.configuration"
           },
           {
             $ref: "#/parameters/body.salesOrderLine"
@@ -79198,6 +79615,9 @@ export default {
             $ref: "#/parameters/rowFilter.invoiceSettlement.sourceAmount"
           },
           {
+            $ref: "#/parameters/rowFilter.invoiceSettlement.targetReimbursementId"
+          },
+          {
             $ref: "#/parameters/select"
           },
           {
@@ -79317,6 +79737,9 @@ export default {
             $ref: "#/parameters/rowFilter.invoiceSettlement.sourceAmount"
           },
           {
+            $ref: "#/parameters/rowFilter.invoiceSettlement.targetReimbursementId"
+          },
+          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -79388,6 +79811,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.invoiceSettlement.sourceAmount"
+          },
+          {
+            $ref: "#/parameters/rowFilter.invoiceSettlement.targetReimbursementId"
           },
           {
             $ref: "#/parameters/body.invoiceSettlement"
@@ -84443,6 +84869,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.jobOperationsWithMakeMethods.assemblyInstructionId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.jobOperationsWithMakeMethods.readyAt"
           },
           {
             $ref: "#/parameters/rowFilter.jobOperationsWithMakeMethods.inspectionDocumentId"
@@ -92118,6 +92547,312 @@ export default {
         tags: ["salesInvoiceLine"]
       }
     },
+    "/reimbursement": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.reimbursementId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.employeeId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.status"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.integration"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.reimbursementDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.postingDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.currencyCode"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.exchangeRate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.amount"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.payableAccountId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.reference"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.notes"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.journalId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.postedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.postedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.voidedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.voidedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.createdBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.createdAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.updatedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.updatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.customFields"
+          },
+          {
+            $ref: "#/parameters/select"
+          },
+          {
+            $ref: "#/parameters/order"
+          },
+          {
+            $ref: "#/parameters/range"
+          },
+          {
+            $ref: "#/parameters/rangeUnit"
+          },
+          {
+            $ref: "#/parameters/offset"
+          },
+          {
+            $ref: "#/parameters/limit"
+          },
+          {
+            $ref: "#/parameters/preferCount"
+          }
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/reimbursement"
+              },
+              type: "array"
+            }
+          },
+          "206": {
+            description: "Partial Content"
+          }
+        },
+        tags: ["reimbursement"]
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.reimbursement"
+          },
+          {
+            $ref: "#/parameters/select"
+          },
+          {
+            $ref: "#/parameters/preferPost"
+          }
+        ],
+        responses: {
+          "201": {
+            description: "Created"
+          }
+        },
+        tags: ["reimbursement"]
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.reimbursementId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.employeeId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.status"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.integration"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.reimbursementDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.postingDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.currencyCode"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.exchangeRate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.amount"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.payableAccountId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.reference"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.notes"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.journalId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.postedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.postedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.voidedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.voidedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.createdBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.createdAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.updatedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.updatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.customFields"
+          },
+          {
+            $ref: "#/parameters/preferReturn"
+          }
+        ],
+        responses: {
+          "204": {
+            description: "No Content"
+          }
+        },
+        tags: ["reimbursement"]
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.reimbursementId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.employeeId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.status"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.integration"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.reimbursementDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.postingDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.currencyCode"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.exchangeRate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.amount"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.payableAccountId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.reference"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.notes"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.journalId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.postedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.postedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.voidedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.voidedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.createdBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.createdAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.updatedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.updatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.reimbursement.customFields"
+          },
+          {
+            $ref: "#/parameters/body.reimbursement"
+          },
+          {
+            $ref: "#/parameters/preferReturn"
+          }
+        ],
+        responses: {
+          "204": {
+            description: "No Content"
+          }
+        },
+        tags: ["reimbursement"]
+      }
+    },
     "/customFieldTables": {
       get: {
         parameters: [
@@ -92629,6 +93364,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.returnPickedMaterialTiming"
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.salesRuleNotificationGroup"
+          },
+          {
             $ref: "#/parameters/rowFilter.companySettings.showCurrencyTrailingZeros"
           },
           {
@@ -92638,10 +93376,16 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.allowLowercaseItemIds"
           },
           {
-            $ref: "#/parameters/rowFilter.companySettings.salesRuleNotificationGroup"
+            $ref: "#/parameters/rowFilter.companySettings.includeOperationsOnTraveler"
           },
           {
-            $ref: "#/parameters/rowFilter.companySettings.includeOperationsOnTraveler"
+            $ref: "#/parameters/rowFilter.companySettings.requireSupplierContactAndLocation"
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.requireCustomerContactAndLocation"
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.showBomExplorerReadableId"
           },
           {
             $ref: "#/parameters/select"
@@ -92838,6 +93582,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.returnPickedMaterialTiming"
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.salesRuleNotificationGroup"
+          },
+          {
             $ref: "#/parameters/rowFilter.companySettings.showCurrencyTrailingZeros"
           },
           {
@@ -92847,10 +93594,16 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.allowLowercaseItemIds"
           },
           {
-            $ref: "#/parameters/rowFilter.companySettings.salesRuleNotificationGroup"
+            $ref: "#/parameters/rowFilter.companySettings.includeOperationsOnTraveler"
           },
           {
-            $ref: "#/parameters/rowFilter.companySettings.includeOperationsOnTraveler"
+            $ref: "#/parameters/rowFilter.companySettings.requireSupplierContactAndLocation"
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.requireCustomerContactAndLocation"
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.showBomExplorerReadableId"
           },
           {
             $ref: "#/parameters/preferReturn"
@@ -93001,6 +93754,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.returnPickedMaterialTiming"
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.salesRuleNotificationGroup"
+          },
+          {
             $ref: "#/parameters/rowFilter.companySettings.showCurrencyTrailingZeros"
           },
           {
@@ -93010,10 +93766,16 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.allowLowercaseItemIds"
           },
           {
-            $ref: "#/parameters/rowFilter.companySettings.salesRuleNotificationGroup"
+            $ref: "#/parameters/rowFilter.companySettings.includeOperationsOnTraveler"
           },
           {
-            $ref: "#/parameters/rowFilter.companySettings.includeOperationsOnTraveler"
+            $ref: "#/parameters/rowFilter.companySettings.requireSupplierContactAndLocation"
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.requireCustomerContactAndLocation"
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.showBomExplorerReadableId"
           },
           {
             $ref: "#/parameters/body.companySettings"
@@ -93922,6 +94684,9 @@ export default {
             $ref: "#/parameters/rowFilter.integration.jsonschema"
           },
           {
+            $ref: "#/parameters/rowFilter.integration.providerRole"
+          },
+          {
             $ref: "#/parameters/select"
           },
           {
@@ -93987,6 +94752,9 @@ export default {
             $ref: "#/parameters/rowFilter.integration.jsonschema"
           },
           {
+            $ref: "#/parameters/rowFilter.integration.providerRole"
+          },
+          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -94004,6 +94772,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.integration.jsonschema"
+          },
+          {
+            $ref: "#/parameters/rowFilter.integration.providerRole"
           },
           {
             $ref: "#/parameters/body.integration"
@@ -94939,6 +95710,10 @@ export default {
             required: true,
             schema: {
               properties: {
+                p_company_id: {
+                  format: "text",
+                  type: "string"
+                },
                 p_tracked_entity_ids: {
                   format: "text[]",
                   items: {
@@ -94947,7 +95722,7 @@ export default {
                   type: "array"
                 }
               },
-              required: ["p_tracked_entity_ids"],
+              required: ["p_tracked_entity_ids", "p_company_id"],
               type: "object"
             }
           },
@@ -97957,6 +98732,10 @@ export default {
             required: true,
             schema: {
               properties: {
+                p_company_id: {
+                  format: "text",
+                  type: "string"
+                },
                 p_tracked_entity_ids: {
                   format: "text[]",
                   items: {
@@ -97965,7 +98744,7 @@ export default {
                   type: "array"
                 }
               },
-              required: ["p_tracked_entity_ids"],
+              required: ["p_tracked_entity_ids", "p_company_id"],
               type: "object"
             }
           },
@@ -106132,12 +106911,16 @@ export default {
             required: true,
             schema: {
               properties: {
+                p_company_id: {
+                  format: "text",
+                  type: "string"
+                },
                 p_job_id: {
                   format: "text",
                   type: "string"
                 }
               },
-              required: ["p_job_id"],
+              required: ["p_job_id", "p_company_id"],
               type: "object"
             }
           },
@@ -107515,6 +108298,50 @@ export default {
       },
       type: "object"
     },
+    reimbursementLineDimension: {
+      required: [
+        "id",
+        "reimbursementLineId",
+        "dimensionId",
+        "valueId",
+        "companyId",
+        "createdAt"
+      ],
+      properties: {
+        id: {
+          default: "public.id('reimbld'::text)",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string"
+        },
+        reimbursementLineId: {
+          format: "text",
+          type: "string"
+        },
+        dimensionId: {
+          description:
+            "Note:\nThis is a Foreign Key to `dimension.id`.<fk table='dimension' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        valueId: {
+          format: "text",
+          type: "string"
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string"
+        }
+      },
+      type: "object"
+    },
     documentLabels: {
       properties: {
         label: {
@@ -108406,6 +109233,88 @@ export default {
         incotermLocation: {
           format: "text",
           type: "string"
+        }
+      },
+      type: "object"
+    },
+    reimbursementLine: {
+      required: [
+        "id",
+        "companyId",
+        "reimbursementId",
+        "accountId",
+        "amount",
+        "sequence",
+        "createdBy",
+        "createdAt"
+      ],
+      properties: {
+        id: {
+          default: "public.id('reimbl'::text)",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string"
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        reimbursementId: {
+          format: "text",
+          type: "string"
+        },
+        accountId: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        costCenterId: {
+          format: "text",
+          type: "string"
+        },
+        projectId: {
+          format: "text",
+          type: "string"
+        },
+        description: {
+          format: "text",
+          type: "string"
+        },
+        amount: {
+          format: "numeric",
+          type: "number"
+        },
+        sequence: {
+          default: 0,
+          format: "integer",
+          type: "integer"
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string"
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string"
+        },
+        customFields: {
+          format: "jsonb"
         }
       },
       type: "object"
@@ -109844,6 +110753,10 @@ export default {
           format: "text",
           type: "string"
         },
+        readyAt: {
+          format: "timestamp with time zone",
+          type: "string"
+        },
         inspectionDocumentId: {
           description:
             "Note:\nThis is a Foreign Key to `inspectionDocument.id`.<fk table='inspectionDocument' column='id'/>",
@@ -110937,7 +111850,9 @@ export default {
             "Sales Return Receipt",
             "Sales Return Shipment",
             "Purchase Return Shipment",
-            "Card Transaction"
+            "Charge",
+            "Reimbursement",
+            "Maintenance Event"
           ],
           format: 'public."journalEntrySourceType"',
           type: "string"
@@ -116063,6 +116978,10 @@ export default {
         },
         customFields: {
           format: "jsonb"
+        },
+        employeeId: {
+          format: "text",
+          type: "string"
         }
       },
       type: "object"
@@ -116503,10 +117422,6 @@ export default {
           format: "double precision",
           type: "number"
         },
-        productionQuantity: {
-          format: "numeric",
-          type: "number"
-        },
         projectedCompletionAt: {
           format: "timestamp with time zone",
           type: "string"
@@ -116518,6 +117433,10 @@ export default {
         scheduleOutdatedAt: {
           format: "timestamp with time zone",
           type: "string"
+        },
+        productionQuantity: {
+          format: "numeric",
+          type: "number"
         },
         jobMakeMethodId: {
           description: "Note:\nThis is a Primary Key.<pk/>",
@@ -118379,7 +119298,7 @@ export default {
           type: "string"
         },
         ruleType: {
-          enum: ["Discount", "Markup"],
+          enum: ["Discount", "Markup", "Configuration"],
           format: 'public."pricingRuleType"',
           type: "string"
         },
@@ -118472,6 +119391,9 @@ export default {
         updatedAt: {
           format: "timestamp with time zone",
           type: "string"
+        },
+        configurationPrices: {
+          format: "jsonb"
         }
       },
       type: "object"
@@ -118927,6 +119849,164 @@ export default {
             "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
           format: "text",
           type: "string"
+        }
+      },
+      type: "object"
+    },
+    charge: {
+      required: [
+        "id",
+        "companyId",
+        "chargeId",
+        "type",
+        "status",
+        "integration",
+        "cardAccountId",
+        "transactionDate",
+        "currencyCode",
+        "exchangeRate",
+        "amount",
+        "createdBy",
+        "createdAt"
+      ],
+      properties: {
+        id: {
+          default: "public.id()",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string"
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        chargeId: {
+          format: "text",
+          type: "string"
+        },
+        type: {
+          default: "Charge",
+          enum: ["Charge", "Credit", "Payment", "Cashback", "Repayment"],
+          format: 'public."chargeType"',
+          type: "string"
+        },
+        status: {
+          default: "Draft",
+          enum: ["Draft", "Posted", "Voided"],
+          format: 'public."chargeStatus"',
+          type: "string"
+        },
+        integration: {
+          default: "ramp",
+          format: "text",
+          type: "string"
+        },
+        cardAccountId: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        offsetAccountId: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        supplierId: {
+          format: "text",
+          type: "string"
+        },
+        merchantName: {
+          format: "text",
+          type: "string"
+        },
+        cardHolderName: {
+          format: "text",
+          type: "string"
+        },
+        cardLast4: {
+          format: "text",
+          type: "string"
+        },
+        memo: {
+          format: "text",
+          type: "string"
+        },
+        transactionDate: {
+          format: "date",
+          type: "string"
+        },
+        postingDate: {
+          format: "date",
+          type: "string"
+        },
+        currencyCode: {
+          description:
+            "Note:\nThis is a Foreign Key to `currencyCode.code`.<fk table='currencyCode' column='code'/>",
+          format: "text",
+          type: "string"
+        },
+        exchangeRate: {
+          default: 1,
+          format: "numeric",
+          type: "number"
+        },
+        amount: {
+          format: "numeric",
+          type: "number"
+        },
+        journalId: {
+          description:
+            "Note:\nThis is a Foreign Key to `journal.id`.<fk table='journal' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        postedAt: {
+          format: "timestamp with time zone",
+          type: "string"
+        },
+        postedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        voidedAt: {
+          format: "timestamp with time zone",
+          type: "string"
+        },
+        voidedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string"
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string"
+        },
+        customFields: {
+          format: "jsonb"
         }
       },
       type: "object"
@@ -123001,8 +124081,10 @@ export default {
             "Non-Conformance",
             "Inbound Inspection",
             "Scrap",
-            "Card Transaction",
-            "Batch Merge"
+            "Batch Merge",
+            "Charge",
+            "Reimbursement",
+            "Maintenance Event"
           ],
           format: 'public."journalLineDocumentType"',
           type: "string"
@@ -123246,10 +124328,6 @@ export default {
           format: "double precision",
           type: "number"
         },
-        productionQuantity: {
-          format: "numeric",
-          type: "number"
-        },
         projectedCompletionAt: {
           description:
             "Simulated finish of the job's last operation (forward-ASAP finite schedule). Null until first regen.",
@@ -123265,6 +124343,10 @@ export default {
         scheduleOutdatedAt: {
           format: "timestamp with time zone",
           type: "string"
+        },
+        productionQuantity: {
+          format: "numeric",
+          type: "number"
         }
       },
       type: "object"
@@ -123628,7 +124710,9 @@ export default {
             "Sales Return Receipt",
             "Sales Return Shipment",
             "Purchase Return Shipment",
-            "Card Transaction"
+            "Charge",
+            "Reimbursement",
+            "Maintenance Event"
           ],
           format: 'public."journalEntrySourceType"',
           type: "string"
@@ -126036,6 +127120,12 @@ export default {
             "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
+        },
+        employeeReimbursementsPayableAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
+          format: "text",
+          type: "string"
         }
       },
       type: "object"
@@ -126323,164 +127413,6 @@ export default {
         },
         description: {
           format: "json"
-        }
-      },
-      type: "object"
-    },
-    cardTransaction: {
-      required: [
-        "id",
-        "companyId",
-        "cardTransactionId",
-        "type",
-        "status",
-        "integration",
-        "cardAccountId",
-        "transactionDate",
-        "currencyCode",
-        "exchangeRate",
-        "amount",
-        "createdBy",
-        "createdAt"
-      ],
-      properties: {
-        id: {
-          default: "public.id()",
-          description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "text",
-          type: "string"
-        },
-        companyId: {
-          description:
-            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
-          format: "text",
-          type: "string"
-        },
-        cardTransactionId: {
-          format: "text",
-          type: "string"
-        },
-        type: {
-          default: "Charge",
-          enum: ["Charge", "Credit", "Payment", "Cashback", "Repayment"],
-          format: 'public."cardTransactionType"',
-          type: "string"
-        },
-        status: {
-          default: "Draft",
-          enum: ["Draft", "Posted", "Voided"],
-          format: 'public."cardTransactionStatus"',
-          type: "string"
-        },
-        integration: {
-          default: "ramp",
-          format: "text",
-          type: "string"
-        },
-        cardAccountId: {
-          description:
-            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
-          format: "text",
-          type: "string"
-        },
-        offsetAccountId: {
-          description:
-            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
-          format: "text",
-          type: "string"
-        },
-        supplierId: {
-          format: "text",
-          type: "string"
-        },
-        merchantName: {
-          format: "text",
-          type: "string"
-        },
-        cardHolderName: {
-          format: "text",
-          type: "string"
-        },
-        cardLast4: {
-          format: "text",
-          type: "string"
-        },
-        memo: {
-          format: "text",
-          type: "string"
-        },
-        transactionDate: {
-          format: "date",
-          type: "string"
-        },
-        postingDate: {
-          format: "date",
-          type: "string"
-        },
-        currencyCode: {
-          description:
-            "Note:\nThis is a Foreign Key to `currencyCode.code`.<fk table='currencyCode' column='code'/>",
-          format: "text",
-          type: "string"
-        },
-        exchangeRate: {
-          default: 1,
-          format: "numeric",
-          type: "number"
-        },
-        amount: {
-          format: "numeric",
-          type: "number"
-        },
-        journalId: {
-          description:
-            "Note:\nThis is a Foreign Key to `journal.id`.<fk table='journal' column='id'/>",
-          format: "text",
-          type: "string"
-        },
-        postedAt: {
-          format: "timestamp with time zone",
-          type: "string"
-        },
-        postedBy: {
-          description:
-            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string"
-        },
-        voidedAt: {
-          format: "timestamp with time zone",
-          type: "string"
-        },
-        voidedBy: {
-          description:
-            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string"
-        },
-        createdBy: {
-          description:
-            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string"
-        },
-        createdAt: {
-          default: "now()",
-          format: "timestamp with time zone",
-          type: "string"
-        },
-        updatedBy: {
-          description:
-            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string"
-        },
-        updatedAt: {
-          format: "timestamp with time zone",
-          type: "string"
-        },
-        customFields: {
-          format: "jsonb"
         }
       },
       type: "object"
@@ -128033,14 +128965,14 @@ export default {
           format: "text",
           type: "string"
         },
+        readyAt: {
+          format: "timestamp with time zone",
+          type: "string"
+        },
         inspectionDocumentId: {
           description:
             "Note:\nThis is a Foreign Key to `inspectionDocument.id`.<fk table='inspectionDocument' column='id'/>",
           format: "text",
-          type: "string"
-        },
-        readyAt: {
-          format: "timestamp with time zone",
           type: "string"
         },
         projectedCompletionAt: {
@@ -128730,6 +129662,88 @@ export default {
             type: "string"
           },
           type: "array"
+        }
+      },
+      type: "object"
+    },
+    chargeLine: {
+      required: [
+        "id",
+        "companyId",
+        "chargeId",
+        "accountId",
+        "amount",
+        "sequence",
+        "createdBy",
+        "createdAt"
+      ],
+      properties: {
+        id: {
+          default: "public.id()",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string"
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        chargeId: {
+          format: "text",
+          type: "string"
+        },
+        accountId: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        costCenterId: {
+          format: "text",
+          type: "string"
+        },
+        projectId: {
+          format: "text",
+          type: "string"
+        },
+        description: {
+          format: "text",
+          type: "string"
+        },
+        amount: {
+          format: "numeric",
+          type: "number"
+        },
+        sequence: {
+          default: 0,
+          format: "integer",
+          type: "integer"
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string"
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string"
+        },
+        customFields: {
+          format: "jsonb"
         }
       },
       type: "object"
@@ -129777,88 +130791,6 @@ export default {
         },
         updatedAt: {
           format: "timestamp with time zone",
-          type: "string"
-        }
-      },
-      type: "object"
-    },
-    cardTransactionLine: {
-      required: [
-        "id",
-        "companyId",
-        "cardTransactionId",
-        "accountId",
-        "amount",
-        "sequence",
-        "createdBy",
-        "createdAt"
-      ],
-      properties: {
-        id: {
-          default: "public.id()",
-          description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "text",
-          type: "string"
-        },
-        companyId: {
-          description:
-            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
-          format: "text",
-          type: "string"
-        },
-        cardTransactionId: {
-          format: "text",
-          type: "string"
-        },
-        accountId: {
-          description:
-            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
-          format: "text",
-          type: "string"
-        },
-        costCenterId: {
-          format: "text",
-          type: "string"
-        },
-        description: {
-          format: "text",
-          type: "string"
-        },
-        amount: {
-          format: "numeric",
-          type: "number"
-        },
-        sequence: {
-          default: 0,
-          format: "integer",
-          type: "integer"
-        },
-        createdBy: {
-          description:
-            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string"
-        },
-        createdAt: {
-          default: "now()",
-          format: "timestamp with time zone",
-          type: "string"
-        },
-        updatedBy: {
-          description:
-            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string"
-        },
-        updatedAt: {
-          format: "timestamp with time zone",
-          type: "string"
-        },
-        customFields: {
-          format: "jsonb"
-        },
-        projectId: {
-          format: "text",
           type: "string"
         }
       },
@@ -131921,7 +132853,8 @@ export default {
         "companyId",
         "createdBy",
         "createdAt",
-        "status"
+        "status",
+        "hiddenComponentNodeIds"
       ],
       properties: {
         id: {
@@ -132081,6 +133014,13 @@ export default {
             "Note:\nThis is a Foreign Key to `assemblyInstructionStep.id`.<fk table='assemblyInstructionStep' column='id'/>",
           format: "text",
           type: "string"
+        },
+        hiddenComponentNodeIds: {
+          format: "text[]",
+          items: {
+            type: "string"
+          },
+          type: "array"
         }
       },
       type: "object"
@@ -134630,6 +135570,9 @@ export default {
           format: "numeric",
           type: "number"
         },
+        configuration: {
+          format: "jsonb"
+        },
         itemReadableId: {
           format: "text",
           type: "string"
@@ -136569,8 +137512,10 @@ export default {
             "Non-Conformance",
             "Inbound Inspection",
             "Scrap",
-            "Card Transaction",
-            "Batch Merge"
+            "Batch Merge",
+            "Charge",
+            "Reimbursement",
+            "Maintenance Event"
           ],
           format: 'public."journalLineDocumentType"',
           type: "string"
@@ -136683,7 +137628,9 @@ export default {
             "Sales Return Receipt",
             "Sales Return Shipment",
             "Purchase Return Shipment",
-            "Card Transaction"
+            "Charge",
+            "Reimbursement",
+            "Maintenance Event"
           ],
           format: 'public."journalEntrySourceType"',
           type: "string"
@@ -136756,8 +137703,10 @@ export default {
             "Non-Conformance",
             "Inbound Inspection",
             "Scrap",
-            "Card Transaction",
-            "Batch Merge"
+            "Batch Merge",
+            "Charge",
+            "Reimbursement",
+            "Maintenance Event"
           ],
           format: 'public."journalLineDocumentType"',
           type: "string"
@@ -140924,6 +141873,9 @@ export default {
         convertedNonTaxableAddOnCost: {
           format: "numeric",
           type: "number"
+        },
+        configuration: {
+          format: "jsonb"
         }
       },
       type: "object"
@@ -144239,6 +145191,10 @@ export default {
             "Principal consumed in the funding source document currency, stored independently of target-base appliedAmount.",
           format: "numeric",
           type: "number"
+        },
+        targetReimbursementId: {
+          format: "text",
+          type: "string"
         }
       },
       type: "object"
@@ -146837,6 +147793,10 @@ export default {
           description:
             "Note:\nThis is a Foreign Key to `assemblyInstruction.id`.<fk table='assemblyInstruction' column='id'/>",
           format: "text",
+          type: "string"
+        },
+        readyAt: {
+          format: "timestamp with time zone",
           type: "string"
         },
         inspectionDocumentId: {
@@ -150408,6 +151368,143 @@ export default {
       },
       type: "object"
     },
+    reimbursement: {
+      required: [
+        "id",
+        "companyId",
+        "reimbursementId",
+        "employeeId",
+        "status",
+        "integration",
+        "reimbursementDate",
+        "currencyCode",
+        "exchangeRate",
+        "amount",
+        "createdBy",
+        "createdAt"
+      ],
+      properties: {
+        id: {
+          default: "public.id('reimb'::text)",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string"
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        reimbursementId: {
+          format: "text",
+          type: "string"
+        },
+        employeeId: {
+          format: "text",
+          type: "string"
+        },
+        status: {
+          default: "Draft",
+          enum: ["Draft", "Posted", "Voided"],
+          format: 'public."reimbursementStatus"',
+          type: "string"
+        },
+        integration: {
+          default: "ramp",
+          format: "text",
+          type: "string"
+        },
+        reimbursementDate: {
+          format: "date",
+          type: "string"
+        },
+        postingDate: {
+          format: "date",
+          type: "string"
+        },
+        currencyCode: {
+          description:
+            "Note:\nThis is a Foreign Key to `currencyCode.code`.<fk table='currencyCode' column='code'/>",
+          format: "text",
+          type: "string"
+        },
+        exchangeRate: {
+          default: 1,
+          format: "numeric",
+          type: "number"
+        },
+        amount: {
+          format: "numeric",
+          type: "number"
+        },
+        payableAccountId: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        reference: {
+          format: "text",
+          type: "string"
+        },
+        notes: {
+          format: "text",
+          type: "string"
+        },
+        journalId: {
+          description:
+            "Note:\nThis is a Foreign Key to `journal.id`.<fk table='journal' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        postedAt: {
+          format: "timestamp with time zone",
+          type: "string"
+        },
+        postedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        voidedAt: {
+          format: "timestamp with time zone",
+          type: "string"
+        },
+        voidedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string"
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string"
+        },
+        customFields: {
+          format: "jsonb"
+        }
+      },
+      type: "object"
+    },
     customFieldTables: {
       properties: {
         table: {
@@ -150585,11 +151682,14 @@ export default {
         "incompletePickingListPolicy",
         "includeMaterialsOnTraveler",
         "returnPickedMaterialTiming",
+        "salesRuleNotificationGroup",
         "showCurrencyTrailingZeros",
         "requireMfa",
         "allowLowercaseItemIds",
-        "salesRuleNotificationGroup",
-        "includeOperationsOnTraveler"
+        "includeOperationsOnTraveler",
+        "requireSupplierContactAndLocation",
+        "requireCustomerContactAndLocation",
+        "showBomExplorerReadableId"
       ],
       properties: {
         id: {
@@ -150836,6 +151936,13 @@ export default {
           format: "text",
           type: "string"
         },
+        salesRuleNotificationGroup: {
+          format: "text[]",
+          items: {
+            type: "string"
+          },
+          type: "array"
+        },
         showCurrencyTrailingZeros: {
           default: true,
           format: "boolean",
@@ -150851,15 +151958,27 @@ export default {
           format: "boolean",
           type: "boolean"
         },
-        salesRuleNotificationGroup: {
-          format: "text[]",
-          items: {
-            type: "string"
-          },
-          type: "array"
-        },
         includeOperationsOnTraveler: {
           default: true,
+          format: "boolean",
+          type: "boolean"
+        },
+        requireSupplierContactAndLocation: {
+          default: false,
+          description:
+            "When true, a supplier must have at least one contact with an email address AND at least one location whose address carries a country (plus a state when that country is US) before its purchase orders, supplier quotes and purchase invoices can be released or posted.",
+          format: "boolean",
+          type: "boolean"
+        },
+        requireCustomerContactAndLocation: {
+          default: false,
+          description:
+            "When true, a customer must have at least one contact with an email address AND at least one location whose address carries a country (plus a state when that country is US) before its quotes, sales orders and sales invoices can be released or posted.",
+          format: "boolean",
+          type: "boolean"
+        },
+        showBomExplorerReadableId: {
+          default: false,
           format: "boolean",
           type: "boolean"
         }
@@ -151268,6 +152387,10 @@ export default {
         },
         jsonschema: {
           format: "json"
+        },
+        providerRole: {
+          format: "text",
+          type: "string"
         }
       },
       type: "object"
@@ -152338,6 +153461,51 @@ export default {
       in: "query",
       type: "string"
     },
+    "body.reimbursementLineDimension": {
+      name: "reimbursementLineDimension",
+      description: "reimbursementLineDimension",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/reimbursementLineDimension"
+      }
+    },
+    "rowFilter.reimbursementLineDimension.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursementLineDimension.reimbursementLineId": {
+      name: "reimbursementLineId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursementLineDimension.dimensionId": {
+      name: "dimensionId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursementLineDimension.valueId": {
+      name: "valueId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursementLineDimension.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursementLineDimension.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
     "body.documentLabels": {
       name: "documentLabels",
       description: "documentLabels",
@@ -153363,6 +154531,99 @@ export default {
     },
     "rowFilter.quoteShipment.incotermLocation": {
       name: "incotermLocation",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "body.reimbursementLine": {
+      name: "reimbursementLine",
+      description: "reimbursementLine",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/reimbursementLine"
+      }
+    },
+    "rowFilter.reimbursementLine.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursementLine.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursementLine.reimbursementId": {
+      name: "reimbursementId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursementLine.accountId": {
+      name: "accountId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursementLine.costCenterId": {
+      name: "costCenterId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursementLine.projectId": {
+      name: "projectId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursementLine.description": {
+      name: "description",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursementLine.amount": {
+      name: "amount",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursementLine.sequence": {
+      name: "sequence",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursementLine.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursementLine.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursementLine.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursementLine.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursementLine.customFields": {
+      name: "customFields",
       required: false,
       in: "query",
       type: "string"
@@ -155028,6 +156289,12 @@ export default {
     },
     "rowFilter.jobOperationsWithDependencies.assemblyInstructionId": {
       name: "assemblyInstructionId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.jobOperationsWithDependencies.readyAt": {
+      name: "readyAt",
       required: false,
       in: "query",
       type: "string"
@@ -161980,6 +163247,12 @@ export default {
       in: "query",
       type: "string"
     },
+    "rowFilter.payment.employeeId": {
+      name: "employeeId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
     "body.demandForecast": {
       name: "demandForecast",
       description: "demandForecast",
@@ -162478,12 +163751,6 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.jobs.productionQuantity": {
-      name: "productionQuantity",
-      required: false,
-      in: "query",
-      type: "string"
-    },
     "rowFilter.jobs.projectedCompletionAt": {
       name: "projectedCompletionAt",
       required: false,
@@ -162498,6 +163765,12 @@ export default {
     },
     "rowFilter.jobs.scheduleOutdatedAt": {
       name: "scheduleOutdatedAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.jobs.productionQuantity": {
+      name: "productionQuantity",
       required: false,
       in: "query",
       type: "string"
@@ -164656,6 +165929,12 @@ export default {
       in: "query",
       type: "string"
     },
+    "rowFilter.pricingRule.configurationPrices": {
+      name: "configurationPrices",
+      required: false,
+      in: "query",
+      type: "string"
+    },
     "body.location": {
       name: "location",
       description: "location",
@@ -165240,6 +166519,183 @@ export default {
     },
     "rowFilter.companies.ownerId": {
       name: "ownerId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "body.charge": {
+      name: "charge",
+      description: "charge",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/charge"
+      }
+    },
+    "rowFilter.charge.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.chargeId": {
+      name: "chargeId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.type": {
+      name: "type",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.status": {
+      name: "status",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.integration": {
+      name: "integration",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.cardAccountId": {
+      name: "cardAccountId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.offsetAccountId": {
+      name: "offsetAccountId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.supplierId": {
+      name: "supplierId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.merchantName": {
+      name: "merchantName",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.cardHolderName": {
+      name: "cardHolderName",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.cardLast4": {
+      name: "cardLast4",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.memo": {
+      name: "memo",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.transactionDate": {
+      name: "transactionDate",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.postingDate": {
+      name: "postingDate",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.currencyCode": {
+      name: "currencyCode",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.exchangeRate": {
+      name: "exchangeRate",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.amount": {
+      name: "amount",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.journalId": {
+      name: "journalId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.postedAt": {
+      name: "postedAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.postedBy": {
+      name: "postedBy",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.voidedAt": {
+      name: "voidedAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.voidedBy": {
+      name: "voidedBy",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.charge.customFields": {
+      name: "customFields",
       required: false,
       in: "query",
       type: "string"
@@ -170063,12 +171519,6 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.job.productionQuantity": {
-      name: "productionQuantity",
-      required: false,
-      in: "query",
-      type: "string"
-    },
     "rowFilter.job.projectedCompletionAt": {
       name: "projectedCompletionAt",
       description:
@@ -170087,6 +171537,12 @@ export default {
     },
     "rowFilter.job.scheduleOutdatedAt": {
       name: "scheduleOutdatedAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.job.productionQuantity": {
+      name: "productionQuantity",
       required: false,
       in: "query",
       type: "string"
@@ -173113,6 +174569,12 @@ export default {
       in: "query",
       type: "string"
     },
+    "rowFilter.accountDefault.employeeReimbursementsPayableAccount": {
+      name: "employeeReimbursementsPayableAccount",
+      required: false,
+      in: "query",
+      type: "string"
+    },
     "body.warehouse": {
       name: "warehouse",
       description: "warehouse",
@@ -173433,183 +174895,6 @@ export default {
     },
     "rowFilter.procedureStep.description": {
       name: "description",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "body.cardTransaction": {
-      name: "cardTransaction",
-      description: "cardTransaction",
-      required: false,
-      in: "body",
-      schema: {
-        $ref: "#/definitions/cardTransaction"
-      }
-    },
-    "rowFilter.cardTransaction.id": {
-      name: "id",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.companyId": {
-      name: "companyId",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.cardTransactionId": {
-      name: "cardTransactionId",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.type": {
-      name: "type",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.status": {
-      name: "status",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.integration": {
-      name: "integration",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.cardAccountId": {
-      name: "cardAccountId",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.offsetAccountId": {
-      name: "offsetAccountId",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.supplierId": {
-      name: "supplierId",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.merchantName": {
-      name: "merchantName",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.cardHolderName": {
-      name: "cardHolderName",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.cardLast4": {
-      name: "cardLast4",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.memo": {
-      name: "memo",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.transactionDate": {
-      name: "transactionDate",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.postingDate": {
-      name: "postingDate",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.currencyCode": {
-      name: "currencyCode",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.exchangeRate": {
-      name: "exchangeRate",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.amount": {
-      name: "amount",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.journalId": {
-      name: "journalId",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.postedAt": {
-      name: "postedAt",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.postedBy": {
-      name: "postedBy",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.voidedAt": {
-      name: "voidedAt",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.voidedBy": {
-      name: "voidedBy",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.createdBy": {
-      name: "createdBy",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.createdAt": {
-      name: "createdAt",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.updatedBy": {
-      name: "updatedBy",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.updatedAt": {
-      name: "updatedAt",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransaction.customFields": {
-      name: "customFields",
       required: false,
       in: "query",
       type: "string"
@@ -175217,14 +176502,14 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.jobOperation.inspectionDocumentId": {
-      name: "inspectionDocumentId",
+    "rowFilter.jobOperation.readyAt": {
+      name: "readyAt",
       required: false,
       in: "query",
       type: "string"
     },
-    "rowFilter.jobOperation.readyAt": {
-      name: "readyAt",
+    "rowFilter.jobOperation.inspectionDocumentId": {
+      name: "inspectionDocumentId",
       required: false,
       in: "query",
       type: "string"
@@ -176034,6 +177319,99 @@ export default {
     },
     "rowFilter.customerType.tags": {
       name: "tags",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "body.chargeLine": {
+      name: "chargeLine",
+      description: "chargeLine",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/chargeLine"
+      }
+    },
+    "rowFilter.chargeLine.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.chargeLine.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.chargeLine.chargeId": {
+      name: "chargeId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.chargeLine.accountId": {
+      name: "accountId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.chargeLine.costCenterId": {
+      name: "costCenterId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.chargeLine.projectId": {
+      name: "projectId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.chargeLine.description": {
+      name: "description",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.chargeLine.amount": {
+      name: "amount",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.chargeLine.sequence": {
+      name: "sequence",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.chargeLine.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.chargeLine.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.chargeLine.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.chargeLine.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.chargeLine.customFields": {
+      name: "customFields",
       required: false,
       in: "query",
       type: "string"
@@ -177195,99 +178573,6 @@ export default {
     },
     "rowFilter.maintenanceDispatchEvent.updatedAt": {
       name: "updatedAt",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "body.cardTransactionLine": {
-      name: "cardTransactionLine",
-      description: "cardTransactionLine",
-      required: false,
-      in: "body",
-      schema: {
-        $ref: "#/definitions/cardTransactionLine"
-      }
-    },
-    "rowFilter.cardTransactionLine.id": {
-      name: "id",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransactionLine.companyId": {
-      name: "companyId",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransactionLine.cardTransactionId": {
-      name: "cardTransactionId",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransactionLine.accountId": {
-      name: "accountId",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransactionLine.costCenterId": {
-      name: "costCenterId",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransactionLine.description": {
-      name: "description",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransactionLine.amount": {
-      name: "amount",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransactionLine.sequence": {
-      name: "sequence",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransactionLine.createdBy": {
-      name: "createdBy",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransactionLine.createdAt": {
-      name: "createdAt",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransactionLine.updatedBy": {
-      name: "updatedBy",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransactionLine.updatedAt": {
-      name: "updatedAt",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransactionLine.customFields": {
-      name: "customFields",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.cardTransactionLine.projectId": {
-      name: "projectId",
       required: false,
       in: "query",
       type: "string"
@@ -179878,6 +181163,12 @@ export default {
     },
     "rowFilter.assemblyInstructionStep.rootStepId": {
       name: "rootStepId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.assemblyInstructionStep.hiddenComponentNodeIds": {
+      name: "hiddenComponentNodeIds",
       required: false,
       in: "query",
       type: "string"
@@ -182684,6 +183975,12 @@ export default {
     },
     "rowFilter.salesOrderLines.convertedNonTaxableAddOnCost": {
       name: "convertedNonTaxableAddOnCost",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.salesOrderLines.configuration": {
+      name: "configuration",
       required: false,
       in: "query",
       type: "string"
@@ -189686,6 +190983,12 @@ export default {
       in: "query",
       type: "string"
     },
+    "rowFilter.salesOrderLine.configuration": {
+      name: "configuration",
+      required: false,
+      in: "query",
+      type: "string"
+    },
     "body.purchaseOrderFavorite": {
       name: "purchaseOrderFavorite",
       description: "purchaseOrderFavorite",
@@ -193401,6 +194704,12 @@ export default {
       in: "query",
       type: "string"
     },
+    "rowFilter.invoiceSettlement.targetReimbursementId": {
+      name: "targetReimbursementId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
     "body.printerRoute": {
       name: "printerRoute",
       description: "printerRoute",
@@ -196292,6 +197601,12 @@ export default {
     },
     "rowFilter.jobOperationsWithMakeMethods.assemblyInstructionId": {
       name: "assemblyInstructionId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.jobOperationsWithMakeMethods.readyAt": {
+      name: "readyAt",
       required: false,
       in: "query",
       type: "string"
@@ -200260,6 +201575,159 @@ export default {
       in: "query",
       type: "string"
     },
+    "body.reimbursement": {
+      name: "reimbursement",
+      description: "reimbursement",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/reimbursement"
+      }
+    },
+    "rowFilter.reimbursement.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.reimbursementId": {
+      name: "reimbursementId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.employeeId": {
+      name: "employeeId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.status": {
+      name: "status",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.integration": {
+      name: "integration",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.reimbursementDate": {
+      name: "reimbursementDate",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.postingDate": {
+      name: "postingDate",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.currencyCode": {
+      name: "currencyCode",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.exchangeRate": {
+      name: "exchangeRate",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.amount": {
+      name: "amount",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.payableAccountId": {
+      name: "payableAccountId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.reference": {
+      name: "reference",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.notes": {
+      name: "notes",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.journalId": {
+      name: "journalId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.postedAt": {
+      name: "postedAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.postedBy": {
+      name: "postedBy",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.voidedAt": {
+      name: "voidedAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.voidedBy": {
+      name: "voidedBy",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.reimbursement.customFields": {
+      name: "customFields",
+      required: false,
+      in: "query",
+      type: "string"
+    },
     "body.customFieldTables": {
       name: "customFieldTables",
       description: "customFieldTables",
@@ -200686,6 +202154,12 @@ export default {
       in: "query",
       type: "string"
     },
+    "rowFilter.companySettings.salesRuleNotificationGroup": {
+      name: "salesRuleNotificationGroup",
+      required: false,
+      in: "query",
+      type: "string"
+    },
     "rowFilter.companySettings.showCurrencyTrailingZeros": {
       name: "showCurrencyTrailingZeros",
       required: false,
@@ -200704,14 +202178,30 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.companySettings.salesRuleNotificationGroup": {
-      name: "salesRuleNotificationGroup",
+    "rowFilter.companySettings.includeOperationsOnTraveler": {
+      name: "includeOperationsOnTraveler",
       required: false,
       in: "query",
       type: "string"
     },
-    "rowFilter.companySettings.includeOperationsOnTraveler": {
-      name: "includeOperationsOnTraveler",
+    "rowFilter.companySettings.requireSupplierContactAndLocation": {
+      name: "requireSupplierContactAndLocation",
+      description:
+        "When true, a supplier must have at least one contact with an email address AND at least one location whose address carries a country (plus a state when that country is US) before its purchase orders, supplier quotes and purchase invoices can be released or posted.",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.companySettings.requireCustomerContactAndLocation": {
+      name: "requireCustomerContactAndLocation",
+      description:
+        "When true, a customer must have at least one contact with an email address AND at least one location whose address carries a country (plus a state when that country is US) before its quotes, sales orders and sales invoices can be released or posted.",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.companySettings.showBomExplorerReadableId": {
+      name: "showBomExplorerReadableId",
       required: false,
       in: "query",
       type: "string"
@@ -201146,6 +202636,12 @@ export default {
     },
     "rowFilter.integration.jsonschema": {
       name: "jsonschema",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.integration.providerRole": {
+      name: "providerRole",
       required: false,
       in: "query",
       type: "string"

@@ -26,7 +26,8 @@ import {
   CURRENT_PLAN_VERSION,
   describeStep,
   groupComponentNodeIds,
-  indexAssemblyGraph
+  indexAssemblyGraph,
+  joinTargets
 } from "@carbon/viewer";
 import { parseDate } from "@internationalized/date";
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
@@ -46,6 +47,7 @@ import {
 import { sanitize } from "~/utils/supabase";
 import { getDefaultStorageUnitForJob } from "../inventory";
 import { getEmployeeJob } from "../people";
+import { resolveJobConfiguration } from "../sales/sales.utils";
 import type {
   MethodType,
   operationParameterValidator,
@@ -183,6 +185,21 @@ export async function convertSalesOrderLinesToJobs(
   const quoteId = opportunity.data?.quotes[0]?.id;
   const salesOrderId = opportunity.data?.salesOrders[0]?.id;
 
+  // A converted quote line shares its id with the order line, so its
+  // configuration is the fallback for an order line configured nowhere else.
+  const quoteLineConfigurations = new Map<string, unknown>();
+  if (quoteId) {
+    const quoteLines = await client
+      .from("quoteLine")
+      .select("id, configuration")
+      .eq("quoteId", quoteId)
+      .eq("companyId", companyId)
+      .in("id", lines.map((line) => line.id).filter(Boolean) as string[]);
+    for (const quoteLine of quoteLines.data ?? []) {
+      quoteLineConfigurations.set(quoteLine.id, quoteLine.configuration);
+    }
+  }
+
   const errors: string[] = [];
   let jobsCreated = 0;
 
@@ -204,6 +221,11 @@ export async function convertSalesOrderLinesToJobs(
       const totalJobs = lotSize > 0 ? Math.ceil(totalQuantity / lotSize) : 1;
 
       const jobsToCreate = Math.max(1, totalJobs);
+
+      const { configuration, reconfigured } = resolveJobConfiguration(
+        line.configuration,
+        line.id ? quoteLineConfigurations.get(line.id) : null
+      );
 
       const defaultLocation = await client
         .from("location")
@@ -276,7 +298,8 @@ export async function convertSalesOrderLinesToJobs(
           salesOrderLineId: line.id,
           scrapQuantity,
           storageUnitId: storageUnitId ?? undefined,
-          unitOfMeasureCode: line.unitOfMeasureCode ?? "EA"
+          unitOfMeasureCode: line.unitOfMeasureCode ?? "EA",
+          configuration: configuration as Json
         };
 
         // Calculate priority based on due date and deadline type
@@ -325,7 +348,7 @@ export async function convertSalesOrderLinesToJobs(
           source: "salesOrder"
         });
 
-        if (quoteId) {
+        if (quoteId && !reconfigured) {
           const upsertMethod = await client.functions.invoke("get-method", {
             body: {
               type: "quoteLineToJob",
@@ -349,7 +372,8 @@ export async function convertSalesOrderLinesToJobs(
               sourceId: data.itemId,
               targetId: createJob.data.id,
               companyId,
-              userId
+              userId,
+              ...(configuration ? { configuration } : {})
             }
           });
 
@@ -1941,12 +1965,14 @@ export async function getJobOperationsByMethodId(
 export async function getJobOperationStepRecords(
   client: SupabaseClient<Database>,
   jobId: string,
+  companyId: string,
   args: GenericQueryFilters & {
     search: string | null;
   }
 ) {
   let query = client.rpc("get_job_operation_step_records", {
-    p_job_id: jobId
+    p_job_id: jobId,
+    p_company_id: companyId
   });
 
   if (args.search) {
@@ -3493,6 +3519,7 @@ export async function insertJob(
       modelUploadId: input.modelUploadId,
       notes: input.notes,
       customFields: input.customFields,
+      configuration: (input.configuration as Json | undefined) ?? null,
       companyId: input.companyId,
       createdBy: input.createdBy,
       updatedBy: input.createdBy
@@ -7419,6 +7446,81 @@ export async function updateAssemblyStepComponents(
     .single();
 }
 
+// Replaces a step's hidden list. The step's own components are stripped (and the
+// list deduped) by the assembly_step_strip_own_hidden_components trigger.
+export async function updateAssemblyStepHiddenComponents(
+  client: SupabaseClient<Database>,
+  data: {
+    id: string;
+    assemblyInstructionId: string;
+    hiddenComponentNodeIds: string[];
+    updatedBy: string;
+  }
+) {
+  return client
+    .from("assemblyInstructionStep")
+    .update({
+      hiddenComponentNodeIds: data.hiddenComponentNodeIds,
+      updatedBy: data.updatedBy,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", data.id)
+    .eq("assemblyInstructionId", data.assemblyInstructionId)
+    .select("id")
+    .single();
+}
+
+// Sub-assembly staging: `parentStepId` = the later JOIN step this step is built
+// aside for (NULL = built in place). Which links are allowed is `joinTargets`,
+// the one rule the select and playback share.
+export async function updateAssemblyStepJoin(
+  client: SupabaseClient<Database>,
+  data: {
+    assemblyInstructionId: string;
+    stepId: string;
+    joinStepId: string | null;
+    companyId: string;
+    updatedBy: string;
+  }
+) {
+  const steps = await client
+    .from("assemblyInstructionStep")
+    .select("id, parentStepId")
+    .eq("assemblyInstructionId", data.assemblyInstructionId)
+    .eq("companyId", data.companyId)
+    .order("sortOrder", { ascending: true });
+  if (steps.error) return { data: null, error: steps.error };
+
+  const rows = steps.data.map((row) => ({
+    id: row.id,
+    joinStepId: row.parentStepId
+  }));
+  if (!rows.some((row) => row.id === data.stepId)) {
+    return { data: null, error: { message: "Step not found" } };
+  }
+  if (
+    data.joinStepId &&
+    !joinTargets(rows, data.stepId).targets.includes(data.joinStepId)
+  ) {
+    return {
+      data: null,
+      error: { message: "That step can't be the join step for this one" }
+    };
+  }
+
+  return client
+    .from("assemblyInstructionStep")
+    .update({
+      parentStepId: data.joinStepId,
+      updatedBy: data.updatedBy,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", data.stepId)
+    .eq("companyId", data.companyId)
+    .select("id")
+    .single();
+}
+
 // Assign a set of component instances to a target step. `duplicate` unions them
 // onto the target only (a component may live on several steps). `move` unions
 // them onto the target AND strips them from every other step, so the component
@@ -7614,7 +7716,26 @@ export async function updateAssemblyInstructionStepOrder(
     companyId,
     userId,
     parent: { column: "assemblyInstructionId", id: assemblyInstructionId },
-    updates
+    updates,
+    // A step built aside must still come before its join step; a reorder that
+    // breaks that turns it back into a built-in-place step.
+    afterUpdate: async (trx) => {
+      await trx
+        .updateTable("assemblyInstructionStep as s")
+        .set({ parentStepId: null })
+        .where("s.companyId", "=", companyId)
+        .where("s.assemblyInstructionId", "=", assemblyInstructionId)
+        .where("s.parentStepId", "is not", null)
+        .where(({ exists, selectFrom }) =>
+          exists(
+            selectFrom("assemblyInstructionStep as j")
+              .select("j.id")
+              .whereRef("j.id", "=", "s.parentStepId")
+              .whereRef("j.sortOrder", "<=", "s.sortOrder")
+          )
+        )
+        .execute();
+    }
   });
 }
 
@@ -9438,6 +9559,8 @@ export function toViewerStep(step: AssemblyInstructionStepRow): AssemblyStep {
     title: step.title,
     instructionText: step.instructionText,
     componentNodeIds: step.componentNodeIds ?? [],
+    hiddenComponentNodeIds: step.hiddenComponentNodeIds ?? [],
+    joinStepId: step.parentStepId ?? null,
     motion: motion.success ? motion.data : { type: "none" },
     camera: camera.success ? camera.data : null,
     fastener: fastener.success ? fastener.data : null,

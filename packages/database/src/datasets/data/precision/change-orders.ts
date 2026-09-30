@@ -3,23 +3,23 @@ import type { ChangeOrderData, ChangeOrderSpec } from "../../types.ts";
 export const CHANGE_ORDERS: ChangeOrderSpec[] = [
   {
     ref: "co:draft",
-    name: "HMA-4000 Rev A — customer print revision, port relocation",
+    name: "MCH-MANI-BLK — customer print revision, port relocation",
     type: "Engineering",
     status: "Draft",
     openDateOffset: -220,
     affectedItems: [
       {
-        item: "HMA-4000",
+        item: "MCH-MANI-BLK",
         changeType: "Version",
         sortOrder: 1
       }
     ],
     impactJobs: [
       {
-        job: "ready",
+        job: "floor-manifold",
         rationale:
-          "Check the ready HMA-4000 build against the revised customer port location before assembly.",
-        taskName: "Review HMA-4000 traveler for port relocation"
+          "Check the ready MCH-MANI-BLK build against the revised customer port location before machining.",
+        taskName: "Review MCH-MANI-BLK traveler for port relocation"
       }
     ]
   },
