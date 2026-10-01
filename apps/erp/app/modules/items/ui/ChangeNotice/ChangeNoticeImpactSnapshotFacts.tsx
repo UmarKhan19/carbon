@@ -91,7 +91,7 @@ export function SnapshotFacts({
           )}
         />
         <Fact
-          label={<Trans>Promised</Trans>}
+          label={<Trans>Promised Date</Trans>}
           value={formatImpactDate(snapshot.promisedDate, locale)}
         />
         <Fact

@@ -17,7 +17,7 @@ import type {
   ChangeNoticeImpactTaskRelationshipMutationInput
 } from "./items.models";
 
-vi.mock("@carbon/glossary", () => ({
+vi.mock("@carbon/content/glossary", () => ({
   terms: {},
   getEntry: vi.fn(),
   lookupEntry: vi.fn(),

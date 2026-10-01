@@ -1,9 +1,15 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Carbon (github.com/crbnos/carbon). Modified or adapted versions of this file,
+// including ports, remain AGPLv3; serving them over a network requires releasing their source.
+
 /**
  * Operations excluded from the generated generic API/MCP catalog and blocked at
  * shared dispatch. This covers HTTP v1, MCP, agent, and workflow callers;
  * direct browser imports remain unaffected.
  */
 export const MCP_BLOCKED_TOOL_NAMES: readonly string[] = [
+  // Needs a service-role client as its argument, which no API or MCP caller has.
+  "account_getChangelogPanelEntry",
   "settings_seedCompany",
   // Creating a company is an account-level operation that must not be exposed
   // as an MCP tool (it would let a company-scoped token create new tenants).

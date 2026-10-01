@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Carbon (github.com/crbnos/carbon). Modified or adapted versions of this file,
+// including ports, remain AGPLv3; serving them over a network requires releasing their source.
+
 import type { Database, Json } from "@carbon/database";
 import type { PostgrestError } from "@supabase/supabase-js";
 import { z } from "zod";
@@ -426,7 +430,7 @@ export const materialValidatorWithGeneratedIds = z.object({
 });
 
 export const methodMaterialValidator = z.object({
-  id: z.string().min(1, { message: "Material ID is required" }),
+  id: z.string().trim().min(1, { message: "Material ID is required" }),
   makeMethodId: z.string().min(1, { message: "Make method is required" }),
   order: zfd.numeric(z.number().min(0)),
   itemType: z.enum(methodItemType, {

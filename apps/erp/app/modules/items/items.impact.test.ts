@@ -3,7 +3,7 @@ import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@carbon/glossary", () => ({
+vi.mock("@carbon/content/glossary", () => ({
   terms: {},
   getEntry: vi.fn(),
   lookupEntry: vi.fn(),

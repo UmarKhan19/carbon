@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Carbon (github.com/crbnos/carbon). Modified or adapted versions of this file,
+// including ports, remain AGPLv3; serving them over a network requires releasing their source.
+
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -13,10 +17,10 @@ vi.mock("@carbon/auth/users.server", () => ({
 }));
 
 // items.server pulls the items module graph (via ~/modules/items), which
-// transitively loads @carbon/glossary — whose module-load-time Lingui `msg`
+// transitively loads @carbon/content/glossary — whose module-load-time Lingui `msg`
 // macro isn't transformed under plain vitest and throws. Stub it; the verdict
 // logic under test needs none of it.
-vi.mock("@carbon/glossary", () => ({
+vi.mock("@carbon/content/glossary", () => ({
   terms: {},
   getEntry: vi.fn(),
   lookupEntry: vi.fn(),

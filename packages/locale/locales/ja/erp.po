@@ -48,6 +48,9 @@ msgstr "「{taskName}」は完了しました — セットアップマップの
 msgid "(excluded for this customer)"
 msgstr "（この得意先から除外）"
 
+msgid "(Inactive)"
+msgstr "(無効)"
+
 #. placeholder {0}: target.slackDays
 msgid "{0, plural, one {# day of slack} other {# days of slack}}"
 msgstr "{0, plural, one {# 日のスラック} other {# 日のスラック}}"
@@ -1456,6 +1459,9 @@ msgstr "認証器アプリを追加"
 msgid "Add Calibration Record"
 msgstr "校正記録を追加"
 
+msgid "Add Characteristic"
+msgstr "特性を追加"
+
 msgid "Add Child Storage Unit"
 msgstr "子保管ユニットを追加"
 
@@ -1485,9 +1491,6 @@ msgstr "従業員を追加"
 
 msgid "Add Entry"
 msgstr "エントリを追加"
-
-msgid "Add Feature"
-msgstr "機能を追加"
 
 msgid "Add from library…"
 msgstr "ライブラリから追加…"
@@ -1784,6 +1787,9 @@ msgstr "すべての部門"
 msgid "All Documents"
 msgstr "すべてのドキュメント"
 
+msgid "All gauges"
+msgstr "すべての測定器"
+
 msgid "All item types"
 msgstr "すべての品目タイプ"
 
@@ -1802,6 +1808,9 @@ msgstr "すべて内製 {0}"
 
 msgid "All members of selected groups and selected individuals will be able to approve requests"
 msgstr "選択されたグループのすべてのメンバーと選択された個人が承認リクエストを承認できます"
+
+msgid "All open jobs"
+msgstr "すべてのオープン製造指図"
 
 msgid "All returnable lines"
 msgstr "すべての返品対象明細"
@@ -2048,6 +2057,9 @@ msgstr "この保管ユニットがネストされる別の保管ユニット（
 msgid "Another system is connected to Ramp as its accounting system"
 msgstr "別のシステムがRampの会計システムとして接続されています"
 
+msgid "Any"
+msgstr "いずれか"
+
 msgid "Any item group"
 msgstr "任意のアイテムグループ"
 
@@ -2127,8 +2139,8 @@ msgstr "すべてに適用"
 msgid "Applies to all work centers"
 msgstr "すべての作業区に適用"
 
-msgid "Applies to features without their own rule, and to the lot when this plan drives an inspection."
-msgstr "独自のルールがない機能に適用され、このプランが検査を実施する場合、ロットに適用されます。"
+msgid "Applies to characteristics without their own rule, and to the lot when this plan drives an inspection."
+msgstr "独自のルールを持たない特性に適用され、この計画が検査を実施する場合はロットに適用されます。"
 
 msgid "Apply"
 msgstr "適用"
@@ -3792,6 +3804,12 @@ msgstr "変更者"
 msgid "Changed since assessment"
 msgstr "評価後に変更あり"
 
+msgid "Changelog"
+msgstr "変更ログ"
+
+msgid "Changelog newsletter"
+msgstr "変更ログニュースレター"
+
 msgid "Changes"
 msgstr "変更"
 
@@ -3803,6 +3821,15 @@ msgstr "これを変更するとパーツIDが更新されます"
 
 msgid "Changing type resets this item's draft edits."
 msgstr "タイプを変更すると、この品目の下書き編集がリセットされます。"
+
+msgid "Characteristic"
+msgstr "特性"
+
+msgid "Characteristic values suggested from drawing"
+msgstr "図面から提案された特性値"
+
+msgid "Characteristics"
+msgstr "特性"
 
 msgid "Charges"
 msgstr "カード請求"
@@ -3903,6 +3930,9 @@ msgstr "期日をクリア"
 
 msgid "Clear Filters"
 msgstr "絞り込みをクリア"
+
+msgid "Clear gauge"
+msgstr "測定器をクリア"
 
 msgid "Clear search"
 msgstr "検索をクリア"
@@ -4014,11 +4044,11 @@ msgstr "{0}を折りたたむ"
 msgid "Collapse all"
 msgstr "すべて折りたたむ"
 
+msgid "Collapse characteristics table"
+msgstr "特性テーブルを折りたたむ"
+
 msgid "Collapse Costs"
 msgstr "原価を折りたたみ"
-
-msgid "Collapse features table"
-msgstr "機能テーブルを折りたたむ"
 
 msgid "Collapse Labor"
 msgstr "労務を折りたたみ"
@@ -4154,6 +4184,9 @@ msgstr "この教育訓練を完了すると、選択されたスキルが付与
 
 msgid "Completion Barcode"
 msgstr "完了バーコード"
+
+msgid "Completion Date"
+msgstr "完了日"
 
 msgid "Completion in progress — retry in Shop Floor"
 msgstr "完了処理進行中 — 製造現場で再試行してください"
@@ -4403,6 +4436,9 @@ msgstr "消耗品"
 msgid "Consumable"
 msgstr "消耗品"
 
+msgid "Consumable Cost"
+msgstr "消耗品原価"
+
 msgid "Consumable Details"
 msgstr "消耗品の詳細"
 
@@ -4523,6 +4559,9 @@ msgstr "MRP提案を発注書と製造指図に変換します。"
 msgid "Convert to Quote"
 msgstr "見積に変換"
 
+msgid "Converted Total Price"
+msgstr "換算後の合計価格"
+
 msgid "Converting…"
 msgstr "変換中…"
 
@@ -4534,6 +4573,9 @@ msgstr "クリップボードにリンクをコピーしました"
 
 msgid "Copied setup prompt to your clipboard"
 msgstr "セットアップ プロンプトをクリップボードにコピーしました"
+
+msgid "Copied!"
+msgstr "コピーしました！"
 
 msgid "Copies a setup prompt for your AI coding tool"
 msgstr "AIコーディングツール用の段取りプロンプトをコピーします"
@@ -4550,11 +4592,20 @@ msgstr "APIキーをコピー"
 msgid "Copy batch number"
 msgstr "バッチ番号をコピー"
 
+msgid "Copy change notice unique identifier"
+msgstr "変更通知の一意識別子をコピー"
+
 msgid "Copy company unique identifier"
 msgstr "会社の一意の識別子をコピー"
 
 msgid "Copy consumable number"
 msgstr "消耗品番号をコピー"
+
+msgid "Copy consumable unique identifier"
+msgstr "消耗品の一意識別子をコピー"
+
+msgid "Copy customer unique identifier"
+msgstr "得意先の一意識別子をコピー"
 
 msgid "Copy dispatch ID"
 msgstr "保全指示IDをコピー"
@@ -4579,6 +4630,9 @@ msgstr "問題の一意の識別子をコピー"
 
 msgid "Copy Job number"
 msgstr "ジョブ番号をコピー"
+
+msgid "Copy job unique identifier"
+msgstr "製造指図の一意識別子をコピー"
 
 msgid "Copy link"
 msgstr "リンクをコピー"
@@ -4658,6 +4712,15 @@ msgstr "手順書名をコピー"
 msgid "Copy procedure unique identifier"
 msgstr "手順書の識別子をコピー"
 
+msgid "Copy purchase invoice unique identifier"
+msgstr "仕入先請求書の一意識別子をコピー"
+
+msgid "Copy purchase order unique identifier"
+msgstr "発注書の一意識別子をコピー"
+
+msgid "Copy purchase return order unique identifier"
+msgstr "購買返品の一意識別子をコピー"
+
 msgid "Copy Quality Document"
 msgstr "品質文書をコピー"
 
@@ -4667,17 +4730,38 @@ msgstr "見積書をコピー"
 msgid "Copy Quote number"
 msgstr "見積番号をコピー"
 
+msgid "Copy quote unique identifier"
+msgstr "見積の一意識別子をコピー"
+
 msgid "Copy return number"
 msgstr "返品番号をコピー"
 
+msgid "Copy RFQ unique identifier"
+msgstr "見積依頼の一意識別子をコピー"
+
 msgid "Copy RMA number"
 msgstr "RMA番号をコピー"
+
+msgid "Copy sales invoice unique identifier"
+msgstr "売上請求書の一意識別子をコピー"
+
+msgid "Copy sales order unique identifier"
+msgstr "受注の一意識別子をコピー"
+
+msgid "Copy sales return order unique identifier"
+msgstr "売上返品の一意識別子をコピー"
 
 msgid "Copy service number"
 msgstr "サービス番号をコピー"
 
 msgid "Copy service unique identifier"
 msgstr "サービスの一意な識別子をコピー"
+
+msgid "Copy supplier quote unique identifier"
+msgstr "仕入先見積の一意識別子をコピー"
+
+msgid "Copy supplier unique identifier"
+msgstr "仕入先の一意識別子をコピー"
 
 msgid "Copy this item's pricing to another scope."
 msgstr "このアイテムの価格設定を別のスコープにコピーします。"
@@ -4687,6 +4771,9 @@ msgstr "この見積を得意先と共有するためのリンクをコピー"
 
 msgid "Copy this link to share the quote with a supplier"
 msgstr "この見積を仕入先と共有するためのリンクをコピー"
+
+msgid "Copy to clipboard"
+msgstr "クリップボードにコピー"
 
 msgid "Copy tool number"
 msgstr "ツール番号をコピー"
@@ -6275,9 +6362,6 @@ msgstr "モーションプランナーで検出されました"
 msgid "Developer"
 msgstr "開発者"
 
-msgid "Diagram saved"
-msgstr "図が保存されました"
-
 msgid "Differs from the selection — allowed, but confirm they nest together"
 msgstr "選択と異なります — 許可されていますが、それらが一緒に実行できることを確認してください"
 
@@ -6562,11 +6646,11 @@ msgstr "図面上に配置するためにドラッグしてください"
 msgid "Drag to reorder"
 msgstr "ドラッグして並べ替え"
 
-msgid "Drag to resize diagram and features"
-msgstr "図と機能をリサイズするにはドラッグしてください"
+msgid "Drag to resize diagram and characteristics"
+msgstr "ダイアグラムと特性をリサイズするためにドラッグ"
 
-msgid "Drag to resize drawing and features"
-msgstr "ドラッグして図面と機能のサイズを変更してください"
+msgid "Drag to resize drawing and characteristics"
+msgstr "図面と特性をリサイズするためにドラッグ"
 
 msgid "Drag to zoom"
 msgstr "ズームするにはドラッグしてください"
@@ -6577,8 +6661,11 @@ msgstr "引き出し中"
 msgid "Drawing Number"
 msgstr "図面番号"
 
-msgid "Drawing replaced. Balloon placements were removed; feature rows are unchanged."
-msgstr "図面が置き換わりました。バルーン配置は削除されました。機能行は変更されていません。"
+msgid "Drawing replaced. Balloon placements were removed; characteristic rows are unchanged."
+msgstr "図面が置き換えられました。バルーン配置は削除されました。特性行は変更されていません。"
+
+msgid "Drop Ship"
+msgstr "ドロップシップ"
 
 msgid "Drop shipment"
 msgstr "ドロップシップメント"
@@ -7617,11 +7704,11 @@ msgstr "展開 {0}"
 msgid "Expand all"
 msgstr "すべて展開"
 
+msgid "Expand characteristics table"
+msgstr "特性テーブルを展開"
+
 msgid "Expand Costs"
 msgstr "原価を展開"
-
-msgid "Expand features table"
-msgstr "機能テーブルを展開"
 
 msgid "Expand Labor"
 msgstr "労務を展開"
@@ -7812,8 +7899,8 @@ msgstr "不合格"
 msgid "Failed"
 msgstr "失敗"
 
-msgid "Failed features"
-msgstr "失敗した機能"
+msgid "Failed characteristics"
+msgstr "不合格の特性"
 
 #. placeholder {0}: rows.length
 msgid "Failed to add line — {addedCount} of {0} lines were added"
@@ -7821,6 +7908,9 @@ msgstr "行を追加できませんでした — {0} 行中 {addedCount} 行を�
 
 msgid "Failed to add lines"
 msgstr "行を追加できませんでした"
+
+msgid "Failed to apply pricing rules"
+msgstr "価格ルールの適用に失敗しました"
 
 msgid "Failed to convert image"
 msgstr "画像の変換に失敗しました"
@@ -8064,6 +8154,9 @@ msgstr "追跡対象エンティティの読み込みに失敗しました"
 msgid "Failed to move account: {0}"
 msgstr "勘定科目の移動に失敗しました: {0}"
 
+msgid "Failed to record gauge"
+msgstr "測定器の記録に失敗しました"
+
 msgid "Failed to regenerate schedule"
 msgstr "スケジュールの再生成に失敗しました"
 
@@ -8097,8 +8190,8 @@ msgstr "CSVの列データの取得に失敗しました。"
 msgid "Failed to save configuration rule"
 msgstr "設定ルールの保存に失敗しました"
 
-msgid "Failed to save diagram"
-msgstr "図の保存に失敗しました"
+msgid "Failed to save inspection plan"
+msgstr "検査計画の保存に失敗しました"
 
 msgid "Failed to save measurement"
 msgstr "測定値の保存に失敗しました"
@@ -8198,15 +8291,6 @@ msgstr "ファックス"
 
 msgid "Fax Number"
 msgstr "ファックス番号"
-
-msgid "Feature"
-msgstr "機能"
-
-msgid "Feature values suggested from drawing"
-msgstr "図面から提案された機能値"
-
-msgid "Features"
-msgstr "機能"
 
 msgid "Fees"
 msgstr "手数料"
@@ -8530,6 +8614,9 @@ msgstr "測定器"
 
 msgid "Gauge Calibration Notifications"
 msgstr "測定器の校正通知"
+
+msgid "Gauge for characteristic {characteristicLabel}: {currentGauge}"
+msgstr "特性 {characteristicLabel} の測定器: {currentGauge}"
 
 msgid "Gauge ID"
 msgstr "測定器 ID"
@@ -9331,6 +9418,9 @@ msgstr "無効を含める"
 msgid "Included"
 msgstr "含まれています"
 
+msgid "Includes bought and picked parts"
+msgstr "購入済みおよびピッキング済みの部品を含む"
+
 msgid "Includes tax and shipping costs"
 msgstr "税金と送料を含みます"
 
@@ -10066,6 +10156,12 @@ msgstr "労務・機械差異"
 msgid "Labor & Machine Variance (default)"
 msgstr "労務・機械差異（デフォルト）"
 
+msgid "Labor Costs"
+msgstr "労務原価"
+
+msgid "Labor Hours"
+msgstr "労務時間"
+
 msgid "Labor rate"
 msgstr "労務単価"
 
@@ -10555,6 +10651,12 @@ msgstr "小文字のアイテムIDが許可されます"
 msgid "Machine"
 msgstr "機械"
 
+msgid "Machine Costs"
+msgstr "機械原価"
+
+msgid "Machine Hours"
+msgstr "機械時間"
+
 msgid "Machine rate"
 msgstr "機械費率"
 
@@ -10796,6 +10898,12 @@ msgstr "市場レート履歴（対USD）"
 msgid "Marks the person off for every day in the range. They won't be scheduled while they're away."
 msgstr "範囲内のすべての日について、その人を休止します。外出中はスケジュール設定されません。"
 
+msgid "Markup by Category"
+msgstr "カテゴリ別マークアップ"
+
+msgid "Markup Percent"
+msgstr "マークアップ率"
+
 msgid "Master gauge"
 msgstr "標準器"
 
@@ -10840,6 +10948,9 @@ msgstr "材料"
 
 msgid "Material"
 msgstr "材料"
+
+msgid "Material Cost"
+msgstr "材料原価"
 
 msgid "Material Dimension"
 msgstr "材料ディメンション"
@@ -11338,6 +11449,9 @@ msgstr "純変化"
 msgid "Net Income"
 msgstr "純収益"
 
+msgid "Net Unit Price"
+msgstr "正味単価"
+
 msgid "Never"
 msgstr "なし"
 
@@ -11668,6 +11782,15 @@ msgstr "最新順"
 msgid "Next"
 msgstr "次へ"
 
+msgid "Next 14 days"
+msgstr "次の14日間"
+
+msgid "Next 30 days"
+msgstr "次の30日間"
+
+msgid "Next 7 days"
+msgstr "次の7日間"
+
 msgid "Next Action"
 msgstr "次のアクション"
 
@@ -11825,6 +11948,9 @@ msgstr "現在の完全な結果は利用できません。"
 msgid "No completed jobs within range"
 msgstr "範囲内に完了した製造指図がありません"
 
+msgid "No completion date"
+msgstr "完了日なし"
+
 msgid "No components yet"
 msgstr "まだコンポーネントがない"
 
@@ -11933,6 +12059,9 @@ msgstr "この製造指図に対して利用可能な予測はありません。
 msgid "No Gauge Selected"
 msgstr "測定器が選択されていません"
 
+msgid "No gauges found."
+msgstr "測定器が見つかりません。"
+
 msgid "No grouped notifications"
 msgstr "グループ化された通知がありません"
 
@@ -11965,6 +12094,9 @@ msgstr "ここにはまだアイテムの在庫活動がありません。"
 
 msgid "No jobs are scheduled at this location yet — release a job to see work-center load."
 msgstr "この拠点ではまだ製造指図がスケジュール化されていません — 製造指図をリリースして作業区負荷を確認してください。"
+
+msgid "No jobs match your search."
+msgstr "検索に一致する製造指図がありません。"
 
 msgid "No jobs were created"
 msgstr "製造指図は作成されませんでした"
@@ -12031,6 +12163,12 @@ msgstr "割り当てる人がいません"
 
 msgid "No open invoices"
 msgstr "未処理の請求書がありません"
+
+msgid "No open jobs for sales orders are projected to complete at this location in the next {horizon} days."
+msgstr "この拠点で、次の{horizon}日間に完了予定のオープン受注用製造指図はありません。"
+
+msgid "No open jobs for sales orders at this location."
+msgstr "この拠点にはオープン受注用製造指図がありません。"
 
 msgid "No open memos"
 msgstr "オープンなメモはありません"
@@ -12724,9 +12862,6 @@ msgstr "MESで開く"
 msgid "Open Issues"
 msgstr "未解決の問題"
 
-msgid "Open job"
-msgstr "オープンジョブ"
-
 msgid "Open job demand plus outstanding transfers out of this bin"
 msgstr "このビンからの未処理転送を含むオープン製造指図所要量"
 
@@ -13036,6 +13171,12 @@ msgstr "その他"
 msgid "Out"
 msgstr "対象外"
 
+msgid "Out of calibration"
+msgstr "校正範囲外"
+
+msgid "Outbound"
+msgstr "出荷"
+
 msgid "Outgoing"
 msgstr "発送"
 
@@ -13189,6 +13330,9 @@ msgstr "部品"
 
 msgid "Part Being Replaced"
 msgstr "置き換わる部品"
+
+msgid "Part Cost"
+msgstr "部品原価"
 
 msgid "Part Details"
 msgstr "部品詳細"
@@ -13981,6 +14125,9 @@ msgstr "生産: ショップフロアアプリとスケジューリング"
 msgid "Profile"
 msgstr "プロフィール"
 
+msgid "Profit Percent"
+msgstr "利益率"
+
 msgid "Progress"
 msgstr "進捗"
 
@@ -14049,7 +14196,7 @@ msgid "Projects"
 msgstr "プロジェクト"
 
 msgid "Promised"
-msgstr "回答納期"
+msgstr "約束日"
 
 msgid "Promised Date"
 msgstr "回答納期"
@@ -14748,6 +14895,9 @@ msgstr "最近の支払い"
 msgid "Recently Created"
 msgstr "最近作成"
 
+msgid "Recently used"
+msgstr "最近使用した"
+
 msgid "Recertify Every (Days)"
 msgstr "再認定 (日)"
 
@@ -15043,6 +15193,9 @@ msgstr "列でのソートを除去"
 msgid "Remove station"
 msgstr "ステーションを削除"
 
+msgid "Remove this item"
+msgstr "この品目を除去"
+
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "この保管タイプをすべての参照する保管ユニットから除去して削除する。これは元に戻せません。"
 
@@ -15125,8 +15278,8 @@ msgstr "この会社のデータをデモデータセットで置き換えます
 msgid "Replacement Order"
 msgstr "交換注文"
 
-msgid "Replacing the PDF removes all balloon placements on this document. Feature rows and their values stay; you can place balloons again on the new drawing."
-msgstr "PDFを置き換えると、このドキュメントのすべてのバルーン配置が削除されます。フィーチャ行とその値は残ります。新しい図面上で再度バルーンを配置できます。"
+msgid "Replacing the PDF removes all balloon placements on this document. Characteristic rows and their values stay; you can place balloons again on the new drawing."
+msgstr "PDFを置き換えると、このドキュメント上のすべてのバルーン配置が削除されます。特性行とその値は保持されます。新しい図面でバルーンを再度配置できます。"
 
 msgid "Replenishment"
 msgstr "補充"
@@ -15907,8 +16060,8 @@ msgstr "サンプルサイズ"
 msgid "Sampling"
 msgstr "抜取検査"
 
-msgid "Sampling — Feature {featureLabel}"
-msgstr "抜取検査 — 機能{featureLabel}"
+msgid "Sampling — Characteristic {featureLabel}"
+msgstr "抜取検査 — 特性 {featureLabel}"
 
 msgid "Sampling Standard"
 msgstr "抜取検査基準"
@@ -16115,6 +16268,9 @@ msgstr "スクラップ済み"
 msgid "Search"
 msgstr "検索"
 
+msgid "Search {gaugeTypeName}..."
+msgstr "{gaugeTypeName} を検索..."
+
 msgid "Search accounts"
 msgstr "アカウントを検索"
 
@@ -16159,6 +16315,9 @@ msgstr "フィールドを検索..."
 
 msgid "Search for existing or create a new one"
 msgstr "既存のものを検索するか、新しいものを作成してください"
+
+msgid "Search gauges..."
+msgstr "測定器を検索..."
 
 msgid "Search items or bins"
 msgstr "アイテムまたはビンを検索"
@@ -16326,6 +16485,9 @@ msgstr "操作を選択…"
 msgid "Select an option"
 msgstr "オプションを選択"
 
+msgid "Select at least one item to accept the quote"
+msgstr "見積を承諾するには、少なくとも1つの品目を選択してください"
+
 msgid "Select at least one line to convert"
 msgstr "変換する行を少なくとも1つ選択してください"
 
@@ -16358,6 +16520,9 @@ msgstr "従業員タイプを選択"
 
 msgid "Select field"
 msgstr "フィールドを選択"
+
+msgid "Select gauge"
+msgstr "測定器を選択"
 
 msgid "Select Gauge"
 msgstr "測定器を選択"
@@ -16777,8 +16942,14 @@ msgstr "出荷"
 msgid "Ship some, stock some"
 msgstr "一部を出荷し、一部を在庫に"
 
+msgid "Ship To"
+msgstr "送付先"
+
 msgid "Ship to Customer"
 msgstr "得意先に出荷する"
+
+msgid "Ship Via"
+msgstr "配送方法"
 
 msgid "Ship-From Location"
 msgstr "発送元の場所"
@@ -16934,6 +17105,9 @@ msgstr "利用可能な追跡番号を表示"
 
 msgid "Show Customer IDs"
 msgstr "得意先IDを表示"
+
+msgid "Show Details"
+msgstr "詳細を表示"
 
 msgid "Show Durations"
 msgstr "期間を表示"
@@ -18524,8 +18698,8 @@ msgstr "ロットは合格とマークされます。{fails}件のサンプル�
 msgid "The lot will still be rejected, but an NCR cannot be created until at least one Issue Type is configured."
 msgstr "ロットは引き続き却下されますが、少なくとも1つの問題タイプが設定されるまでNCRを作成することはできません。"
 
-msgid "The lot's per-feature sampling plan will be re-resolved from the selected document."
-msgstr "ロットの機能別抜取検査方式は、選択した文書から再解決されます。"
+msgid "The lot's per-characteristic sampling plan will be re-resolved from the selected document."
+msgstr "ロットの特性別抜取検査方式は選択された文書から再度解決されます。"
 
 msgid "The lowest amount this supplier will charge for this process, regardless of quantity; jobs below the breakeven volume still cost at least this much."
 msgstr "この仕入先がこの工法に対して請求する最低金額（数量に関係なく）。損益分岐点量以下の製造指図でも、最低でもこの金額がかかります。"
@@ -19464,9 +19638,6 @@ msgstr "レベルを切り替え"
 msgid "Toggle Properties"
 msgstr "プロパティを切り替え"
 
-msgid "Toggle the sidebar"
-msgstr "サイドバーの表示/非表示を切り替える"
-
 msgid "Toggle views"
 msgstr "ビューを切り替える"
 
@@ -19479,6 +19650,9 @@ msgstr "許容差+"
 msgid "Tolerance (+/-)"
 msgstr "許容範囲 (+/-)"
 
+msgid "Tomorrow"
+msgstr "明日"
+
 msgid "tool"
 msgstr "ツール"
 
@@ -19490,6 +19664,9 @@ msgstr "ツール詳細"
 
 msgid "Tool ID"
 msgstr "ツールID"
+
+msgid "Tooling Cost"
+msgstr "工具原価"
 
 msgid "tools"
 msgstr "ツール"
@@ -19515,11 +19692,17 @@ msgstr "合計金額"
 msgid "Total capitalized cost of the asset (purchase price plus freight, install, and other costs that become part of book value)."
 msgstr "資産の総資本化原価（購入価格、運賃、設置、および帳簿価額の一部となるその他のコスト）。"
 
+msgid "Total Direct Cost"
+msgstr "直接原価合計"
+
 msgid "Total discount"
 msgstr "合計値引"
 
 msgid "Total Due"
 msgstr "支払うべき合計金額"
+
+msgid "Total Estimated Cost"
+msgstr "推定原価合計"
 
 msgid "Total expected production units for units-of-production depreciation; cost is spread per unit produced."
 msgstr "生産単位による減価償却に対する予想生産数。原価は生産単位当たりに配分されます。"
@@ -19527,11 +19710,23 @@ msgstr "生産単位による減価償却に対する予想生産数。原価は
 msgid "Total Hours"
 msgstr "合計時間"
 
+msgid "Total Indirect Cost"
+msgstr "間接原価合計"
+
+msgid "Total Material Cost"
+msgstr "材料原価合計"
+
 msgid "Total Minutes"
 msgstr "合計分"
 
+msgid "Total Outside Cost"
+msgstr "外注原価合計"
+
 msgid "Total Price"
 msgstr "合計価格"
+
+msgid "Total Profit"
+msgstr "利益合計"
 
 msgid "Total quantity"
 msgstr "合計数量"
@@ -19904,6 +20099,9 @@ msgstr "不明"
 
 msgid "unknown error"
 msgstr "不明なエラー"
+
+msgid "Unknown gauge"
+msgstr "不明な測定器"
 
 msgid "unknown location"
 msgstr "不明な場所"
@@ -20485,6 +20683,9 @@ msgstr "メモを表示"
 
 msgid "View on schedule board"
 msgstr "スケジュールボードで表示"
+
+msgid "View only — changes are not saved"
+msgstr "表示のみ — 変更は保存されません"
 
 msgid "View Open"
 msgstr "開く"
@@ -21402,6 +21603,9 @@ msgstr "あなたの招待は無効であるか、既に受け入れられてい
 
 msgid "Your job here: check a real sample of each row, then mark it validated. Foundation data loads first, then master records, then open transactions at cutover."
 msgstr "ここでのあなたの仕事：各行の実際のサンプルを確認してから、検証済みとしてマークしてください。基礎データが最初に読み込まれ、次にマスターレコード、その後カットオーバー時にオープントランザクションが読み込まれます。"
+
+msgid "Your latest changes could not be saved. Are you sure you want to leave this page?"
+msgstr "最新の変更は保存できませんでした。このページを離れてもよろしいですか？"
 
 msgid "Your legal name, addresses, branding, and document defaults"
 msgstr "法人名、住所、ブランディング、文書デフォルト"
