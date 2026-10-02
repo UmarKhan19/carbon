@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Carbon (github.com/crbnos/carbon). Modified or adapted versions of this file,
+// including ports, remain AGPLv3; serving them over a network requires releasing their source.
+
 import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 // The Items module imports the glossary at module load time. Keep this focused
 // service test independent of Lingui's application transform.
