@@ -2,140 +2,133 @@
 // Carbon (github.com/crbnos/carbon). Modified or adapted versions of this file,
 // including ports, remain AGPLv3; serving them over a network requires releasing their source.
 
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 // Env is validated at import time (getEnv throws on missing required vars), so we
 // stub the config module rather than requiring a full environment in the test run.
 vi.mock("../../config/env", () => ({
-  SUPABASE_ANON_KEY: "test-anon-key",
+  SUPABASE_ANON_KEY: "sb_publishable_anon",
   SUPABASE_INTERNAL_URL: "http://supabase.internal.test",
   SUPABASE_URL: "http://supabase.test"
 }));
 
-const { fetchWithRetry } = await import("./client");
+const { getCarbonAPIKeyClient, getCarbonClient, storageReadFetch } =
+  await import("./client");
 
-const jsonResponse = (status: number) =>
-  new Response(JSON.stringify({}), { status });
+// Edge functions recognise a service-role caller by the Authorization bearer.
+// supabase-js stops sending a new-format key as that bearer on function calls,
+// so the client must set it itself for either key format.
+describe("Edge Function calls carry the Authorization bearer", () => {
+  const sent = () => {
+    const [input, init] = vi.mocked(fetch).mock.calls[0]!;
+    const headers = new Headers(
+      input instanceof Request ? input.headers : init?.headers
+    );
+    return headers.get("Authorization");
+  };
 
-describe("fetchWithRetry", () => {
-  let fetchSpy: ReturnType<typeof vi.spyOn>;
+  const stubFetch = () =>
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("{}", { status: 200 }))
+    );
 
-  beforeEach(() => {
-    fetchSpy = vi.spyOn(globalThis, "fetch");
+  afterEach(() => vi.unstubAllGlobals());
+
+  it.each([
+    ["a legacy JWT key", "eyJhbGciOiJIUzI1NiJ9.e30.signature"],
+    ["a new-format secret key", "sb_secret_abc123"]
+  ])("service-role client with %s", async (_, key) => {
+    stubFetch();
+    await getCarbonClient(key).functions.invoke("create", { body: {} });
+    expect(sent()).toBe(`Bearer ${key}`);
   });
+
+  it("a user's token wins over the key", async () => {
+    stubFetch();
+    await getCarbonClient("sb_secret_abc123", "user-jwt").functions.invoke(
+      "create",
+      { body: {} }
+    );
+    expect(sent()).toBe("Bearer user-jwt");
+  });
+
+  it("API-key client", async () => {
+    stubFetch();
+    await getCarbonAPIKeyClient("crbn_key").functions.invoke("create", {
+      body: {}
+    });
+    expect(sent()).toBe("Bearer sb_publishable_anon");
+  });
+});
+
+describe("storage reads are retried, everything else passes through", () => {
+  const storage = "http://supabase.internal.test/storage/v1";
+
+  const respond = (...statuses: number[]) => {
+    const fetchMock = vi.fn();
+    for (const status of statuses) {
+      fetchMock.mockResolvedValueOnce(new Response("{}", { status }));
+    }
+    vi.stubGlobal("fetch", fetchMock);
+    return fetchMock;
+  };
+
+  const settle = async <T>(promise: Promise<T>) => {
+    await vi.runAllTimersAsync();
+    return promise;
+  };
 
   afterEach(() => {
-    fetchSpy.mockRestore();
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
   });
 
-  // Regression test for the quoteToQuote duplicate-quote incident: retrying a
-  // 5xx from a non-idempotent Edge Function re-runs its side effects. See
-  // .ai/lessons.md for the incident this pins.
-  it("does not retry an Edge Function invocation on a 5xx — one attempt only", async () => {
-    fetchSpy.mockResolvedValue(jsonResponse(500));
-
-    const response = await fetchWithRetry(
-      "http://supabase.internal.test/functions/v1/get-method",
-      { method: "POST", body: "{}" }
+  it("retries a download after a 5xx", async () => {
+    vi.useFakeTimers();
+    const fetchMock = respond(503, 200);
+    const response = await settle(
+      storageReadFetch(`${storage}/object/co_1/a.pdf`, { method: "GET" })
     );
+    expect(response.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
 
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  it("retries a listing, which is a POST", async () => {
+    vi.useFakeTimers();
+    const fetchMock = respond(502, 502, 200);
+    const response = await settle(
+      storageReadFetch(`${storage}/object/list-v2/co_1`, { method: "POST" })
+    );
+    expect(response.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+
+  it("gives up after two retries and returns the last answer", async () => {
+    vi.useFakeTimers();
+    const fetchMock = respond(500, 500, 500);
+    const response = await settle(
+      storageReadFetch(`${storage}/object/co_1/a.pdf`)
+    );
     expect(response.status).toBe(500);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
   });
 
-  it("does not retry an Edge Function invocation on a network error — the error propagates", async () => {
-    fetchSpy.mockRejectedValue(new Error("network down"));
-
-    await expect(
-      fetchWithRetry("http://supabase.internal.test/functions/v1/get-method", {
-        method: "POST",
-        body: "{}"
-      })
-    ).rejects.toThrow("network down");
-
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  it("never replays an upload", async () => {
+    const fetchMock = respond(500);
+    const response = await storageReadFetch(`${storage}/object/co_1/a.pdf`, {
+      method: "POST",
+      body: "bytes"
+    });
+    expect(response.status).toBe(500);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it("still bypasses retry for a storage upload on a 5xx (existing behavior, unchanged)", async () => {
-    fetchSpy.mockResolvedValue(jsonResponse(503));
-
-    const response = await fetchWithRetry(
-      "http://supabase.internal.test/storage/v1/object/bucket/file.png",
-      { method: "PUT", body: "binary" }
-    );
-
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
-    expect(response.status).toBe(503);
-  });
-
-  it("still retries a normal (non-Edge-Function, non-storage) request on a 5xx", async () => {
-    fetchSpy
-      .mockResolvedValueOnce(jsonResponse(500))
-      .mockResolvedValueOnce(jsonResponse(200));
-
-    const response = await fetchWithRetry(
-      "http://supabase.internal.test/rest/v1/quote?id=eq.1",
-      { method: "GET" }
-    );
-
-    expect(fetchSpy).toHaveBeenCalledTimes(2);
-    expect(response.status).toBe(200);
-  });
-
-  // PostgREST commits before it answers, so a 5xx or a dropped response says
-  // nothing about whether the write landed. Retrying is how one insert becomes
-  // several rows. Same rule as the Edge Function carve-out above.
-  it.each([
-    ["POST (insert / upsert / rpc)", "POST"],
-    ["PATCH (update)", "PATCH"],
-    ["DELETE (delete)", "DELETE"]
-  ])("does not retry a PostgREST write on a 5xx — %s", async (_label, method) => {
-    fetchSpy.mockResolvedValue(jsonResponse(503));
-
-    const response = await fetchWithRetry(
-      "http://supabase.internal.test/rest/v1/quote",
-      { method, body: "{}" }
-    );
-
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
-    expect(response.status).toBe(503);
-  });
-
-  it("does not retry a PostgREST write on a network error — the error propagates", async () => {
-    fetchSpy.mockRejectedValue(new Error("connection reset"));
-
-    await expect(
-      fetchWithRetry("http://supabase.internal.test/rest/v1/quote", {
-        method: "POST",
-        body: "{}"
-      })
-    ).rejects.toThrow("connection reset");
-
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
-  });
-
-  it("treats a request with no explicit method as a replayable GET", async () => {
-    fetchSpy
-      .mockResolvedValueOnce(jsonResponse(500))
-      .mockResolvedValueOnce(jsonResponse(200));
-
-    const response = await fetchWithRetry(
-      "http://supabase.internal.test/rest/v1/quote?id=eq.1"
-    );
-
-    expect(fetchSpy).toHaveBeenCalledTimes(2);
-    expect(response.status).toBe(200);
-  });
-
-  it("returns a non-retryable status from a normal request on the first attempt", async () => {
-    fetchSpy.mockResolvedValue(jsonResponse(404));
-
-    const response = await fetchWithRetry(
-      "http://supabase.internal.test/rest/v1/quote?id=eq.1",
-      { method: "GET" }
-    );
-
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
-    expect(response.status).toBe(404);
+  it("leaves database reads to supabase-js", async () => {
+    const fetchMock = respond(503);
+    await storageReadFetch("http://supabase.internal.test/rest/v1/item", {
+      method: "GET"
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

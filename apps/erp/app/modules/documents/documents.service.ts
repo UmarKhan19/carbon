@@ -201,8 +201,8 @@ export async function upsertDocument(
     );
   }
 
-  // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
-  const { extension, ...data } = document;
+  // Labels live in documentLabel, not on the document row.
+  const { extension: _extension, labels: _labels, ...data } = document;
   return client
     .from("document")
     .update(

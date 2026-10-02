@@ -3019,6 +3019,7 @@
         "type",
         "samplingPlanType",
         "samplingSampleSize",
+        "gaugeTypeId",
         "samplingPercentage",
         "samplingAql",
         "samplingInspectionLevel",
@@ -4688,6 +4689,7 @@
         "quantity",
         "leadTime",
         "discountPercent",
+        "priceTrace",
         "createdAt",
         "updatedAt",
         "unitPrice",
@@ -4898,8 +4900,10 @@
         "id",
         "inspectionId",
         "inspectionFeatureId",
+        "gaugeRecordedAt",
         "codeLetter",
         "companyId",
+        "gaugeId",
         "createdBy",
         "updatedBy"
       ]
