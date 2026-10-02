@@ -103,6 +103,11 @@ function validationMessage(error: z.ZodError, fallback: string): string {
   return error.issues[0]?.message ?? fallback;
 }
 
+/**
+ * Update the status of an action task on a Change Notice, after re-checking the
+ * task is editable and scoped to the caller's company.
+ * @mcp update
+ */
 export async function updateChangeNoticeTaskStatus(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -138,6 +143,11 @@ export async function updateChangeNoticeTaskStatus(
   });
 }
 
+/**
+ * Update the notes of a Change Notice action task, after re-checking it is
+ * editable and scoped to the caller's company.
+ * @mcp update
+ */
 export async function updateChangeNoticeTaskNotes(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -173,6 +183,11 @@ export async function updateChangeNoticeTaskNotes(
   });
 }
 
+/**
+ * Assign or unassign a Change Notice action task, after re-checking it is
+ * editable and scoped to the caller's company.
+ * @mcp update
+ */
 export async function updateChangeNoticeTaskAssignee(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -208,6 +223,11 @@ export async function updateChangeNoticeTaskAssignee(
   });
 }
 
+/**
+ * Update the due date of a Change Notice action task, after re-checking it is
+ * editable and scoped to the caller's company.
+ * @mcp update
+ */
 export async function updateChangeNoticeTaskDueDate(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -248,6 +268,11 @@ export async function updateChangeNoticeTaskDueDate(
   });
 }
 
+/**
+ * Delete a Change Notice action task, refusing ids that do not belong to the
+ * named Change Notice and company.
+ * @mcp delete
+ */
 export async function deleteChangeNoticeTask(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -297,6 +322,11 @@ export async function deleteChangeNoticeTask(
   });
 }
 
+/**
+ * Create or update a Change Notice default-action template; sending `id`
+ * updates, omitting it creates.
+ * @mcp upsert
+ */
 export async function upsertChangeNoticeActionTemplate(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -329,6 +359,10 @@ export async function upsertChangeNoticeActionTemplate(
   });
 }
 
+/**
+ * Delete a Change Notice default-action template.
+ * @mcp delete
+ */
 export async function deleteChangeNoticeActionTemplate(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -348,6 +382,12 @@ export async function deleteChangeNoticeActionTemplate(
   return deleteChangeNoticeRequiredAction(client, parsed.data.id, companyId);
 }
 
+/**
+ * Create a follow-up action task for a Change Notice Impact decision, optionally
+ * bootstrapping the decision, through the authorized Impact task boundary.
+ * @mcp create
+ * @mcp permission parts:update
+ */
 export async function createImpactFollowUpTask(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -464,6 +504,10 @@ function relationshipRequest(args: {
   };
 }
 
+/**
+ * Link an existing action task to a Change Notice Impact decision.
+ * @mcp action
+ */
 export async function linkImpactDecisionTask(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -512,6 +556,10 @@ export async function linkImpactDecisionTask(
   });
 }
 
+/**
+ * Unlink an action task from a Change Notice Impact decision.
+ * @mcp action
+ */
 export async function unlinkImpactDecisionTask(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -560,6 +608,11 @@ export async function unlinkImpactDecisionTask(
   });
 }
 
+/**
+ * Designate which action task is the follow-up for a Change Notice Impact
+ * decision.
+ * @mcp action
+ */
 export async function designateImpactFollowUpTask(
   client: SupabaseClient<Database>,
   companyId: string,

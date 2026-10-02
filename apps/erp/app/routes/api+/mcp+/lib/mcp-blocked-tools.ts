@@ -64,9 +64,9 @@ export const MCP_BLOCKED_TOOL_NAMES: readonly string[] = [
   "items_getChangeNoticeImpactWorkspace",
   "items_getChangeNoticeImpactHistory",
   "items_removeChangeNoticeAffectedItem",
-  // These helpers are internal implementation details, not MCP contracts. Without
-  // an explicit exclusion, regenerating metadata publishes them as opaque WRITE
-  // tools (and the generic parser cannot describe all of their nested inputs).
+  // These helpers are internal implementation details, not MCP contracts. They
+  // carry no `@mcp` declaration, so the generator publishes none of them; the
+  // exclusion keeps the runtime callOperation gate closed too.
   "items_createChangeNoticeImpactPreviewFingerprint",
   "items_normalizePurchaseOrderLineImpactSnapshot",
   "items_normalizeJobImpactSnapshot",
@@ -101,7 +101,10 @@ export const MCP_BLOCKED_TOOL_NAMES: readonly string[] = [
   "items_updateChangeNoticeActionAssignee",
   "items_updateChangeNoticeActionDueDate",
   "items_upsertChangeNoticeRequiredAction",
-  "items_deleteChangeNoticeRequiredAction"
+  "items_deleteChangeNoticeRequiredAction",
+  // Variadic (`...items`): the dispatcher fills one positional argument per
+  // parameter from a JSON object and has no slot for a rest tail.
+  "production_getPartDocuments"
 ];
 
 export function isMcpBlockedTool(name: string): boolean {
