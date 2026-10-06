@@ -14,6 +14,18 @@ $authz$;
 ALTER TABLE public."changeOrderImpactDecision" ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "SELECT" ON "public"."changeOrderImpactDecision" FOR SELECT USING ((("companyId" = ANY ((SELECT get_companies_with_employee_permission('parts_view'))::text[]) AND (("targetType" = 'purchaseOrderLine' AND "companyId" = ANY ((SELECT get_companies_with_employee_permission('purchasing_view'))::text[])) OR ("targetType" in ('job', 'jobMaterial') AND "companyId" = ANY ((SELECT get_companies_with_employee_permission('production_view'))::text[])))) AND EXISTS (SELECT 1 FROM "public"."changeOrder" p WHERE "p"."id" = "changeOrderImpactDecision"."changeNoticeId" AND "p"."companyId" = "changeOrderImpactDecision"."companyId" AND "p"."companyId" = ANY ((SELECT get_companies_with_employee_permission('parts_view'))::text[]))));
 
+-- changeOrderImpactDecisionAffectedItem
+DO $authz$
+DECLARE p record;
+BEGIN
+  FOR p IN SELECT policyname FROM pg_policies WHERE schemaname = 'public' AND tablename = 'changeOrderImpactDecisionAffectedItem' LOOP
+    EXECUTE format('DROP POLICY %I ON public.%I', p.policyname, 'changeOrderImpactDecisionAffectedItem');
+  END LOOP;
+END
+$authz$;
+ALTER TABLE public."changeOrderImpactDecisionAffectedItem" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "SELECT" ON "public"."changeOrderImpactDecisionAffectedItem" FOR SELECT USING (("companyId" = ANY ((SELECT get_companies_with_employee_permission('parts_view'))::text[]) AND EXISTS (SELECT 1 FROM "public"."changeOrderImpactDecision" p WHERE "p"."id" = "changeOrderImpactDecisionAffectedItem"."decisionId" AND "p"."companyId" = "changeOrderImpactDecisionAffectedItem"."companyId" AND ("companyId" = ANY ((SELECT get_companies_with_employee_permission('parts_view'))::text[]) AND (("targetType" = 'purchaseOrderLine' AND "companyId" = ANY ((SELECT get_companies_with_employee_permission('purchasing_view'))::text[])) OR ("targetType" in ('job', 'jobMaterial') AND "companyId" = ANY ((SELECT get_companies_with_employee_permission('production_view'))::text[])))))));
+
 -- changeOrderImpactDecisionActionTask
 DO $authz$
 DECLARE p record;
@@ -46,18 +58,6 @@ ALTER TABLE public."changeOrderImpactDecisionActionTask" ENABLE ROW LEVEL SECURI
       )
     );
     
-
--- changeOrderImpactDecisionAffectedItem
-DO $authz$
-DECLARE p record;
-BEGIN
-  FOR p IN SELECT policyname FROM pg_policies WHERE schemaname = 'public' AND tablename = 'changeOrderImpactDecisionAffectedItem' LOOP
-    EXECUTE format('DROP POLICY %I ON public.%I', p.policyname, 'changeOrderImpactDecisionAffectedItem');
-  END LOOP;
-END
-$authz$;
-ALTER TABLE public."changeOrderImpactDecisionAffectedItem" ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "SELECT" ON "public"."changeOrderImpactDecisionAffectedItem" FOR SELECT USING (("companyId" = ANY ((SELECT get_companies_with_employee_permission('parts_view'))::text[]) AND EXISTS (SELECT 1 FROM "public"."changeOrderImpactDecision" p WHERE "p"."id" = "changeOrderImpactDecisionAffectedItem"."decisionId" AND "p"."companyId" = "changeOrderImpactDecisionAffectedItem"."companyId" AND ("companyId" = ANY ((SELECT get_companies_with_employee_permission('parts_view'))::text[]) AND (("targetType" = 'purchaseOrderLine' AND "companyId" = ANY ((SELECT get_companies_with_employee_permission('purchasing_view'))::text[])) OR ("targetType" in ('job', 'jobMaterial') AND "companyId" = ANY ((SELECT get_companies_with_employee_permission('production_view'))::text[])))))));
 
 -- changeOrderImpactDecisionHistory
 DO $authz$
