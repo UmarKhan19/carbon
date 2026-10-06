@@ -2006,7 +2006,7 @@ export default function ChangeNoticeImpactWorkspace({
 }: WorkspaceProps) {
   const { t } = useLingui();
   const permissions = usePermissions();
-  const revalidator = useRevalidator();
+  const { revalidate, state: revalidationState } = useRevalidator();
   const [params] = useUrlParams();
   const [decisionTarget, setDecisionTarget] = useState<{
     candidate: Candidate;
@@ -2025,7 +2025,7 @@ export default function ChangeNoticeImpactWorkspace({
   const refreshFetcher = useFetcher<ImpactRefreshFetcherData>();
   const canUpdate = permissions.can("update", "parts") ?? false;
   const isRefreshing =
-    refreshFetcher.state !== "idle" || revalidator.state !== "idle";
+    refreshFetcher.state !== "idle" || revalidationState !== "idle";
   const handleRefresh = useCallback(() => {
     // A mutation fetcher gives React Router its normal post-action
     // revalidation. Read-only viewers keep the old GET-only refresh path.
@@ -2033,9 +2033,9 @@ export default function ChangeNoticeImpactWorkspace({
       canUpdate,
       id,
       submit: refreshFetcher.submit,
-      revalidate: revalidator.revalidate
+      revalidate
     });
-  }, [canUpdate, id, revalidator, refreshFetcher]);
+  }, [canUpdate, id, revalidate, refreshFetcher]);
   const search = params.get("search") ?? "";
   const filters = getImpactFilterValues(params.getAll("filter"));
   const coverageHasWarning = [
@@ -2162,19 +2162,19 @@ export default function ChangeNoticeImpactWorkspace({
   const handleDecisionSuccess = useCallback(() => {
     setDecisionTarget(null);
     setBulkSuccess(null);
-    revalidator.revalidate();
-  }, [revalidator]);
+    revalidate();
+  }, [revalidate]);
   const handleDecisionConflict = useCallback(
     (message: string) => {
       setDecisionTarget(null);
       setDecisionConflictMessage(message);
-      revalidator.revalidate();
+      revalidate();
     },
-    [revalidator]
+    [revalidate]
   );
   const handleTaskMutation = useCallback(() => {
-    revalidator.revalidate();
-  }, [revalidator]);
+    revalidate();
+  }, [revalidate]);
   const selectionContent = (
     <div
       role="group"
