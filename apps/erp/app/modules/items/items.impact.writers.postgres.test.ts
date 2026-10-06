@@ -8,7 +8,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   getPostgresClient,
-  getPostgresConnectionPool,
+  getProcessPool,
   type Kysely,
   type KyselyDatabase
 } from "@carbon/database/client";
@@ -33,7 +33,7 @@ type ImpactWriterModule = typeof import("./items.service");
 let writeChangeNoticeImpactDecision!: ImpactWriterModule["writeChangeNoticeImpactDecision"];
 let writeChangeNoticeImpactDecisions!: ImpactWriterModule["writeChangeNoticeImpactDecisions"];
 
-type PostgresPool = ReturnType<typeof getPostgresConnectionPool>;
+type PostgresPool = ReturnType<typeof getProcessPool>;
 type WriterDb = Kysely<KyselyDatabase>;
 type PostgresConnection = Awaited<
   ReturnType<PostgresDriver["acquireConnection"]>
@@ -973,7 +973,7 @@ describe("Change Notice Impact decision writers (real PostgreSQL)", () => {
     );
 
     process.env.SUPABASE_DB_URL = testDatabaseUrl;
-    databasePool = getPostgresConnectionPool(4);
+    databasePool = getProcessPool();
     await assertDatabaseConnection(databasePool, configuredTarget);
 
     const writerModule = await import("./items.service");
@@ -982,8 +982,8 @@ describe("Change Notice Impact decision writers (real PostgreSQL)", () => {
     writeChangeNoticeImpactDecisions =
       writerModule.writeChangeNoticeImpactDecisions;
     writerDb = getPostgresClient(databasePool, PostgresDriver);
-    failurePool = getPostgresConnectionPool(3);
-    racePool = getPostgresConnectionPool(2);
+    failurePool = getProcessPool();
+    racePool = getProcessPool();
     cleanupState = makeCleanupState();
     fixture = await createFixture(
       databasePool,

@@ -3,7 +3,15 @@
 // including ports, remain AGPLv3; serving them over a network requires releasing their source.
 
 import type { Database, Tables } from "@carbon/database";
-import { getContentType, getFileExtension, storage } from "@carbon/files";
+import type { Kysely, KyselyDatabase } from "@carbon/database/client";
+import {
+  getContentType,
+  getFileExtension,
+  imageTransformErrorMessage,
+  storage
+} from "@carbon/files";
+import { getLogger } from "@carbon/logger";
+import { type ServerFnInput, serverFns } from "@carbon/server-functions";
 import type {
   PostgrestResponse,
   PostgrestSingleResponse,
@@ -13,6 +21,8 @@ import type { GenericQueryFilters } from "~/utils/query";
 import { LIST_COUNT, setGenericQueryFilters } from "~/utils/query";
 import type { PriceBreak, SupplierPriceMap } from "./shared.models";
 import type { ItemModelUpload } from "./types";
+
+const logger = getLogger("erp", "shared");
 
 export async function deleteNote(
   client: SupabaseClient<Database>,
@@ -71,10 +81,16 @@ export async function getBase64ImageFromSupabase(
     return null;
   }
 
-  const { data } = await storage(client)
+  const { data, error } = await storage(client)
     .company(companyId)
     .download(path, heic ? { transform: { quality: 90 } } : undefined);
   if (!data) {
+    if (heic) {
+      logger.error(
+        imageTransformErrorMessage(error, "Failed to transform HEIC file"),
+        { path, error }
+      );
+    }
     return null;
   }
 
@@ -208,6 +224,7 @@ export async function getTagsList(
 /** @mcp action */
 export async function importCsv(
   client: SupabaseClient<Database>,
+  db: Kysely<KyselyDatabase>,
   args: {
     table: string;
     filePath: string;
@@ -217,9 +234,11 @@ export async function importCsv(
     userId: string;
   }
 ) {
-  return client.functions.invoke("import-csv", {
-    body: args
-  });
+  // The operation validates `table` and the enum mappings' real shape
+  // (field → { value → mapped }).
+  return serverFns
+    .as({ client, db, companyId: args.companyId, userId: args.userId })
+    .invoke("import-csv", args as unknown as ServerFnInput<"import-csv">);
 }
 
 /** @mcp create */
@@ -475,7 +494,7 @@ export function lookupBuyPriceFromMap(
  * bought-to-order cost must go through this — reaching for
  * lookupBuyPriceFromMap directly silently ignores a typed cost.
  *
- * Mirrored in the Deno edge runtime (`functions/lib/methods.ts`).
+ * Mirrored in `packages/database/src/methods.ts`.
  * @mcp action
  */
 export function resolveBuyUnitCost(

@@ -7,7 +7,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ChangeNoticeImpactWorkspaceReadModel } from "~/modules/items";
 
-const presentation = vi.hoisted(() => ({ params: new URLSearchParams() }));
+const presentation = vi.hoisted(() => ({
+  params: new URLSearchParams(),
+  revalidate: vi.fn()
+}));
 
 import { getImpactDecisionFilterValue } from "./ChangeNoticeImpactFilters";
 
@@ -97,8 +100,10 @@ vi.mock("react-icons/lu", () => ({
 }));
 vi.mock("react-router", () => ({
   Link: () => null,
-  useFetcher: () => ({ state: "idle" }),
-  useRevalidator: () => ({ revalidate: vi.fn() })
+  useFetcher: () => ({ state: "idle" })
+}));
+vi.mock("@carbon/query", () => ({
+  useRevalidator: () => ({ revalidate: presentation.revalidate, state: "idle" })
 }));
 vi.mock("~/components", () => ({ EmployeeAvatar: () => null }));
 vi.mock("~/components/Hyperlink", () => ({
@@ -140,6 +145,14 @@ vi.mock("~/components/Table", () => ({
           )
     )
 }));
+vi.mock("~/components/Table/components/Filter", () => ({
+  ActiveFilters: () => null,
+  Filter: () => null
+}));
+vi.mock("~/components/Table/components/Filter/useFilters", () => ({
+  useFilters: () => ({ hasFilters: false, urlFiltersParams: [] })
+}));
+vi.mock("~/stores", () => ({ usePeople: () => [[]] }));
 vi.mock("./ChangeNoticeImpactFilters", async (importOriginal) => ({
   ...(await importOriginal<typeof import("./ChangeNoticeImpactFilters")>()),
   ChangeNoticeImpactFilterBar: () => null

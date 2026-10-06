@@ -25,7 +25,7 @@ describe("buildDownArgs", () => {
   it("enables every profile that buildUpArgs can enable", () => {
     const bootable = new Set([
       ...profilesIn(buildUpArgs(ROOT, SLUG)),
-      ...profilesIn(buildUpArgs(ROOT, SLUG, { chrome: true })),
+      ...profilesIn(buildUpArgs(ROOT, SLUG, { full: true })),
       ...profilesIn(buildUpArgs(ROOT, SLUG, { minimal: true }))
     ]);
     const tearable = new Set(profilesIn(buildDownArgs(ROOT, SLUG, false)));
@@ -39,10 +39,9 @@ describe("buildDownArgs", () => {
   });
 
   it("covers the profile-gated services by name", () => {
-    // Stops the union test passing vacuously. full = studio/meta/inbucket,
-    // chrome = the opt-in thumbnail Chromium.
+    // Stops the union test passing vacuously. full = studio/meta/inbucket.
     expect(profilesIn(buildDownArgs(ROOT, SLUG, false))).toEqual(
-      expect.arrayContaining(["full", "chrome"])
+      expect.arrayContaining(["full"])
     );
   });
 
@@ -81,29 +80,25 @@ describe("teardownExitCode", () => {
 });
 
 describe("buildUpArgs", () => {
-  // Locks in the pre-existing boot behavior the extraction preserved.
-  it("enables the full profile by default", () => {
-    expect(profilesIn(buildUpArgs(ROOT, SLUG))).toEqual(["full"]);
+  it("starts mail but nothing from the full profile by default", () => {
+    expect(profilesIn(buildUpArgs(ROOT, SLUG))).toEqual(["mail"]);
   });
 
-  it("drops the full profile under --minimal", () => {
-    expect(profilesIn(buildUpArgs(ROOT, SLUG, { minimal: true }))).toEqual([]);
-  });
-
-  it("adds the chrome profile only when asked", () => {
-    expect(profilesIn(buildUpArgs(ROOT, SLUG, { chrome: true }))).toEqual([
+  it("adds the full profile under --full", () => {
+    expect(profilesIn(buildUpArgs(ROOT, SLUG, { full: true }))).toEqual([
       "full",
-      "chrome"
+      "mail"
     ]);
+  });
+
+  it("enables no profile under --minimal", () => {
+    expect(profilesIn(buildUpArgs(ROOT, SLUG, { minimal: true }))).toEqual([]);
   });
 
   it("activates no profiles when specific services are named", () => {
     // Compose starts named services + deps regardless; enabling profiles here
     // would pull in unrelated containers.
-    const args = buildUpArgs(ROOT, SLUG, {
-      services: ["postgres"],
-      chrome: true
-    });
+    const args = buildUpArgs(ROOT, SLUG, { services: ["postgres"] });
     expect(profilesIn(args)).toEqual([]);
     expect(args).toContain("postgres");
   });

@@ -5,21 +5,27 @@
 import { error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { redirect } from "@carbon/utils";
 import type { ActionFunctionArgs } from "react-router";
-import { data, redirect } from "react-router";
+import { data } from "react-router";
 import { deleteChangeNotice } from "~/modules/items";
 import { getDatabaseClient } from "~/services/database.server";
 import { path } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const { companyId } = await requirePermissions(request, {
+  const { companyId, client } = await requirePermissions(request, {
     delete: "parts"
   });
 
   const { id } = params;
   if (!id) throw new Error("id is not found");
 
-  const mutation = await deleteChangeNotice(getDatabaseClient(), id, companyId);
+  const mutation = await deleteChangeNotice(
+    client,
+    getDatabaseClient(),
+    id,
+    companyId
+  );
   if (mutation.error) {
     return data(
       { success: false },

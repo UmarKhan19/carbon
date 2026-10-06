@@ -8,7 +8,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   getPostgresClient,
-  getPostgresConnectionPool,
+  getProcessPool,
   type Kysely,
   type KyselyDatabase
 } from "@carbon/database/client";
@@ -29,8 +29,12 @@ vi.mock("@carbon/content/glossary", () => ({
   termSlug: vi.fn()
 }));
 
+const deletePermissionClient = {
+  rpc: vi.fn().mockResolvedValue({ data: null, error: null })
+} as never;
+
 type ImpactModule = typeof import("./items.service");
-type PostgresPool = ReturnType<typeof getPostgresConnectionPool>;
+type PostgresPool = ReturnType<typeof getProcessPool>;
 type WriterDb = Kysely<KyselyDatabase>;
 type PostgresConnection = Awaited<
   ReturnType<PostgresDriver["acquireConnection"]>
@@ -1527,9 +1531,9 @@ describe("Change Notice Impact tasks and deletion (real PostgreSQL)", () => {
     );
 
     process.env.SUPABASE_DB_URL = testDatabaseUrl;
-    readerPool = getPostgresConnectionPool(5);
-    writerPool = getPostgresConnectionPool(6);
-    failurePool = getPostgresConnectionPool(7);
+    readerPool = getProcessPool();
+    writerPool = getProcessPool();
+    failurePool = getProcessPool();
     await assertDatabaseConnection(readerPool, configuredTarget);
 
     const impactModule = await import("./items.service");
@@ -2131,6 +2135,7 @@ describe("Change Notice Impact tasks and deletion (real PostgreSQL)", () => {
       });
 
       const deleted = await deleteChangeNotice(
+        deletePermissionClient,
         db,
         fixture.noticeId,
         fixture.companyId
@@ -2201,6 +2206,7 @@ describe("Change Notice Impact tasks and deletion (real PostgreSQL)", () => {
       const failure = makeFailOnceParentDeleteDriver();
       const failureDb = getPostgresClient(requireFailurePool(), failure.driver);
       const failed = await deleteChangeNotice(
+        deletePermissionClient,
         failureDb,
         fixture.noticeId,
         fixture.companyId
@@ -2218,6 +2224,7 @@ describe("Change Notice Impact tasks and deletion (real PostgreSQL)", () => {
       expect(await readSourceCounts(fixture)).toEqual({ item: 1, job: 1 });
 
       const retried = await deleteChangeNotice(
+        deletePermissionClient,
         db,
         fixture.noticeId,
         fixture.companyId

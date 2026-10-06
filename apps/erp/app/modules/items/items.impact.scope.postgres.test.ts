@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import type { Database } from "@carbon/database";
 import {
   getPostgresClient,
-  getPostgresConnectionPool,
+  getProcessPool,
   type Kysely,
   type KyselyDatabase
 } from "@carbon/database/client";
@@ -30,7 +30,7 @@ vi.mock("@carbon/content/glossary", () => ({
 }));
 
 type ImpactModule = typeof import("./items.service");
-type PostgresPool = ReturnType<typeof getPostgresConnectionPool>;
+type PostgresPool = ReturnType<typeof getProcessPool>;
 type WriterDb = Kysely<KyselyDatabase>;
 type PostgresConnection = Awaited<
   ReturnType<PostgresDriver["acquireConnection"]>
@@ -1335,10 +1335,10 @@ describe("Change Notice Impact scope lifecycle (real PostgreSQL)", () => {
     );
 
     process.env.SUPABASE_DB_URL = testDatabaseUrl;
-    readerPool = getPostgresConnectionPool(5);
-    writerPool = getPostgresConnectionPool(6);
-    failurePool = getPostgresConnectionPool(7);
-    racePool = getPostgresConnectionPool(8);
+    readerPool = getProcessPool();
+    writerPool = getProcessPool();
+    failurePool = getProcessPool();
+    racePool = getProcessPool();
     await assertDatabaseConnection(readerPool, configuredTarget);
 
     const impactModule = await import("./items.service");

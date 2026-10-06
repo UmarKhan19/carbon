@@ -3,6 +3,7 @@
 // including ports, remain AGPLv3; serving them over a network requires releasing their source.
 
 import { ValidatedForm } from "@carbon/form";
+import { useRevalidator } from "@carbon/query";
 import {
   Alert,
   AlertDescription,
@@ -58,7 +59,7 @@ import {
   LuStar,
   LuTriangleAlert
 } from "react-icons/lu";
-import { Link, useFetcher, useRevalidator } from "react-router";
+import { Link, useFetcher } from "react-router";
 import type { z } from "zod";
 import {
   Boolean,
